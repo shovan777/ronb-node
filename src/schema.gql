@@ -1,0 +1,29 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateNewsInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Mutation {
+  createNews(createNewsInput: CreateNewsInput!): News!
+  removeNews(id: Int!): News!
+  updateNews(updateNewsInput: UpdateNewsInput!): News!
+}
+
+type News {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Query {
+  news(id: Int!): News!
+}
+
+input UpdateNewsInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
