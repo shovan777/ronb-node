@@ -3,27 +3,113 @@
 # ------------------------------------------------------
 
 input CreateNewsInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  """News category"""
+  category: Float
+
+  """News content"""
+  content: String!
+
+  """News image"""
+  images: [String!]
+
+  """News link"""
+  link: String
+
+  """News name"""
+  name: String!
+
+  """News source"""
+  source: String
+
+  """News tags"""
+  tags: [String!]
+
+  """News title"""
+  title: String
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Mutation {
   createNews(createNewsInput: CreateNewsInput!): News!
   removeNews(id: Int!): News!
-  updateNews(updateNewsInput: UpdateNewsInput!): News!
+  updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
 }
 
 type News {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  """News category"""
+  category: Float
+
+  """News content"""
+  content: String!
+
+  """News createdAt"""
+  createdAt: DateTime!
+
+  """News createdBy"""
+  createdBy: Int!
+
+  """id field for int"""
+  id: Int!
+
+  """News image"""
+  images: [String!]
+
+  """News link"""
+  link: String
+
+  """News name"""
+  name: String!
+
+  """News publishedAt"""
+  publishedAt: DateTime
+
+  """News source"""
+  source: String
+
+  """News tags"""
+  tags: [String!]
+
+  """News title"""
+  title: String
+
+  """News updatedAt"""
+  updatedAt: DateTime!
+
+  """News updatedBy"""
+  updatedBy: Int!
 }
 
 type Query {
-  news(id: Int!): News!
+  news: [News!]!
+  newsById(id: Int!): News!
 }
 
 input UpdateNewsInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
+  """News category"""
+  category: Float
+
+  """News content"""
+  content: String
+
+  """News image"""
+  images: [String!]
+
+  """News link"""
+  link: String
+
+  """News name"""
+  name: String
+
+  """News source"""
+  source: String
+
+  """News tags"""
+  tags: [String!]
+
+  """News title"""
+  title: String
 }

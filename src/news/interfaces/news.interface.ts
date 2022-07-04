@@ -7,10 +7,10 @@ export interface News {
   publishedAt: Date;
   createdAt: Date;
   updatedAt: Date;
-  createdBy: string;
-  updatedBy: string;
+  createdBy: number;
+  updatedBy: number;
   content: string;
-  image?: string;
+  images?: string[];
   category?: number;
   tags?: string[];
   link?: string;

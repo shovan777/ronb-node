@@ -11,11 +11,11 @@ export class CreateNewsInput {
   // @Field({ description: 'News publish date' })
   @Field({ description: 'News content' })
   content: string;
-  @Field({ description: 'News image', nullable: true })
-  image?: string;
+  @Field(() => [String], { description: 'News image', nullable: true })
+  images?: string[];
   @Field({ description: 'News category', nullable: true })
   category?: number;
-  @Field({ description: 'News tags', nullable: true })
+  @Field(() => [String], { description: 'News tags', nullable: true })
   tags?: string[];
   @Field({ description: 'News link', nullable: true })
   link?: string;

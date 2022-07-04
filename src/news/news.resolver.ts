@@ -3,6 +3,7 @@ import { NewsService } from './news.service';
 import { News } from './entities/news.entity';
 import { CreateNewsInput } from './dto/create-news.input';
 import { UpdateNewsInput } from './dto/update-news.input';
+import { HttpException } from '@nestjs/common';
 
 @Resolver(() => News)
 export class NewsResolver {
@@ -18,18 +19,23 @@ export class NewsResolver {
     return this.newsService.findAll();
   }
 
-  @Query(() => News, { name: 'news' })
+  @Query(() => News, { name: 'newsById' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.newsService.findOne(id);
   }
 
   @Mutation(() => News)
-  updateNews(@Args('updateNewsInput') updateNewsInput: UpdateNewsInput) {
-    return this.newsService.update(updateNewsInput.id, updateNewsInput);
+  updateNews(
+    @Args({ name: 'id', type: () => Int }) id: number,
+    @Args('updateNewsInput') updateNewsInput: UpdateNewsInput,
+  ): News|HttpException {
+    return this.newsService.update(id, updateNewsInput);
   }
 
   @Mutation(() => News)
-  removeNews(@Args('id', { type: () => Int }) id: number) {
+  removeNews(
+    @Args('id', { type: () => Int }) id: number,
+  ): News | HttpException {
     return this.newsService.remove(id);
   }
 }
