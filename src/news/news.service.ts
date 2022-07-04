@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreateNewsInput } from './dto/create-news.input';
 import { UpdateNewsInput } from './dto/update-news.input';
 import { News } from './interfaces/news.interface';
@@ -14,11 +14,13 @@ export class NewsService {
       publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      createdBy: 'admin', //TODO: get user from jwt
-      updatedBy: 'admin',
+      createdBy: 1, //TODO: get user from jwt
+      updatedBy: 1,
       // category: 0,
     };
-    return this.newsArr.push(newsData);
+    // console.log(newsData);
+    this.newsArr.push(newsData);
+    return newsData;
   }
 
   findAll() {
@@ -39,14 +41,22 @@ export class NewsService {
         ...news,
         ...updateNewsInput,
         updatedAt: new Date(),
-        updatedBy: 'admin', //TODO: get user from jwt
+        updatedBy: 1, //TODO: get user from jwt
       };
       this.newsArr[id] = updatedNews;
       return updatedNews;
+    } else {
+      return new HttpException('Not found', 404);
     }
   }
 
   remove(id: number) {
-    return `This action removes a #${id} news`;
+    const rmIndex = this.newsArr.findIndex((news) => news.id === id);
+    if (rmIndex !== -1) {
+      return this.newsArr.splice(rmIndex, 1)[0];
+    } else {
+      return new HttpException('Not found', 404);
+    }
+    // return `This action removes a #${id} news`;
   }
 }
