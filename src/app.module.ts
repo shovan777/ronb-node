@@ -9,10 +9,16 @@ import { NewsModule } from './news/news.module';
 @Module({
   imports: [
     NewsModule,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    // GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRoot({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
+      // uploads: {
+      //   maxFileSize: 10000000, // 10 MB
+      //   maxFiles: 5,
+      // },
+      uploads: false,
     }),
   ],
   controllers: [AppController],
