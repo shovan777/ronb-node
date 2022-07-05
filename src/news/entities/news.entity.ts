@@ -22,6 +22,8 @@ export class News {
   content: string;
   @Field(() => [String], { description: 'News image', nullable: true })
   images?: string[];
+  @Field({ nullable: true })
+  singleImage?: string;
   @Field({ description: 'News category', nullable: true })
   category?: number;
   @Field(() => [String], { description: 'News tags', nullable: true })

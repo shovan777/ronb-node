@@ -1,4 +1,7 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
+import { GraphQLUpload } from 'graphql-upload';
+import { Upload } from 'src/common/scalars/upload.scalar';
+// import GraphQLUpload from 'graphql-upload';
 
 @InputType()
 export class CreateNewsInput {
@@ -11,8 +14,10 @@ export class CreateNewsInput {
   // @Field({ description: 'News publish date' })
   @Field({ description: 'News content' })
   content: string;
-  @Field(() => [String], { description: 'News image', nullable: true })
-  images?: string[];
+  @Field(() => [Upload], { description: 'News image', nullable: true })
+  images?: Upload[];
+  @Field({ nullable: true })
+  singleImage?: Upload;
   @Field({ description: 'News category', nullable: true })
   category?: number;
   @Field(() => [String], { description: 'News tags', nullable: true })

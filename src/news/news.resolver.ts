@@ -3,15 +3,21 @@ import { NewsService } from './news.service';
 import { News } from './entities/news.entity';
 import { CreateNewsInput } from './dto/create-news.input';
 import { UpdateNewsInput } from './dto/update-news.input';
-import { HttpException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
+import { createWriteStream, mkdir } from 'fs';
+import { join } from 'path';
+
+// const fileUpload = (fileName, uploadDir) => {
+
+// };
 
 @Resolver(() => News)
 export class NewsResolver {
   constructor(private readonly newsService: NewsService) {}
 
   @Mutation(() => News)
-  createNews(@Args('createNewsInput') createNewsInput: CreateNewsInput) {
-    return this.newsService.create(createNewsInput);
+  async createNews(@Args('createNewsInput') createNewsInput: CreateNewsInput) {
+    return await this.newsService.create(createNewsInput);
   }
 
   @Query(() => [News], { name: 'news' })
@@ -20,22 +26,24 @@ export class NewsResolver {
   }
 
   @Query(() => News, { name: 'newsById' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(
+    @Args('id', { type: () => Int }) id: number,
+  ): News | NotFoundException {
     return this.newsService.findOne(id);
   }
 
   @Mutation(() => News)
-  updateNews(
+  async updateNews(
     @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateNewsInput') updateNewsInput: UpdateNewsInput,
-  ): News|HttpException {
-    return this.newsService.update(id, updateNewsInput);
+  ) {
+    return await this.newsService.update(id, updateNewsInput);
   }
 
   @Mutation(() => News)
   removeNews(
     @Args('id', { type: () => Int }) id: number,
-  ): News | HttpException {
+  ): News | NotFoundException {
     return this.newsService.remove(id);
   }
 }
