@@ -17,6 +17,7 @@ export class NewsResolver {
 
   @Mutation(() => News)
   async createNews(@Args('createNewsInput') createNewsInput: CreateNewsInput) {
+    console.log(createNewsInput.singleImage);
     return await this.newsService.create(createNewsInput);
   }
 
