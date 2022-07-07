@@ -80,6 +80,7 @@ export class NewsImage {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field(() => News)
   @ManyToOne(() => News, (news) => news.images)
   news: News;
 
@@ -87,9 +88,9 @@ export class NewsImage {
   @Column()
   imageURL: string;
 
-  @Field({ description: 'News image name' })
-  @Column()
-  name: string;
+  // @Field({ description: 'News image name' })
+  // @Column()
+  // name: string;
 
   @Field({ description: 'News image createdAt' })
   @CreateDateColumn()

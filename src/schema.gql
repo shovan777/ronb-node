@@ -57,7 +57,7 @@ type News {
   id: Int!
 
   """News image"""
-  images: [String!]
+  images: [NewsImage!]
 
   """News link"""
   link: String
@@ -82,6 +82,27 @@ type News {
   updatedAt: DateTime!
 
   """News updatedBy"""
+  updatedBy: Int!
+}
+
+type NewsImage {
+  """News image createdAt"""
+  createdAt: DateTime!
+
+  """News image createdBy"""
+  createdBy: Int!
+
+  """id field for int"""
+  id: Int!
+
+  """News image"""
+  imageURL: String!
+  news: News!
+
+  """News image updatedAt"""
+  updatedAt: DateTime!
+
+  """News image updatedBy"""
   updatedBy: Int!
 }
 

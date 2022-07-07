@@ -1,11 +1,11 @@
 import { ConsoleLogger, Injectable, NotFoundException } from '@nestjs/common';
 import { createWriteStream, createReadStream, mkdir } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { finished } from 'stream/promises';
 import { CreateNewsInput } from './dto/create-news.input';
 import { UpdateNewsInput } from './dto/update-news.input';
 // import { News } from './interfaces/news_deltext.interface';
-import { News } from './entities/news.entity';
+import { News, NewsImage } from './entities/news.entity';
 
 const uploadFileStream = async (readStream, uploadDir, filename) => {
   const fileName = filename;
@@ -34,6 +34,15 @@ export class NewsService {
   async create(newsInput: CreateNewsInput) {
     // return 'This action adds a new news';
     let newsInputData = { ...newsInput, singleImage: null, images: null };
+    let newsData: News = {
+      ...newsInputData,
+      id: this.newsArr.length + 1,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: 1, //TODO: get user from jwt
+      updatedBy: 1,
+    };
     // console.log(newsInput);
     if (newsInput.singleImage) {
       const imageFile: any = await newsInput.singleImage;
@@ -52,7 +61,7 @@ export class NewsService {
     }
 
     if (newsInput.images) {
-      const imagePaths = await newsInput.images.map(async (image) => {
+      const imagePaths = newsInput.images.map(async (image) => {
         const imageFile: any = await image;
         const fileName = imageFile.filename;
         const uploadDir = './uploads';
@@ -64,12 +73,25 @@ export class NewsService {
         );
         return filePath;
       });
+      const newImages: Promise<NewsImage>[] = imagePaths.map(
+        async (imagePath, index) => {
+          return {
+            id: index + 1,
+            imageURL: await imagePath,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            news: newsData,
+            createdBy: 1,
+            updatedBy: 1,
+          };
+        },
+      );
       newsInputData = {
         ...newsInputData,
-        images: imagePaths,
+        images: newImages,
       };
     }
-    const newsData: News = {
+    newsData = {
       ...newsInputData,
       id: this.newsArr.length + 1,
       publishedAt: new Date(),
@@ -133,9 +155,22 @@ export class NewsService {
           );
           return filePath;
         });
+        const newImages: Promise<NewsImage>[] = imagePaths.map(
+          async (imagePath, index) => {
+            return {
+              id: index + 1,
+              imageURL: await imagePath,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              news: news,
+              createdBy: 1,
+              updatedBy: 1,
+            };
+          },
+        );
         newsInputData = {
           ...newsInputData,
-          images: imagePaths,
+          images: newImages,
         };
       }
       const updatedNews = {
@@ -161,5 +196,13 @@ export class NewsService {
     return new NotFoundException(`News with id ${id} not found`);
 
     // return `This action removes a #${id} news`;
+  }
+
+  async findImagesofNews(newsId: number) {
+    const news = this.newsArr.find((news) => news.id === newsId);
+    if (news) {
+      return news.images;
+    }
+    return new NotFoundException(`News with id ${newsId} not found`);
   }
 }

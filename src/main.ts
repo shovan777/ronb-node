@@ -5,6 +5,6 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));
-  await app.listen(4000);
+  await app.listen(3000);
 }
 bootstrap();

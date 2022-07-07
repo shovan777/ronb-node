@@ -1,11 +1,17 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
 import { NewsService } from './news.service';
-import { News } from './entities/news.entity';
+import { News, NewsImage } from './entities/news.entity';
 import { CreateNewsInput } from './dto/create-news.input';
 import { UpdateNewsInput } from './dto/update-news.input';
 import { NotFoundException } from '@nestjs/common';
-import { createWriteStream, mkdir } from 'fs';
-import { join } from 'path';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -17,6 +23,7 @@ export class NewsResolver {
 
   @Mutation(() => News)
   async createNews(@Args('createNewsInput') createNewsInput: CreateNewsInput) {
+    console.log('**********helllo');
     console.log(createNewsInput.singleImage);
     return await this.newsService.create(createNewsInput);
   }
@@ -31,6 +38,13 @@ export class NewsResolver {
     @Args('id', { type: () => Int }) id: number,
   ): News | NotFoundException {
     return this.newsService.findOne(id);
+  }
+
+  @ResolveField(() => [NewsImage])
+  async images(@Parent() news: News) {
+    const { id } = news;
+    console.log(news);
+    return await this.newsService.findImagesofNews(id);
   }
 
   @Mutation(() => News)
