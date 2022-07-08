@@ -53,7 +53,7 @@ export class News {
   @OneToMany(() => NewsImage, (newsImage) => newsImage.news, { nullable: true })
   images?: NewsImage[];
 
-  @Field({ nullable: true })
+  @Field({ description: 'News main image.', nullable: true })
   @Column({ nullable: true })
   singleImage?: string;
 
@@ -69,8 +69,12 @@ export class News {
   link?: string;
 
   @Field({ description: 'News source', nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 'RONB' })
   source?: string;
+
+  @Field({ description: 'News Image source', nullable: true })
+  @Column({ nullable: true })
+  imgSource?: string;
 }
 
 @ObjectType()

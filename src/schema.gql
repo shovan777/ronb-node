@@ -12,6 +12,9 @@ input CreateNewsInput {
   """News image"""
   images: [Upload!]
 
+  """News Image source"""
+  imgSource: String
+
   """News link"""
   link: String
 
@@ -59,6 +62,9 @@ type News {
   """News image"""
   images: [NewsImage!]
 
+  """News Image source"""
+  imgSource: String
+
   """News link"""
   link: String
 
@@ -67,6 +73,8 @@ type News {
 
   """News publishedAt"""
   publishedAt: DateTime
+
+  """News main image."""
   singleImage: String
 
   """News source"""
@@ -120,6 +128,9 @@ input UpdateNewsInput {
 
   """News image"""
   images: [Upload!]
+
+  """News Image source"""
+  imgSource: String
 
   """News link"""
   link: String

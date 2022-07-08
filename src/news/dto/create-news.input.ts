@@ -25,4 +25,6 @@ export class CreateNewsInput {
   link?: string;
   @Field({ description: 'News source', nullable: true })
   source?: string;
+  @Field({ description: 'News Image source', nullable: true })
+  imgSource?: string;
 }
