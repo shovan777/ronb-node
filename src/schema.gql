@@ -4,7 +4,7 @@
 
 input CreateNewsInput {
   """News category"""
-  category: Float
+  category: Int
 
   """News content"""
   content: String!
@@ -42,7 +42,7 @@ type Mutation {
 
 type News {
   """News category"""
-  category: Float
+  category: Int
 
   """News content"""
   content: String!
@@ -113,7 +113,7 @@ type Query {
 
 input UpdateNewsInput {
   """News category"""
-  category: Float
+  category: Int
 
   """News content"""
   content: String

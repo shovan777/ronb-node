@@ -57,7 +57,7 @@ export class News {
   @Column({ nullable: true })
   singleImage?: string;
 
-  @Field({ description: 'News category', nullable: true })
+  @Field(() => Int, { description: 'News category', nullable: true })
   @Column({ nullable: true })
   category?: number;
 
