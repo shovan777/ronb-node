@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      # Only will build development stage from our dockerfile
+      target: development
+    volumes:
+      - .:/usr/src/app
+      - ./usr/src/app/node_modules
+    env_file:
+    - .env
+    # Run a command against the development stage of the image
+    command: npm run start:dev
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - docker-nest-postgres:/var/lib/postgresql/data
+    networks:
+      - ronb-network
+    env_file:
+      - .env.db
+volumes:
+  docker-nest-postgres:
+
+networks:
+  ronb-network:
+    driver: bridge
