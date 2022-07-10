@@ -19,7 +19,7 @@ services:
       - postgres
     networks:
       - ronb-network
-  postgres:
+  db:
     image: postgres
     restart: always
     ports:
