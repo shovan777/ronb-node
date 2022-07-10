@@ -20,6 +20,7 @@ import { NewsModule } from './news/news.module';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
+      path: process.env.GQL_PATH || '/graphql',
       // uploads: {
       //   maxFileSize: 10000000, // 10 MB
       //   maxFiles: 5,

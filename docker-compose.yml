@@ -16,7 +16,7 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      - postgres
+      - db
     networks:
       - ronb-network
   db:
