@@ -1,9 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { createWriteStream, mkdir } from 'fs';
 import { join } from 'path';
 import { finished } from 'stream/promises';
-import { Repository } from 'typeorm';
 import { CreateNewsInput } from './dto/create-news.input';
 import { UpdateNewsInput } from './dto/update-news.input';
 // import { News } from './interfaces/news_deltext.interface';
@@ -32,16 +30,20 @@ const uploadFileStream = async (readStream, uploadDir, filename) => {
 
 @Injectable()
 export class NewsService {
-  constructor(
-    @InjectRepository(News)
-    private newsRepository: Repository<News>,
-    @InjectRepository(NewsImage)
-    private newsImageRepository: Repository<NewsImage>,
-  ) {}
   private readonly newsArr: News[] = [];
-  async create(newsInput: CreateNewsInput): Promise<News> {
+  async create(newsInput: CreateNewsInput) {
     // return 'This action adds a new news';
     let newsInputData = { ...newsInput, singleImage: null, images: null };
+    let newsData: News = {
+      ...newsInputData,
+      id: this.newsArr.length + 1,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: 1, //TODO: get user from jwt
+      updatedBy: 1,
+    };
+    // console.log(newsInput);
     if (newsInput.singleImage) {
       const imageFile: any = await newsInput.singleImage;
       const file_name = imageFile.filename;
@@ -51,25 +53,19 @@ export class NewsService {
         upload_dir,
         file_name,
       );
+      // console.log('single file_path');
       newsInputData = {
         ...newsInputData,
         singleImage: file_path,
       };
     }
-    const newsData: Promise<News> = this.newsRepository.save({
-      ...newsInputData,
-      publishedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      createdBy: 1, //TODO: get user from jwt
-      updatedBy: 1,
-    });
 
     if (newsInput.images) {
       const imagePaths = newsInput.images.map(async (image) => {
         const imageFile: any = await image;
         const fileName = imageFile.filename;
         const uploadDir = './uploads';
+        // console.log('uploading files');
         const filePath = await uploadFileStream(
           imageFile.createReadStream,
           uploadDir,
@@ -78,40 +74,44 @@ export class NewsService {
         return filePath;
       });
       const newImages: Promise<NewsImage>[] = imagePaths.map(
-        async (imagePath) => {
-          return await this.newsImageRepository.save({
+        async (imagePath, index) => {
+          return {
+            id: index + 1,
             imageURL: await imagePath,
             createdAt: new Date(),
             updatedAt: new Date(),
-            news: await newsData,
+            news: newsData,
             createdBy: 1,
             updatedBy: 1,
-          });
+          };
         },
       );
-
       newsInputData = {
         ...newsInputData,
-        images: await Promise.all(newImages),
+        images: newImages,
       };
     }
-
-    return await newsData;
-    // return this.newsRepository.save(await newsData);
+    newsData = {
+      ...newsInputData,
+      id: this.newsArr.length + 1,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: 1, //TODO: get user from jwt
+      updatedBy: 1,
+    };
+    this.newsArr.push(newsData);
+    return newsData;
   }
 
   findAll() {
     // return `This action returns all news`;
-    return this.newsRepository.find();
+    return this.newsArr;
   }
 
-  async findOne(id: number) {
+  findOne(id: number) {
     // return `This action returns a #${id} news`;
-    const news = await this.newsRepository.findOne({
-      where: { id: id },
-      relations: { images: true },
-    });
-    // console.log(news);
+    const news = this.newsArr.find((news) => news.id === id);
     if (news) {
       return news;
     }
@@ -120,10 +120,7 @@ export class NewsService {
 
   async update(id: number, updateNewsInput: UpdateNewsInput) {
     // return `This action updates a #${id} news`;
-    // const news = this.newsArr.find((news) => news.id === id);
-    const news: News = await this.newsRepository.findOne({
-      where: { id: id },
-    });
+    const news = this.newsArr.find((news) => news.id === id);
     if (news) {
       let newsInputData = {
         ...updateNewsInput,
@@ -139,17 +136,18 @@ export class NewsService {
           upload_dir,
           file_name,
         );
+        // console.log('single file_path');
         newsInputData = {
           ...newsInputData,
           singleImage: file_path,
         };
-        news.singleImage = newsInputData.singleImage;
       }
       if (updateNewsInput.images) {
-        const imagePaths = updateNewsInput.images.map(async (image) => {
+        const imagePaths = await updateNewsInput.images.map(async (image) => {
           const imageFile: any = await image;
           const fileName = imageFile.filename;
           const uploadDir = './uploads';
+          // console.log('uploading files');
           const filePath = await uploadFileStream(
             imageFile.createReadStream,
             uploadDir,
@@ -158,55 +156,41 @@ export class NewsService {
           return filePath;
         });
         const newImages: Promise<NewsImage>[] = imagePaths.map(
-          async (imagePath) => {
-            return await this.newsImageRepository.save({
+          async (imagePath, index) => {
+            return {
+              id: index + 1,
               imageURL: await imagePath,
               createdAt: new Date(),
               updatedAt: new Date(),
               news: news,
               createdBy: 1,
               updatedBy: 1,
-            });
+            };
           },
         );
         newsInputData = {
           ...newsInputData,
-          images: await Promise.all(newImages),
+          images: newImages,
         };
       }
       const updatedNews = {
         ...news,
+        ...newsInputData,
+        // singleImage: 'fire',
         updatedAt: new Date(),
         updatedBy: 1, //TODO: get user from jwt
         // images: ['guur'],
       };
-      // this.newsArr[id] = updatedNews;
-      return this.newsRepository.save(updatedNews);
+      this.newsArr[id] = updatedNews;
+      return updatedNews;
     }
     throw new NotFoundException(`News with id ${id} not found`);
   }
 
-  async remove(id: number) {
-    // const rmIndex = this.newsArr.findIndex((news) => news.id === id);
-    // if (rmIndex !== -1) {
-    //   return this.newsArr.splice(rmIndex, 1)[0];
-    // }
-    const news: News = await this.newsRepository.findOne({
-      where: { id: id },
-      relations: { images: true },
-    });
-    // console.log(news);
-    if (news) {
-      // if (news.images) {
-      const deleteImage = news.images.map(async (image) => {
-        return await this.newsImageRepository.delete(image.id);
-      });
-      await Promise.all(deleteImage);
-      // }
-      // console.log(deletedImages);
-      await this.newsRepository.delete(news.id);
-      // console.log(deletedNews.raw);
-      return news;
+  remove(id: number) {
+    const rmIndex = this.newsArr.findIndex((news) => news.id === id);
+    if (rmIndex !== -1) {
+      return this.newsArr.splice(rmIndex, 1)[0];
     }
 
     return new NotFoundException(`News with id ${id} not found`);
@@ -215,13 +199,7 @@ export class NewsService {
   }
 
   async findImagesofNews(newsId: number) {
-    const news: News = await this.newsRepository.findOne({
-      where: { id: newsId },
-      relations: { images: true },
-    });
-    // console.log(
-    //   `hello iam finding all ${news.images.map((image) => image.imageURL)}`,
-    // );
+    const news = this.newsArr.find((news) => news.id === newsId);
     if (news) {
       return news.images;
     }
