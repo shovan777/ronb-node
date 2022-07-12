@@ -38,7 +38,7 @@ export class NewsService {
     @InjectRepository(NewsImage)
     private newsImageRepository: Repository<NewsImage>,
   ) {}
-  private readonly newsArr: News[] = [];
+  // private readonly newsArr: News[] = [];
   async create(newsInput: CreateNewsInput): Promise<News> {
     // return 'This action adds a new news';
     let newsInputData = { ...newsInput, singleImage: null, images: null };
@@ -56,7 +56,7 @@ export class NewsService {
         singleImage: file_path,
       };
     }
-    const newsData: Promise<News> = this.newsRepository.save({
+    const newsData: News = await this.newsRepository.save({
       ...newsInputData,
       publishedAt: new Date(),
       createdAt: new Date(),
@@ -83,7 +83,7 @@ export class NewsService {
             imageURL: await imagePath,
             createdAt: new Date(),
             updatedAt: new Date(),
-            news: await newsData,
+            news: newsData,
             createdBy: 1,
             updatedBy: 1,
           });

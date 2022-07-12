@@ -42,7 +42,7 @@ export class NewsResolver {
   @ResolveField(() => [NewsImage])
   async images(@Parent() news: News) {
     const { id } = news;
-    console.log(news);
+    // console.log(news);
     if (news.images) {
       return news.images;
     }

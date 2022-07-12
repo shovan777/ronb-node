@@ -2,6 +2,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AppController } from './app.controller';
@@ -36,6 +37,13 @@ import { NewsModule } from './news/news.module';
       database: process.env.DB_NAME,
       synchronize: process.env.DB_SYNC === 'true',
       autoLoadEntities: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveStaticOptions: {
+        extensions: ['jpg', 'jpeg', 'png', 'gif'],
+        index: false,
+      },
     }),
   ],
   controllers: [AppController],
