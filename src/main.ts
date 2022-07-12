@@ -7,6 +7,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));
-  await app.listen(configService.get('PORT'));
+  const PORT = configService.get('PORT') || 3000;
+  await app.listen(PORT);
+  console.log(`Server running on port ${PORT}`);
 }
 bootstrap();

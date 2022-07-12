@@ -23,8 +23,7 @@ export class NewsResolver {
 
   @Mutation(() => News)
   async createNews(@Args('createNewsInput') createNewsInput: CreateNewsInput) {
-    console.log('**********helllo');
-    console.log(createNewsInput.singleImage);
+    // console.log(createNewsInput.singleImage);
     return await this.newsService.create(createNewsInput);
   }
 
@@ -36,7 +35,7 @@ export class NewsResolver {
   @Query(() => News, { name: 'newsById' })
   findOne(
     @Args('id', { type: () => Int }) id: number,
-  ): News | NotFoundException {
+  ): Promise<News | NotFoundException> {
     return this.newsService.findOne(id);
   }
 
@@ -44,6 +43,9 @@ export class NewsResolver {
   async images(@Parent() news: News) {
     const { id } = news;
     console.log(news);
+    if (news.images) {
+      return news.images;
+    }
     return await this.newsService.findImagesofNews(id);
   }
 
@@ -58,7 +60,7 @@ export class NewsResolver {
   @Mutation(() => News)
   removeNews(
     @Args('id', { type: () => Int }) id: number,
-  ): News | NotFoundException {
+  ): Promise<NotFoundException | any> {
     return this.newsService.remove(id);
   }
 }
