@@ -39,7 +39,8 @@ import { NewsModule } from './news/news.module';
       autoLoadEntities: true,
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
+      rootPath: join(__dirname, '..', process.env.MEDIA_ROOT || 'uploads'),
+      serveRoot: `/${process.env.MEDIA_ROOT || 'uploads'}`,
       serveStaticOptions: {
         extensions: ['jpg', 'jpeg', 'png', 'gif'],
         index: false,
