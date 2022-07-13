@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createWriteStream, mkdir } from 'fs';
 import { join } from 'path';
@@ -37,6 +38,7 @@ export class NewsService {
     private newsRepository: Repository<News>,
     @InjectRepository(NewsImage)
     private newsImageRepository: Repository<NewsImage>,
+    private configService: ConfigService,
   ) {}
   // private readonly newsArr: News[] = [];
   async create(newsInput: CreateNewsInput): Promise<News> {
@@ -45,6 +47,8 @@ export class NewsService {
     if (newsInput.singleImage) {
       const imageFile: any = await newsInput.singleImage;
       const file_name = imageFile.filename;
+      const my_dir = this.configService.get('MEDIA_ROOT');
+      console.log(my_dir);
       const upload_dir = './uploads';
       const file_path = await uploadFileStream(
         imageFile.createReadStream,
@@ -126,9 +130,10 @@ export class NewsService {
     });
     if (news) {
       let newsInputData = {
+        // ...news,
         ...updateNewsInput,
         singleImage: null,
-        images: null,
+        // images: null,
       };
       if (updateNewsInput.singleImage) {
         const imageFile: any = await updateNewsInput.singleImage;
@@ -169,17 +174,23 @@ export class NewsService {
             });
           },
         );
-        newsInputData = {
-          ...newsInputData,
-          images: await Promise.all(newImages),
-        };
+        await Promise.all(newImages);
+        // newsInputData = {
+        //   ...newsInputData,
+        //   images: await Promise.all(newImages),
+        // };
       }
-      const updatedNews = {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { images, ...updatedNews } = {
         ...news,
+        ...newsInputData,
         updatedAt: new Date(),
         updatedBy: 1, //TODO: get user from jwt
         // images: ['guur'],
       };
+
+      // console.log(newsInputData);
+      // console.log(updatedNews);
       // this.newsArr[id] = updatedNews;
       return this.newsRepository.save(updatedNews);
     }
