@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createWriteStream, mkdir } from 'fs';
 import { join } from 'path';
@@ -38,8 +37,8 @@ export class NewsService {
     private newsRepository: Repository<News>,
     @InjectRepository(NewsImage)
     private newsImageRepository: Repository<NewsImage>,
-    private configService: ConfigService,
   ) {}
+  uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
   async create(newsInput: CreateNewsInput): Promise<News> {
     // return 'This action adds a new news';
@@ -47,9 +46,9 @@ export class NewsService {
     if (newsInput.singleImage) {
       const imageFile: any = await newsInput.singleImage;
       const file_name = imageFile.filename;
-      const my_dir = this.configService.get('MEDIA_ROOT');
-      console.log(my_dir);
-      const upload_dir = './uploads';
+      // const my_dir = this.configService.get('MEDIA_ROOT');
+      // console.log(my_dir);
+      const upload_dir = this.uploadDir;
       const file_path = await uploadFileStream(
         imageFile.createReadStream,
         upload_dir,
@@ -73,7 +72,7 @@ export class NewsService {
       const imagePaths = newsInput.images.map(async (image) => {
         const imageFile: any = await image;
         const fileName = imageFile.filename;
-        const uploadDir = './uploads';
+        const uploadDir = this.uploadDir;
         const filePath = await uploadFileStream(
           imageFile.createReadStream,
           uploadDir,
@@ -138,7 +137,7 @@ export class NewsService {
       if (updateNewsInput.singleImage) {
         const imageFile: any = await updateNewsInput.singleImage;
         const file_name = imageFile.filename;
-        const upload_dir = './uploads';
+        const upload_dir = this.uploadDir;
         const file_path = await uploadFileStream(
           imageFile.createReadStream,
           upload_dir,
@@ -154,7 +153,7 @@ export class NewsService {
         const imagePaths = updateNewsInput.images.map(async (image) => {
           const imageFile: any = await image;
           const fileName = imageFile.filename;
-          const uploadDir = './uploads';
+          const uploadDir = this.uploadDir;
           const filePath = await uploadFileStream(
             imageFile.createReadStream,
             uploadDir,
