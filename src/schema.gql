@@ -32,15 +32,41 @@ input CreateNewsInput {
   title: String
 }
 
+input CreatePublicToiletInput {
+  """Public Toilet address"""
+  address: String!
+
+  """Public Toilet content"""
+  content: String!
+
+  """Public Toilet location"""
+  geoPoint: GeoJSONPointScalar
+
+  """Public Toilet image"""
+  images: [Upload!]
+
+  """PublicToilet name"""
+  name: String!
+
+  """Public Toilet Feature Image"""
+  singleImage: Upload
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
 
+"""GeoJSON Point"""
+scalar GeoJSONPointScalar
+
 type Mutation {
   createNews(createNewsInput: CreateNewsInput!): News!
+  createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
   removeNews(id: Int!): News!
+  removePublicToilet(id: Int!): PublicToilet!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
+  updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
 }
 
 type News {
@@ -114,9 +140,70 @@ type NewsImage {
   updatedBy: Int!
 }
 
+type PublicToilet {
+  """Public Toilet Address"""
+  address: String!
+
+  """Public Toilet content"""
+  content: String!
+
+  """Public Toilet createdAt"""
+  createdAt: DateTime!
+
+  """Public Toilet createdBy"""
+  createdBy: Int!
+
+  """Public Toilet Location"""
+  geoPoint: GeoJSONPointScalar!
+
+  """id field for int"""
+  id: Int!
+
+  """Public Toilet image"""
+  images: [PublicToiletImage!]
+
+  """Public Toilet name"""
+  name: String!
+
+  """Public Toilet publishedAt"""
+  publishedAt: DateTime
+
+  """Public Toilet main image."""
+  singleImage: String
+
+  """Public Toilet updatedAt"""
+  updatedAt: DateTime!
+
+  """Public Toilet updatedBy"""
+  updatedBy: Int!
+}
+
+type PublicToiletImage {
+  """News image createdAt"""
+  createdAt: DateTime!
+
+  """News image createdBy"""
+  createdBy: Int!
+
+  """id field for int"""
+  id: Int!
+
+  """Public Toilet image"""
+  image: String!
+  publicToilet: PublicToilet!
+
+  """News image updatedAt"""
+  updatedAt: DateTime!
+
+  """News image updatedBy"""
+  updatedBy: Int!
+}
+
 type Query {
   news: [News!]!
   newsById(id: Int!): News!
+  publicToiletById(id: Int!): PublicToilet!
+  publicToilets: [PublicToilet!]!
 }
 
 input UpdateNewsInput {
@@ -147,6 +234,26 @@ input UpdateNewsInput {
 
   """News title"""
   title: String
+}
+
+input UpdatePublicToiletInput {
+  """Public Toilet address"""
+  address: String
+
+  """Public Toilet content"""
+  content: String
+
+  """Public Toilet location"""
+  geoPoint: GeoJSONPointScalar
+
+  """Public Toilet image"""
+  images: [Upload!]
+
+  """PublicToilet name"""
+  name: String
+
+  """Public Toilet Feature Image"""
+  singleImage: Upload
 }
 
 """Upload files"""
