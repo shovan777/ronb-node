@@ -1,0 +1,193 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateNewsInput {
+  """News category"""
+  category: Int
+
+  """News content"""
+  content: String!
+
+  """News image"""
+  images: [Upload!]
+
+  """News Image source"""
+  imgSource: String
+
+  """News link"""
+  link: String
+
+  """News name"""
+  name: String!
+  singleImage: Upload
+
+  """News source"""
+  source: String
+
+  """News tags"""
+  tags: [String!]
+
+  """News title"""
+  title: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  createNews(createNewsInput: CreateNewsInput!): News!
+  removeNews(id: Int!): News!
+  updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
+}
+
+type News {
+  """News category"""
+  category: Int
+
+  """News content"""
+  content: String!
+
+  """News createdAt"""
+  createdAt: DateTime!
+
+  """News createdBy"""
+  createdBy: Int!
+
+  """id field for int"""
+  id: Int!
+
+  """News image"""
+  images: [NewsImage!]
+
+  """News Image source"""
+  imgSource: String
+
+  """News link"""
+  link: String
+
+  """News name"""
+  name: String!
+
+  """News publishedAt"""
+  publishedAt: DateTime
+
+  """News main image."""
+  singleImage: String
+
+  """News source"""
+  source: String
+
+  """News tags"""
+  tags: [String!]
+
+  """News title"""
+  title: String
+
+  """News updatedAt"""
+  updatedAt: DateTime!
+
+  """News updatedBy"""
+  updatedBy: Int!
+}
+
+type NewsConnection {
+  edges: [NewsEdge!]!
+  pageInfo: NewsPageInfo!
+}
+
+type NewsEdge {
+  cursor: String
+  node: News
+}
+
+type NewsImage {
+  """News image createdAt"""
+  createdAt: DateTime!
+
+  """News image createdBy"""
+  createdBy: Int!
+
+  """id field for int"""
+  id: Int!
+
+  """News image"""
+  imageURL: String!
+  news: News!
+
+  """News image updatedAt"""
+  updatedAt: DateTime!
+
+  """News image updatedBy"""
+  updatedBy: Int!
+}
+
+type NewsPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type NewsResponse {
+  page: NewsConnection!
+  pageData: PageData
+}
+
+type PageData {
+  count: Float!
+  limit: Float!
+  offset: Float!
+}
+
+type Query {
+  news(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): NewsResponse!
+  newsById(id: Int!): News!
+}
+
+input UpdateNewsInput {
+  """News category"""
+  category: Int
+
+  """News content"""
+  content: String
+
+  """News image"""
+  images: [Upload!]
+
+  """News Image source"""
+  imgSource: String
+
+  """News link"""
+  link: String
+
+  """News name"""
+  name: String
+  singleImage: Upload
+
+  """News source"""
+  source: String
+
+  """News tags"""
+  tags: [String!]
+
+  """News title"""
+  title: String
+}
+
+"""Upload files"""
+scalar Upload
