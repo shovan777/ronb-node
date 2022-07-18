@@ -8,6 +8,7 @@ import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NewsModule } from './news/news.module';
+import { PublicToiletModule } from './public-toilet/public-toilet.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NewsModule } from './news/news.module';
       // i.e no need to import in each module
     }),
     NewsModule,
+    PublicToiletModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     GraphQLModule.forRoot({
       driver: ApolloDriver,
