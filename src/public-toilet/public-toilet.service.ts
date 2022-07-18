@@ -76,8 +76,8 @@ export class PublicToiletService {
         return await publicToiletData; 
     }
 
-    findAll() {
-        return this.publicToiletRepository.find();
+    async findAll(limit:number, offset:number): Promise<[PublicToilet[], number]> {
+        return this.publicToiletRepository.findAndCount({take: limit, skip: offset});
     }
 
     async findOne(id: number) {

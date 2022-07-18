@@ -12,6 +12,10 @@ import { PublicToilet, PublicToiletImage } from './entities/public-toilet.entity
 import { CreatePublicToiletInput } from './dto/create-public-toilet.input';
 import { UpdatePublicToiletInput } from './dto/update-public-toilet.input';
 import { NotFoundException } from '@nestjs/common';
+import PublicToiletResponse from './public-toilet.response';
+import ConnectionArgs from 'src/common/pagination/types/connection.args';
+import { connectionFromArraySlice } from 'graphql-relay';
+
 
 @Resolver(() => PublicToilet)
 export class PublicToiletResolver {
@@ -22,9 +26,15 @@ export class PublicToiletResolver {
         return await this.publicToiletService.create(createPublicToiletInput);
     }
 
-    @Query(() => [PublicToilet], { name: 'publicToilets' })
-    findAll() {
-        return this.publicToiletService.findAll();
+    @Query(() => PublicToiletResponse, { name: 'publicToilets' })
+    async findAll(@Args() args: ConnectionArgs): Promise<PublicToiletResponse> {
+        const { limit, offset } = args.pagingParams();
+        const [publicToilets, count] = await this.publicToiletService.findAll(limit, offset);
+        const page = connectionFromArraySlice(publicToilets, args, {
+            arrayLength: count,
+            sliceStart: offset || 0,
+        });
+        return { page, pageData: { count, limit, offset } };
     }
 
     @Query(() => PublicToilet, { name: 'publicToiletById' })
