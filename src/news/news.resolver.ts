@@ -12,6 +12,9 @@ import { News, NewsImage } from './entities/news.entity';
 import { CreateNewsInput } from './dto/create-news.input';
 import { UpdateNewsInput } from './dto/update-news.input';
 import { NotFoundException } from '@nestjs/common';
+import NewsResponse from './news.response';
+import ConnectionArgs from 'src/common/pagination/types/connection.args';
+import { connectionFromArraySlice } from 'graphql-relay';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -27,9 +30,21 @@ export class NewsResolver {
     return await this.newsService.create(createNewsInput);
   }
 
-  @Query(() => [News], { name: 'news' })
-  findAll() {
-    return this.newsService.findAll();
+  // @Query(() => [News], { name: 'news' })
+  // findAll(): Promise<News[]> {
+  //   return this.newsService.findAll();
+  // }
+  @Query(() => NewsResponse, { name: 'news' })
+  async findAll(@Args() args: ConnectionArgs): Promise<NewsResponse> {
+    const { limit, offset } = args.pagingParams();
+    const [news, count] = await this.newsService.findAll(limit, offset);
+    // return this.newsService.findAll();
+    const page = connectionFromArraySlice(news, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+
+    return { page, pageData: { count, limit, offset } };
   }
 
   @Query(() => News, { name: 'newsById' })

@@ -103,9 +103,9 @@ export class NewsService {
     // return this.newsRepository.save(await newsData);
   }
 
-  findAll() {
+  async findAll(limit: number, offset: number): Promise<[News[], number]> {
     // return `This action returns all news`;
-    return this.newsRepository.find();
+    return this.newsRepository.findAndCount({ take: limit, skip: offset });
   }
 
   async findOne(id: number) {
