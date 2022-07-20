@@ -4,10 +4,16 @@ import { createWriteStream, mkdir } from 'fs';
 import { join } from 'path';
 import { finished } from 'stream/promises';
 import { Repository } from 'typeorm';
-import { CreateNewsInput } from './dto/create-news.input';
-import { UpdateNewsInput } from './dto/update-news.input';
+import {
+  CreateNewsCategoryInput,
+  CreateNewsInput,
+} from './dto/create-news.input';
+import {
+  UpdateNewsInput,
+  UpdateNewsCategoryInput,
+} from './dto/update-news.input';
 // import { News } from './interfaces/news_deltext.interface';
-import { News, NewsImage } from './entities/news.entity';
+import { News, NewsCategory, NewsImage } from './entities/news.entity';
 
 const uploadFileStream = async (readStream, uploadDir, filename) => {
   const fileName = filename;
@@ -37,12 +43,18 @@ export class NewsService {
     private newsRepository: Repository<News>,
     @InjectRepository(NewsImage)
     private newsImageRepository: Repository<NewsImage>,
+    @InjectRepository(NewsCategory)
+    private newsCategory: Repository<NewsCategory>,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
   async create(newsInput: CreateNewsInput): Promise<News> {
     // return 'This action adds a new news';
-    let newsInputData = { ...newsInput, singleImage: null, images: null };
+    let newsInputData: any = {
+      ...newsInput,
+      singleImage: null,
+      images: null,
+    };
     if (newsInput.singleImage) {
       const imageFile: any = await newsInput.singleImage;
       const file_name = imageFile.filename;
@@ -59,8 +71,14 @@ export class NewsService {
         singleImage: file_path,
       };
     }
+    console.log(`hello ${newsInput.category}`);
+    const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
+      id: newsInput.category,
+    });
+    console.log(newsCategory);
     const newsData: News = await this.newsRepository.save({
       ...newsInputData,
+      category: newsCategory,
       publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -236,5 +254,60 @@ export class NewsService {
       return news.images;
     }
     return new NotFoundException(`News with id ${newsId} not found`);
+  }
+}
+
+@Injectable()
+export class NewsCategoryService {
+  constructor(
+    @InjectRepository(NewsCategory)
+    private newsCategoryRepository: Repository<NewsCategory>,
+  ) {}
+
+  async findAll(): Promise<NewsCategory[]> {
+    return this.newsCategoryRepository.find();
+  }
+
+  async findOne(id: number): Promise<NewsCategory | NotFoundException> {
+    const newsCategory =
+      (await this.newsCategoryRepository.findOneBy({ id })) ||
+      new NotFoundException(`NewsCategory with id ${id} not found`);
+    return newsCategory;
+  }
+
+  async create(createNewsCategoryInput: CreateNewsCategoryInput) {
+    return this.newsCategoryRepository.save({
+      ...createNewsCategoryInput,
+      createdBy: 1,
+      updatedBy: 1,
+    });
+  }
+
+  async update(id: number, updateNewsCategoryInput: UpdateNewsCategoryInput) {
+    const newsCategory: NewsCategory =
+      await this.newsCategoryRepository.findOneBy({ id });
+    if (newsCategory) {
+      return this.newsCategoryRepository.save({
+        ...newsCategory,
+        ...updateNewsCategoryInput,
+        updatedBy: 1, //TODO: get user from jwt
+      });
+    }
+    return new NotFoundException(`NewsCategory with id ${id} not found`);
+  }
+
+  async remove(id: number) {
+    const newsCategory: NewsCategory =
+      await this.newsCategoryRepository.findOneBy({ id });
+    if (newsCategory) {
+      const removedNewsCategory = await this.newsCategoryRepository.remove(
+        newsCategory,
+      );
+      return {
+        ...removedNewsCategory,
+        id,
+      };
+    }
+    return new NotFoundException(`NewsCategory with id ${id} not found`);
   }
 }
