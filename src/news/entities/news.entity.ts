@@ -57,7 +57,9 @@ export class News {
   @Column({ nullable: true })
   singleImage?: string;
 
-  @Field(() => Int, { description: 'News category', nullable: true })
+  @ManyToOne(() => NewsCategory, (category) => category.news, {
+    nullable: true,
+  })
   @Column({ nullable: true })
   category?: number;
 
@@ -112,3 +114,92 @@ export class NewsImage {
   @Column()
   updatedBy: number;
 }
+
+@ObjectType({ isAbstract: true })
+@Entity()
+export abstract class BaseEntity {
+  @Field(() => Int, { description: 'id field for int' })
+  @PrimaryGeneratedColumn()
+  id: number;
+}
+
+@ObjectType({ isAbstract: true })
+@Entity()
+export abstract class CreatorBaseEntity extends BaseEntity {
+  @Field({ description: 'News image createdAt' })
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Field({ description: 'News image updatedAt' })
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Field(() => Int, { description: 'News image createdBy' })
+  @Column()
+  createdBy: number;
+
+  @Field(() => Int, { description: 'News image updatedBy' })
+  @Column()
+  updatedBy: number;
+}
+
+@ObjectType()
+@Entity()
+export class NewsCategory extends CreatorBaseEntity {
+  @Field({ description: 'News category name' })
+  @Column()
+  name: string;
+
+  @Field({ description: 'News category description', nullable: true })
+  @Column({ nullable: true })
+  description?: string;
+
+  @Field(() => [News], { description: 'News in this category' })
+  @OneToMany(() => News, (news) => news.category)
+  news: News[];
+}
+
+// @Entity()
+// export class NewsTag {
+//   @Field(() => Int, { description: 'id field for int' })
+//   @PrimaryGeneratedColumn()
+//   id: number;
+
+//   @Field({ description: 'News tag name' })
+//   @Column()
+//   name: string;
+
+//   @Field({ description: 'News tag createdAt' })
+//   @CreateDateColumn()
+//   createdAt: Date;
+
+//   @Field({ description: 'News tag updatedAt' })
+//   @UpdateDateColumn()
+//   updatedAt: Date;
+
+//   @Field(() => Int, { description: 'News tag createdBy' })
+//   @Column()
+//   createdBy: number;
+
+//   @Field(() => Int, { description: 'News tag updatedBy' })
+//   @Column()
+//   updatedBy: number;
+// }
+
+// @Entity()
+// export class NewsSource {
+//   @Field(() => Int, { description: 'id field for int' })
+//   @PrimaryGeneratedColumn()
+//   id: number;
+
+//   @Field({ description: 'News source name' })
+//   @Column()
+//   name: string;
+
+//   @Field({ description: 'News source createdAt' })
+//   @CreateDateColumn()
+//   createdAt: Date;
+
+//   @Field({ description: 'News source updatedAt' })
+//   @UpdateDateColumn()
+//   updatedAt: Date;

@@ -28,3 +28,11 @@ export class CreateNewsInput {
   @Field({ description: 'News Image source', nullable: true })
   imgSource?: string;
 }
+
+@InputType()
+export class CreateNewsCategoryInput {
+  @Field({ description: 'News category name' })
+  name: string;
+  @Field({ description: 'News category description', nullable: true })
+  description?: string;
+}
