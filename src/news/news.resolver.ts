@@ -7,10 +7,16 @@ import {
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
-import { NewsService } from './news.service';
-import { News, NewsImage } from './entities/news.entity';
-import { CreateNewsInput } from './dto/create-news.input';
-import { UpdateNewsInput } from './dto/update-news.input';
+import { NewsCategoryService, NewsService } from './news.service';
+import { News, NewsCategory, NewsImage } from './entities/news.entity';
+import {
+  CreateNewsCategoryInput,
+  CreateNewsInput,
+} from './dto/create-news.input';
+import {
+  UpdateNewsCategoryInput,
+  UpdateNewsInput,
+} from './dto/update-news.input';
 import { NotFoundException } from '@nestjs/common';
 import NewsResponse from './news.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
@@ -64,6 +70,12 @@ export class NewsResolver {
     return await this.newsService.findImagesofNews(id);
   }
 
+  @ResolveField(() => NewsCategory)
+  async category(@Parent() news: News) {
+    const { id } = news;
+    return await this.newsService.findCategoryofNews(id);
+  }
+
   @Mutation(() => News)
   async updateNews(
     @Args({ name: 'id', type: () => Int }) id: number,
@@ -77,5 +89,44 @@ export class NewsResolver {
     @Args('id', { type: () => Int }) id: number,
   ): Promise<NotFoundException | any> {
     return this.newsService.remove(id);
+  }
+}
+
+@Resolver(() => NewsCategory)
+export class NewsCategoryResolver {
+  constructor(private readonly newsCategoryService: NewsCategoryService) {}
+
+  @Query(() => [NewsCategory], { name: 'newsCategories' })
+  async findAll(): Promise<NewsCategory[]> {
+    return this.newsCategoryService.findAll();
+  }
+
+  @Query(() => NewsCategory, { name: 'newsCategoryById' })
+  async findOne(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<NewsCategory | NotFoundException> {
+    return this.newsCategoryService.findOne(id);
+  }
+
+  @Mutation(() => NewsCategory)
+  async createNewsCategory(
+    @Args('createNewsCategoryInput')
+    createNewsCategoryInput: CreateNewsCategoryInput,
+  ) {
+    return await this.newsCategoryService.create(createNewsCategoryInput);
+  }
+
+  @Mutation(() => NewsCategory)
+  async updateNewsCategory(
+    @Args('id') id: number,
+    @Args('updateNewsCategoryInput')
+    updateNewsCategoryInput: UpdateNewsCategoryInput,
+  ) {
+    return await this.newsCategoryService.update(id, updateNewsCategoryInput);
+  }
+
+  @Mutation(() => NewsCategory)
+  async removeNewsCategory(@Args('id', { type: () => Int }) id: number) {
+    return this.newsCategoryService.remove(id);
   }
 }
