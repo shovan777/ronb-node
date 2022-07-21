@@ -1,4 +1,5 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { CreatorBaseEntity } from 'src/common/entities/base.entity';
 import {
   Column,
   CreateDateColumn,
@@ -8,6 +9,22 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+@ObjectType()
+@Entity()
+export class NewsCategory extends CreatorBaseEntity {
+  @Field({ description: 'News category name' })
+  @Column()
+  name: string;
+
+  @Field({ description: 'News category description', nullable: true })
+  @Column({ nullable: true })
+  description?: string;
+
+  @Field(() => [News], { description: 'News in this category' })
+  @OneToMany(() => News, (news) => news.category)
+  news: News[];
+}
 
 @ObjectType()
 @Entity()
@@ -57,11 +74,11 @@ export class News {
   @Column({ nullable: true })
   singleImage?: string;
 
+  @Field(() => NewsCategory, { description: 'News category', nullable: true })
   @ManyToOne(() => NewsCategory, (category) => category.news, {
     nullable: true,
   })
-  @Column({ nullable: true })
-  category?: number;
+  category?: NewsCategory;
 
   @Field(() => [String], { description: 'News tags', nullable: true })
   tags?: string[];
@@ -113,50 +130,6 @@ export class NewsImage {
   @Field(() => Int, { description: 'News image updatedBy' })
   @Column()
   updatedBy: number;
-}
-
-@ObjectType({ isAbstract: true })
-@Entity()
-export abstract class BaseEntity {
-  @Field(() => Int, { description: 'id field for int' })
-  @PrimaryGeneratedColumn()
-  id: number;
-}
-
-@ObjectType({ isAbstract: true })
-@Entity()
-export abstract class CreatorBaseEntity extends BaseEntity {
-  @Field({ description: 'News image createdAt' })
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @Field({ description: 'News image updatedAt' })
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @Field(() => Int, { description: 'News image createdBy' })
-  @Column()
-  createdBy: number;
-
-  @Field(() => Int, { description: 'News image updatedBy' })
-  @Column()
-  updatedBy: number;
-}
-
-@ObjectType()
-@Entity()
-export class NewsCategory extends CreatorBaseEntity {
-  @Field({ description: 'News category name' })
-  @Column()
-  name: string;
-
-  @Field({ description: 'News category description', nullable: true })
-  @Column({ nullable: true })
-  description?: string;
-
-  @Field(() => [News], { description: 'News in this category' })
-  @OneToMany(() => News, (news) => news.category)
-  news: News[];
 }
 
 // @Entity()

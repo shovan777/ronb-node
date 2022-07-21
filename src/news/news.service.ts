@@ -71,14 +71,22 @@ export class NewsService {
         singleImage: file_path,
       };
     }
-    console.log(`hello ${newsInput.category}`);
-    const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
-      id: newsInput.category,
-    });
-    console.log(newsCategory);
+    if (newsInput.category) {
+      const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
+        id: newsInput.category,
+      });
+      if (!newsCategory) {
+        throw new NotFoundException(
+          `News category with id ${newsInput.category} not found`,
+        );
+      }
+      newsInputData = {
+        ...newsInputData,
+        category: newsCategory,
+      };
+    }
     const newsData: News = await this.newsRepository.save({
       ...newsInputData,
-      category: newsCategory,
       publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -146,7 +154,7 @@ export class NewsService {
       where: { id: id },
     });
     if (news) {
-      let newsInputData = {
+      let newsInputData: any = {
         // ...news,
         ...updateNewsInput,
         singleImage: null,
@@ -166,6 +174,21 @@ export class NewsService {
           singleImage: file_path,
         };
         news.singleImage = newsInputData.singleImage;
+      }
+      if (updateNewsInput.category) {
+        const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
+          id: updateNewsInput.category,
+        });
+        if (!newsCategory) {
+          throw new NotFoundException(
+            `News category with id ${updateNewsInput.category} not found`,
+          );
+        }
+        newsInputData = {
+          ...newsInputData,
+          category: newsCategory,
+        };
+        news.category = newsInputData.category;
       }
       if (updateNewsInput.images) {
         const imagePaths = updateNewsInput.images.map(async (image) => {
@@ -198,7 +221,7 @@ export class NewsService {
         // };
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { images, ...updatedNews } = {
+      const { ...updatedNews } = {
         ...news,
         ...newsInputData,
         updatedAt: new Date(),
@@ -252,6 +275,17 @@ export class NewsService {
     // );
     if (news) {
       return news.images;
+    }
+    return new NotFoundException(`News with id ${newsId} not found`);
+  }
+
+  async findCategoryofNews(newsId: number) {
+    const news: News = await this.newsRepository.findOne({
+      where: { id: newsId },
+      relations: { category: true },
+    });
+    if (news) {
+      return news.category;
     }
     return new NotFoundException(`News with id ${newsId} not found`);
   }

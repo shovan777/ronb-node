@@ -2,6 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateNewsCategoryInput {
+  """News category description"""
+  description: String
+
+  """News category name"""
+  name: String!
+}
+
 input CreateNewsInput {
   """News category"""
   category: Int
@@ -62,16 +70,19 @@ scalar GeoJSONPointScalar
 
 type Mutation {
   createNews(createNewsInput: CreateNewsInput!): News!
+  createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
   removeNews(id: Int!): News!
+  removeNewsCategory(id: Int!): NewsCategory!
   removePublicToilet(id: Int!): PublicToilet!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
+  updateNewsCategory(id: Float!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
 }
 
 type News {
   """News category"""
-  category: Int
+  category: NewsCategory
 
   """News content"""
   content: String!
@@ -116,6 +127,32 @@ type News {
   updatedAt: DateTime!
 
   """News updatedBy"""
+  updatedBy: Int!
+}
+
+type NewsCategory {
+  """News image createdAt"""
+  createdAt: DateTime!
+
+  """News image createdBy"""
+  createdBy: Int!
+
+  """News category description"""
+  description: String
+
+  """id field for int"""
+  id: Int!
+
+  """News category name"""
+  name: String!
+
+  """News in this category"""
+  news: [News!]!
+
+  """News image updatedAt"""
+  updatedAt: DateTime!
+
+  """News image updatedBy"""
   updatedBy: Int!
 }
 
@@ -242,8 +279,18 @@ type Query {
     last: Float
   ): NewsResponse!
   newsById(id: Int!): News!
+  newsCategories: [NewsCategory!]!
+  newsCategoryById(id: Int!): NewsCategory!
   publicToiletById(id: Int!): PublicToilet!
   publicToilets: [PublicToilet!]!
+}
+
+input UpdateNewsCategoryInput {
+  """News category description"""
+  description: String
+
+  """News category name"""
+  name: String
 }
 
 input UpdateNewsInput {
