@@ -8,6 +8,7 @@ import {
   CreateNewsCategoryInput,
   CreateNewsInput,
 } from './dto/create-news.input';
+import { FilterNewsInput } from './dto/filter-news.input';
 import {
   UpdateNewsInput,
   UpdateNewsCategoryInput,
@@ -129,9 +130,24 @@ export class NewsService {
     // return this.newsRepository.save(await newsData);
   }
 
-  async findAll(limit: number, offset: number): Promise<[News[], number]> {
+  async findAll(
+    limit: number,
+    offset: number,
+    filterNewsInput: FilterNewsInput,
+  ): Promise<[News[], number]> {
     // return `This action returns all news`;
-    return this.newsRepository.findAndCount({ take: limit, skip: offset });
+    return this.newsRepository.findAndCount({
+      relations: {
+        category: true,
+      },
+      where: {
+        category: {
+          id: filterNewsInput.category,
+        },
+      },
+      take: limit,
+      skip: offset,
+    });
   }
 
   async findOne(id: number) {

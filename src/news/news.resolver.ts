@@ -21,6 +21,7 @@ import { NotFoundException } from '@nestjs/common';
 import NewsResponse from './news.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
+import { FilterNewsInput } from './dto/filter-news.input';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -41,9 +42,17 @@ export class NewsResolver {
   //   return this.newsService.findAll();
   // }
   @Query(() => NewsResponse, { name: 'news' })
-  async findAll(@Args() args: ConnectionArgs): Promise<NewsResponse> {
+  async findAll(
+    @Args() args: ConnectionArgs,
+    @Args('filterNewsInput', { nullable: true })
+    filterNewsInput?: FilterNewsInput,
+  ): Promise<NewsResponse> {
     const { limit, offset } = args.pagingParams();
-    const [news, count] = await this.newsService.findAll(limit, offset);
+    const [news, count] = await this.newsService.findAll(
+      limit,
+      offset,
+      filterNewsInput,
+    );
     // return this.newsService.findAll();
     const page = connectionFromArraySlice(news, args, {
       arrayLength: count,

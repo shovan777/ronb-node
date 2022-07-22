@@ -65,6 +65,11 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input FilterNewsInput {
+  """News category"""
+  category: Int
+}
+
 """GeoJSON Point"""
 scalar GeoJSONPointScalar
 
@@ -271,6 +276,7 @@ type Query {
 
     """Paginate before cursor"""
     before: String
+    filterNewsInput: FilterNewsInput!
 
     """Paginate first"""
     first: Float
