@@ -276,7 +276,7 @@ type Query {
 
     """Paginate before cursor"""
     before: String
-    filterNewsInput: FilterNewsInput!
+    filterNewsInput: FilterNewsInput
 
     """Paginate first"""
     first: Float
