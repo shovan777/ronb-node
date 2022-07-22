@@ -40,7 +40,7 @@ input CreatePublicToiletInput {
   content: String!
 
   """Public Toilet location"""
-  geoPoint: GeoJSONPointScalar
+  geopoint: GeoJSONPointScalar
 
   """Public Toilet image"""
   images: [Upload!]
@@ -182,7 +182,7 @@ type PublicToilet {
   createdBy: Int!
 
   """Public Toilet Location"""
-  geoPoint: GeoJSONPointScalar!
+  geopoint: GeoJSONPointScalar!
 
   """id field for int"""
   id: Int!
@@ -265,6 +265,20 @@ type Query {
   ): NewsResponse!
   newsById(id: Int!): News!
   publicToiletById(id: Int!): PublicToilet!
+  publicToiletNearMe(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+    origin: GeoJSONPointScalar!
+  ): PublicToiletResponse!
   publicToilets(
     """Paginate after cursor"""
     after: String
@@ -318,7 +332,7 @@ input UpdatePublicToiletInput {
   content: String
 
   """Public Toilet location"""
-  geoPoint: GeoJSONPointScalar
+  geopoint: GeoJSONPointScalar
 
   """Public Toilet image"""
   images: [Upload!]

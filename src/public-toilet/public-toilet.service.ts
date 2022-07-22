@@ -5,7 +5,7 @@ import { CreatePublicToiletInput } from "./dto/create-public-toilet.input";
 import { UpdatePublicToiletInput } from "./dto/update-public-toilet.input";
 import { PublicToilet, PublicToiletImage } from "./entities/public-toilet.entity";
 import { uploadFileStream } from "../common/utils/upload";
-
+import { GeoJSONPointScalar } from "src/common/scalars/geojson/Point.scalar";
 
 @Injectable()
 export class PublicToiletService {
@@ -180,4 +180,18 @@ export class PublicToiletService {
         return new NotFoundException(`PublicToilet with id ${id} not found`);
     }
 
+    async findPublicToiletNearMe(limit:number, offset:number, origin: GeoJSONPointScalar): Promise<[PublicToilet[], number]> {
+        let distance = 40;
+        const publicToilet = await this.publicToiletRepository
+        .createQueryBuilder()
+        .where('ST_DWithin(geopoint, ST_SetSRID(ST_GeomFromGeoJSON(:origin), ST_SRID(geopoint)), :distance)')
+        .setParameters({
+            origin: JSON.stringify(origin),
+            distance: distance*1000, //KM conversion
+        })
+        .limit(limit)
+        .offset(offset)
+        .getMany();
+        return [publicToilet, publicToilet.length];
+    }
 }

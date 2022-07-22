@@ -15,6 +15,7 @@ import { NotFoundException } from '@nestjs/common';
 import PublicToiletResponse from './public-toilet.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
+import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
 
 
 @Resolver(() => PublicToilet)
@@ -42,6 +43,20 @@ export class PublicToiletResolver {
         @Args('id', { type: () => Int }) id: number,
     ): Promise<PublicToilet | NotFoundException> {
         return this.publicToiletService.findOne(id);
+    }
+
+    @Query(() => PublicToiletResponse, { name: 'publicToiletNearMe' })
+    async findPublicToiletNearMe(@Args() args: ConnectionArgs, @Args('origin') origin: GeoJSONPointScalar): Promise<PublicToiletResponse> {
+        const { limit, offset } = args.pagingParams();
+        const [publicToilets, count] = await this.publicToiletService.findPublicToiletNearMe(
+            limit, offset, origin,
+        );
+
+        const page = connectionFromArraySlice(publicToilets, args, {
+            arrayLength: count,
+            sliceStart: offset || 0,
+        });
+        return { page, pageData: { count, limit, offset } };
     }
 
     @ResolveField(() => [PublicToiletImage])
