@@ -17,7 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "typeorm:migration:generate": "npm run typeorm -- migration:generate -d src/config/datasource.ts",
+    "typeorm:migration:run": "npm run typeorm -- migration:run -d src/config/datasource.ts"
   },
   "dependencies": {
     "@nestjs/apollo": "^10.0.17",
@@ -29,10 +32,11 @@
     "@nestjs/serve-static": "^3.0.0",
     "@nestjs/typeorm": "^9.0.0",
     "@types/geojson": "^7946.0.10",
-    "geojson-validation": "^1.0.2",
     "apollo-server-express": "^3.10.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "dotenv": "^16.0.1",
+    "geojson-validation": "^1.0.2",
     "graphql": "^16.5.0",
     "graphql-relay": "^0.10.0",
     "graphql-tools": "^8.3.0",
