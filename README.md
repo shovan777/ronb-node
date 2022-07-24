@@ -58,6 +58,16 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Run migration
+
+```bash 
+# generate migration
+npm run typeorm:migration:generate src/migrations/<name-of-migrations>
+
+# run migration
+npm run typrorm:migration:run 
+```
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
