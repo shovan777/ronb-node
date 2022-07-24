@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -130,6 +132,22 @@ export class NewsImage {
   @Field(() => Int, { description: 'News image updatedBy' })
   @Column()
   updatedBy: number;
+}
+
+@Entity()
+export class UserLikesNews {
+  @PrimaryColumn({ type: 'int' })
+  userId: number;
+
+  @PrimaryColumn({ type: 'int' })
+  @ManyToOne(
+    () => News,
+    /*(news) => news.likes,*/ {
+      onDelete: 'CASCADE',
+    },
+  )
+  @JoinColumn()
+  newsId: News;
 }
 
 // @Entity()
