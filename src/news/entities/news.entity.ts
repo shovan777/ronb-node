@@ -96,6 +96,12 @@ export class News {
   @Field({ description: 'News Image source', nullable: true })
   @Column({ nullable: true })
   imgSource?: string;
+
+  @Field(() => [UserLikesNews], { description: 'News likes', nullable: true })
+  @OneToMany(() => UserLikesNews, (likes) => likes.news, {
+    nullable: true,
+  })
+  likes?: UserLikesNews[];
 }
 
 @ObjectType()
@@ -134,20 +140,24 @@ export class NewsImage {
   updatedBy: number;
 }
 
+@ObjectType()
 @Entity()
 export class UserLikesNews {
-  @PrimaryColumn({ type: 'int' })
+  @Field(() => Int, { description: 'id field for int' })
+  @PrimaryColumn({ type: 'int', nullable: false })
   userId: number;
 
-  @PrimaryColumn({ type: 'int' })
-  @ManyToOne(
-    () => News,
-    /*(news) => news.likes,*/ {
-      onDelete: 'CASCADE',
-    },
-  )
-  @JoinColumn()
-  newsId: News;
+  @PrimaryColumn()
+  newsId: number;
+
+  @Field(() => News, { description: 'likes for the news' })
+  // @PrimaryColumn({ type: 'int', name: 'newsId' })
+  @JoinColumn({ name: 'newsId' })
+  @ManyToOne(() => News, (news) => news.likes, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  public news: News;
 }
 
 // @Entity()

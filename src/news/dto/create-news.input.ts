@@ -36,3 +36,9 @@ export class CreateNewsCategoryInput {
   @Field({ description: 'News category description', nullable: true })
   description?: string;
 }
+
+@InputType()
+export class CreateUserLikesNewsInput {
+  @Field(() => Int, { description: 'News liked by the user' })
+  newsId: number;
+}
