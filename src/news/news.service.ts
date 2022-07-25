@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import {
   CreateNewsCategoryInput,
   CreateNewsInput,
+  CreateUserLikesNewsInput,
 } from './dto/create-news.input';
 import { FilterNewsInput } from './dto/filter-news.input';
 import {
@@ -14,7 +15,12 @@ import {
   UpdateNewsCategoryInput,
 } from './dto/update-news.input';
 // import { News } from './interfaces/news_deltext.interface';
-import { News, NewsCategory, NewsImage } from './entities/news.entity';
+import {
+  News,
+  NewsCategory,
+  NewsImage,
+  UserLikesNews,
+} from './entities/news.entity';
 
 const uploadFileStream = async (readStream, uploadDir, filename) => {
   const fileName = filename;
@@ -46,6 +52,8 @@ export class NewsService {
     private newsImageRepository: Repository<NewsImage>,
     @InjectRepository(NewsCategory)
     private newsCategory: Repository<NewsCategory>,
+    @InjectRepository(UserLikesNews)
+    private userLikesNews: Repository<UserLikesNews>,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
@@ -154,7 +162,7 @@ export class NewsService {
     // return `This action returns a #${id} news`;
     const news = await this.newsRepository.findOne({
       where: { id: id },
-      relations: { images: true },
+      relations: { images: true, likes: true },
     });
     // console.log(news);
     if (news) {
@@ -305,6 +313,17 @@ export class NewsService {
     }
     return new NotFoundException(`News with id ${newsId} not found`);
   }
+
+  async countLikes(newsId: number) {
+    const news: News = await this.newsRepository.findOne({
+      where: { id: newsId },
+      relations: { likes: true },
+    });
+    if (news) {
+      return news.likes.length;
+    }
+    return new NotFoundException(`News with id ${newsId} not found`);
+  }
 }
 
 @Injectable()
@@ -359,5 +378,40 @@ export class NewsCategoryService {
       };
     }
     return new NotFoundException(`NewsCategory with id ${id} not found`);
+  }
+}
+
+@Injectable()
+export class UserLikesNewsService {
+  constructor(
+    @InjectRepository(UserLikesNews)
+    private userLikesNewsRepository: Repository<UserLikesNews>,
+    @InjectRepository(News)
+    private newsRepository: Repository<News>,
+  ) {}
+  async create(createUserLikesNewsInput: CreateUserLikesNewsInput) {
+    const { newsId } = createUserLikesNewsInput;
+    const news = await this.newsRepository.findOneBy({ id: newsId });
+    if (!news) return new NotFoundException(`News with id ${newsId} not found`);
+    return this.userLikesNewsRepository.save({
+      news: news,
+      userId: 2, //TODO: get user from jwt
+    });
+  }
+  async remove(newsId: number) {
+    const userLikesNews = await this.userLikesNewsRepository.findOne({
+      relations: { news: true },
+      where: {
+        news: { id: newsId },
+        userId: 2, //TODO: get user from jwt
+      },
+    });
+    if (!userLikesNews)
+      return new NotFoundException(
+        `UserLikesNews with newsId ${newsId} not found`,
+      );
+    const removedUserLikesNews = { ...userLikesNews };
+    await this.userLikesNewsRepository.remove(userLikesNews);
+    return removedUserLikesNews;
   }
 }

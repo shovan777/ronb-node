@@ -1,9 +1,22 @@
 import { Module } from '@nestjs/common';
-import { NewsCategoryService, NewsService } from './news.service';
-import { NewsCategoryResolver, NewsResolver } from './news.resolver';
+import {
+  NewsCategoryService,
+  NewsService,
+  UserLikesNewsService,
+} from './news.service';
+import {
+  NewsCategoryResolver,
+  NewsResolver,
+  UserLikesNewsResolver,
+} from './news.resolver';
 import { Upload } from 'src/common/scalars/upload.scalar';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { News, NewsCategory, NewsImage } from './entities/news.entity';
+import {
+  News,
+  NewsCategory,
+  NewsImage,
+  UserLikesNews,
+} from './entities/news.entity';
 
 @Module({
   providers: [
@@ -12,7 +25,11 @@ import { News, NewsCategory, NewsImage } from './entities/news.entity';
     Upload,
     NewsCategoryResolver,
     NewsCategoryService,
+    UserLikesNewsResolver,
+    UserLikesNewsService,
   ],
-  imports: [TypeOrmModule.forFeature([News, NewsImage, NewsCategory])],
+  imports: [
+    TypeOrmModule.forFeature([News, NewsImage, NewsCategory, UserLikesNews]),
+  ],
 })
 export class NewsModule {}
