@@ -7,11 +7,21 @@ import {
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
-import { NewsCategoryService, NewsService } from './news.service';
-import { News, NewsCategory, NewsImage } from './entities/news.entity';
+import {
+  NewsCategoryService,
+  NewsService,
+  UserLikesNewsService,
+} from './news.service';
+import {
+  News,
+  NewsCategory,
+  NewsImage,
+  UserLikesNews,
+} from './entities/news.entity';
 import {
   CreateNewsCategoryInput,
   CreateNewsInput,
+  CreateUserLikesNewsInput,
 } from './dto/create-news.input';
 import {
   UpdateNewsCategoryInput,
@@ -79,6 +89,11 @@ export class NewsResolver {
     return await this.newsService.findImagesofNews(id);
   }
 
+  @ResolveField(() => Int)
+  async likeCount(@Parent() news: News) {
+    const { id } = news;
+    return await this.newsService.countLikes(id);
+  }
   @ResolveField(() => NewsCategory)
   async category(@Parent() news: News) {
     const { id } = news;
@@ -137,5 +152,25 @@ export class NewsCategoryResolver {
   @Mutation(() => NewsCategory)
   async removeNewsCategory(@Args('id', { type: () => Int }) id: number) {
     return this.newsCategoryService.remove(id);
+  }
+}
+
+@Resolver(() => UserLikesNews)
+export class UserLikesNewsResolver {
+  constructor(private readonly userLikesNewsService: UserLikesNewsService) {}
+
+  @Mutation(() => UserLikesNews)
+  async createUserLikesNews(
+    @Args('createUserLikesNewsInput')
+    createUserLikesNewsInput: CreateUserLikesNewsInput,
+  ) {
+    return await this.userLikesNewsService.create(createUserLikesNewsInput);
+  }
+
+  @Mutation(() => UserLikesNews)
+  async removeUserLikesNews(
+    @Args('newsId', { type: () => Int }) newsId: number,
+  ) {
+    return await this.userLikesNewsService.remove(newsId);
   }
 }

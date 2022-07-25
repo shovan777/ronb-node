@@ -60,6 +60,11 @@ input CreatePublicToiletInput {
   singleImage: Upload
 }
 
+input CreateUserLikesNewsInput {
+  """News liked by the user"""
+  newsId: Int!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -77,9 +82,11 @@ type Mutation {
   createNews(createNewsInput: CreateNewsInput!): News!
   createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
+  createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
   removePublicToilet(id: Int!): PublicToilet!
+  removeUserLikesNews(newsId: Int!): UserLikesNews!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Float!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
@@ -106,6 +113,10 @@ type News {
 
   """News Image source"""
   imgSource: String
+  likeCount: Int!
+
+  """News likes"""
+  likes: [UserLikesNews!]
 
   """News link"""
   link: String
@@ -351,3 +362,11 @@ input UpdatePublicToiletInput {
 
 """Upload files"""
 scalar Upload
+
+type UserLikesNews {
+  """likes for the news"""
+  news: News!
+
+  """id field for int"""
+  userId: Int!
+}
