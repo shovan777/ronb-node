@@ -1,4 +1,4 @@
-import { CreateNewsInput } from './create-news.input';
+import { CreateNewsCategoryInput, CreateNewsInput } from './create-news.input';
 import { InputType, PartialType } from '@nestjs/graphql';
 
 @InputType()
@@ -21,3 +21,8 @@ export class UpdateNewsInput extends PartialType(CreateNewsInput) {
   // @Field({ description: 'News source', nullable: true })
   // source?: string;
 }
+
+@InputType()
+export class UpdateNewsCategoryInput extends PartialType(
+  CreateNewsCategoryInput,
+) {}

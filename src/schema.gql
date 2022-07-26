@@ -2,6 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateNewsCategoryInput {
+  """News category description"""
+  description: String
+
+  """News category name"""
+  name: String!
+}
+
 input CreateNewsInput {
   """News category"""
   category: Int
@@ -52,26 +60,41 @@ input CreatePublicToiletInput {
   singleImage: Upload
 }
 
+input CreateUserLikesNewsInput {
+  """News liked by the user"""
+  newsId: Int!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+input FilterNewsInput {
+  """News category"""
+  category: Int
+}
 
 """GeoJSON Point"""
 scalar GeoJSONPointScalar
 
 type Mutation {
   createNews(createNewsInput: CreateNewsInput!): News!
+  createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
+  createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
   removeNews(id: Int!): News!
+  removeNewsCategory(id: Int!): NewsCategory!
   removePublicToilet(id: Int!): PublicToilet!
+  removeUserLikesNews(newsId: Int!): UserLikesNews!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
+  updateNewsCategory(id: Float!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
 }
 
 type News {
   """News category"""
-  category: Int
+  category: NewsCategory
 
   """News content"""
   content: String!
@@ -90,6 +113,10 @@ type News {
 
   """News Image source"""
   imgSource: String
+  likeCount: Int!
+
+  """News likes"""
+  likes: [UserLikesNews!]
 
   """News link"""
   link: String
@@ -116,6 +143,32 @@ type News {
   updatedAt: DateTime!
 
   """News updatedBy"""
+  updatedBy: Int!
+}
+
+type NewsCategory {
+  """News image createdAt"""
+  createdAt: DateTime!
+
+  """News image createdBy"""
+  createdBy: Int!
+
+  """News category description"""
+  description: String
+
+  """id field for int"""
+  id: Int!
+
+  """News category name"""
+  name: String!
+
+  """News in this category"""
+  news: [News!]!
+
+  """News image updatedAt"""
+  updatedAt: DateTime!
+
+  """News image updatedBy"""
   updatedBy: Int!
 }
 
@@ -256,6 +309,7 @@ type Query {
 
     """Paginate before cursor"""
     before: String
+    filterNewsInput: FilterNewsInput
 
     """Paginate first"""
     first: Float
@@ -264,6 +318,8 @@ type Query {
     last: Float
   ): NewsResponse!
   newsById(id: Int!): News!
+  newsCategories: [NewsCategory!]!
+  newsCategoryById(id: Int!): NewsCategory!
   publicToiletById(id: Int!): PublicToilet!
   publicToilets(
     """Paginate after cursor"""
@@ -278,6 +334,14 @@ type Query {
     """Paginate last"""
     last: Float
   ): PublicToiletResponse!
+}
+
+input UpdateNewsCategoryInput {
+  """News category description"""
+  description: String
+
+  """News category name"""
+  name: String
 }
 
 input UpdateNewsInput {
@@ -332,3 +396,11 @@ input UpdatePublicToiletInput {
 
 """Upload files"""
 scalar Upload
+
+type UserLikesNews {
+  """likes for the news"""
+  news: News!
+
+  """id field for int"""
+  userId: Int!
+}
