@@ -4,10 +4,23 @@ import { createWriteStream, mkdir } from 'fs';
 import { join } from 'path';
 import { finished } from 'stream/promises';
 import { Repository } from 'typeorm';
-import { CreateNewsInput } from './dto/create-news.input';
-import { UpdateNewsInput } from './dto/update-news.input';
+import {
+  CreateNewsCategoryInput,
+  CreateNewsInput,
+  CreateUserLikesNewsInput,
+} from './dto/create-news.input';
+import { FilterNewsInput } from './dto/filter-news.input';
+import {
+  UpdateNewsInput,
+  UpdateNewsCategoryInput,
+} from './dto/update-news.input';
 // import { News } from './interfaces/news_deltext.interface';
-import { News, NewsImage } from './entities/news.entity';
+import {
+  News,
+  NewsCategory,
+  NewsImage,
+  UserLikesNews,
+} from './entities/news.entity';
 import { uploadFileStream } from 'src/common/utils/upload';
 
 @Injectable()
@@ -17,12 +30,20 @@ export class NewsService {
     private newsRepository: Repository<News>,
     @InjectRepository(NewsImage)
     private newsImageRepository: Repository<NewsImage>,
+    @InjectRepository(NewsCategory)
+    private newsCategory: Repository<NewsCategory>,
+    @InjectRepository(UserLikesNews)
+    private userLikesNews: Repository<UserLikesNews>,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
   async create(newsInput: CreateNewsInput): Promise<News> {
     // return 'This action adds a new news';
-    let newsInputData = { ...newsInput, singleImage: null, images: null };
+    let newsInputData: any = {
+      ...newsInput,
+      singleImage: null,
+      images: null,
+    };
     if (newsInput.singleImage) {
       const imageFile: any = await newsInput.singleImage;
       const file_name = imageFile.filename;
@@ -37,6 +58,20 @@ export class NewsService {
       newsInputData = {
         ...newsInputData,
         singleImage: file_path,
+      };
+    }
+    if (newsInput.category) {
+      const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
+        id: newsInput.category,
+      });
+      if (!newsCategory) {
+        throw new NotFoundException(
+          `News category with id ${newsInput.category} not found`,
+        );
+      }
+      newsInputData = {
+        ...newsInputData,
+        category: newsCategory,
       };
     }
     const newsData: News = await this.newsRepository.save({
@@ -83,16 +118,31 @@ export class NewsService {
     // return this.newsRepository.save(await newsData);
   }
 
-  async findAll(limit: number, offset: number): Promise<[News[], number]> {
+  async findAll(
+    limit: number,
+    offset: number,
+    filterNewsInput: FilterNewsInput,
+  ): Promise<[News[], number]> {
     // return `This action returns all news`;
-    return this.newsRepository.findAndCount({ take: limit, skip: offset });
+    return this.newsRepository.findAndCount({
+      relations: {
+        category: true,
+      },
+      where: {
+        category: {
+          id: filterNewsInput.category,
+        },
+      },
+      take: limit,
+      skip: offset,
+    });
   }
 
   async findOne(id: number) {
     // return `This action returns a #${id} news`;
     const news = await this.newsRepository.findOne({
       where: { id: id },
-      relations: { images: true },
+      relations: { images: true, likes: true },
     });
     // console.log(news);
     if (news) {
@@ -108,7 +158,7 @@ export class NewsService {
       where: { id: id },
     });
     if (news) {
-      let newsInputData = {
+      let newsInputData: any = {
         // ...news,
         ...updateNewsInput,
         singleImage: null,
@@ -128,6 +178,21 @@ export class NewsService {
           singleImage: file_path,
         };
         news.singleImage = newsInputData.singleImage;
+      }
+      if (updateNewsInput.category) {
+        const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
+          id: updateNewsInput.category,
+        });
+        if (!newsCategory) {
+          throw new NotFoundException(
+            `News category with id ${updateNewsInput.category} not found`,
+          );
+        }
+        newsInputData = {
+          ...newsInputData,
+          category: newsCategory,
+        };
+        news.category = newsInputData.category;
       }
       if (updateNewsInput.images) {
         const imagePaths = updateNewsInput.images.map(async (image) => {
@@ -160,7 +225,7 @@ export class NewsService {
         // };
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { images, ...updatedNews } = {
+      const { ...updatedNews } = {
         ...news,
         ...newsInputData,
         updatedAt: new Date(),
@@ -216,5 +281,117 @@ export class NewsService {
       return news.images;
     }
     return new NotFoundException(`News with id ${newsId} not found`);
+  }
+
+  async findCategoryofNews(newsId: number) {
+    const news: News = await this.newsRepository.findOne({
+      where: { id: newsId },
+      relations: { category: true },
+    });
+    if (news) {
+      return news.category;
+    }
+    return new NotFoundException(`News with id ${newsId} not found`);
+  }
+
+  async countLikes(newsId: number) {
+    const news: News = await this.newsRepository.findOne({
+      where: { id: newsId },
+      relations: { likes: true },
+    });
+    if (news) {
+      return news.likes.length;
+    }
+    return new NotFoundException(`News with id ${newsId} not found`);
+  }
+}
+
+@Injectable()
+export class NewsCategoryService {
+  constructor(
+    @InjectRepository(NewsCategory)
+    private newsCategoryRepository: Repository<NewsCategory>,
+  ) {}
+
+  async findAll(): Promise<NewsCategory[]> {
+    return this.newsCategoryRepository.find();
+  }
+
+  async findOne(id: number): Promise<NewsCategory | NotFoundException> {
+    const newsCategory =
+      (await this.newsCategoryRepository.findOneBy({ id })) ||
+      new NotFoundException(`NewsCategory with id ${id} not found`);
+    return newsCategory;
+  }
+
+  async create(createNewsCategoryInput: CreateNewsCategoryInput) {
+    return this.newsCategoryRepository.save({
+      ...createNewsCategoryInput,
+      createdBy: 1,
+      updatedBy: 1,
+    });
+  }
+
+  async update(id: number, updateNewsCategoryInput: UpdateNewsCategoryInput) {
+    const newsCategory: NewsCategory =
+      await this.newsCategoryRepository.findOneBy({ id });
+    if (newsCategory) {
+      return this.newsCategoryRepository.save({
+        ...newsCategory,
+        ...updateNewsCategoryInput,
+        updatedBy: 1, //TODO: get user from jwt
+      });
+    }
+    return new NotFoundException(`NewsCategory with id ${id} not found`);
+  }
+
+  async remove(id: number) {
+    const newsCategory: NewsCategory =
+      await this.newsCategoryRepository.findOneBy({ id });
+    if (newsCategory) {
+      const removedNewsCategory = await this.newsCategoryRepository.remove(
+        newsCategory,
+      );
+      return {
+        ...removedNewsCategory,
+        id,
+      };
+    }
+    return new NotFoundException(`NewsCategory with id ${id} not found`);
+  }
+}
+
+@Injectable()
+export class UserLikesNewsService {
+  constructor(
+    @InjectRepository(UserLikesNews)
+    private userLikesNewsRepository: Repository<UserLikesNews>,
+    @InjectRepository(News)
+    private newsRepository: Repository<News>,
+  ) {}
+  async create(createUserLikesNewsInput: CreateUserLikesNewsInput) {
+    const { newsId } = createUserLikesNewsInput;
+    const news = await this.newsRepository.findOneBy({ id: newsId });
+    if (!news) return new NotFoundException(`News with id ${newsId} not found`);
+    return this.userLikesNewsRepository.save({
+      news: news,
+      userId: 2, //TODO: get user from jwt
+    });
+  }
+  async remove(newsId: number) {
+    const userLikesNews = await this.userLikesNewsRepository.findOne({
+      relations: { news: true },
+      where: {
+        news: { id: newsId },
+        userId: 2, //TODO: get user from jwt
+      },
+    });
+    if (!userLikesNews)
+      return new NotFoundException(
+        `UserLikesNews with newsId ${newsId} not found`,
+      );
+    const removedUserLikesNews = { ...userLikesNews };
+    await this.userLikesNewsRepository.remove(userLikesNews);
+    return removedUserLikesNews;
   }
 }
