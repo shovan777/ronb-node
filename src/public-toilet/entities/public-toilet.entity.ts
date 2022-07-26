@@ -63,7 +63,7 @@ export class PublicToilet {
     srid: 4326,
     nullable: true,
   })
-  geoPoint: Point;
+  geopoint: Point;
   
   @Field(() => [PublicToiletImage], { description: 'Public Toilet image', nullable: true })
   @OneToMany(() => PublicToiletImage, (publicToiletImage) => publicToiletImage.publicToilet, { nullable: true })
