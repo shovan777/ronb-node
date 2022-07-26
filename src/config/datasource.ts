@@ -9,7 +9,7 @@ const AppDataSource = new DataSource({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: ["src/**/*.entity{.ts,.js}"],
-    migrations: ["src/migrations/**/*{.ts,.js}"],
+    migrations: [__dirname+"/../migrations/**/*{.ts,.js}"],
 });
 
 export default AppDataSource;
