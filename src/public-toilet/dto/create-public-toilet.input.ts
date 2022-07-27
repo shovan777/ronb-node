@@ -22,5 +22,5 @@ export class CreatePublicToiletInput {
     images?: Upload[];
 
     @Field(() => GeoJSONPointScalar, { description: 'Public Toilet location',nullable:true })
-    geoPoint: Point;
+    geopoint: Point;
 }

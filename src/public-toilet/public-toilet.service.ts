@@ -1,3 +1,4 @@
+import { GeoJSONPointScalar } from "src/common/scalars/geojson/Point.scalar";
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -197,4 +198,20 @@ export class PublicToiletService {
     }
     return new NotFoundException(`PublicToilet with id ${id} not found`);
   }
+
+  async findPublicToiletNearMe(limit:number, offset:number, origin: GeoJSONPointScalar): Promise<[PublicToilet[], number]> {
+      let distance = 40;
+      const publicToilet = await this.publicToiletRepository
+      .createQueryBuilder()
+      .where('ST_DWithin(geopoint, ST_SetSRID(ST_GeomFromGeoJSON(:origin), ST_SRID(geopoint)), :distance)')
+      .setParameters({
+          origin: JSON.stringify(origin),
+          distance: distance*1000, //KM conversion
+      })
+      .limit(limit)
+      .offset(offset)
+      .getMany();
+      return [publicToilet, publicToilet.length];
+  }
 }
+    
