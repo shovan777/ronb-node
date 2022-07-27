@@ -113,10 +113,10 @@ type News {
 
   """News Image source"""
   imgSource: String
-  likeCount: Int!
 
-  """News likes"""
-  likes: [UserLikesNews!]
+  """React of user to the news"""
+  like: UserLikesNews
+  likeCount: Int!
 
   """News link"""
   link: String

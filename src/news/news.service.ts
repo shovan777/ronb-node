@@ -33,7 +33,7 @@ export class NewsService {
     @InjectRepository(NewsCategory)
     private newsCategory: Repository<NewsCategory>,
     @InjectRepository(UserLikesNews)
-    private userLikesNews: Repository<UserLikesNews>,
+    private userLikesNewsRepository: Repository<UserLikesNews>,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
@@ -304,6 +304,15 @@ export class NewsService {
     }
     return new NotFoundException(`News with id ${newsId} not found`);
   }
+  async findUserLikesNews(newsId: number) {
+    const userLikesNews = await this.userLikesNewsRepository.findOne({
+      where: {
+        news: { id: newsId },
+        userId: 2, //TODO: get user from jwt
+      },
+    });
+    return userLikesNews;
+  }
 }
 
 @Injectable()
@@ -378,6 +387,7 @@ export class UserLikesNewsService {
       userId: 2, //TODO: get user from jwt
     });
   }
+
   async remove(newsId: number) {
     const userLikesNews = await this.userLikesNewsRepository.findOne({
       relations: { news: true },

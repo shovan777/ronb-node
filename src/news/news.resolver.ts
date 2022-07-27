@@ -89,6 +89,12 @@ export class NewsResolver {
     return await this.newsService.findImagesofNews(id);
   }
 
+  @ResolveField(() => UserLikesNews)
+  async like(@Parent() news: News) {
+    const { id } = news;
+    return await this.newsService.findUserLikesNews(id);
+  }
+
   @ResolveField(() => Int)
   async likeCount(@Parent() news: News) {
     const { id } = news;
@@ -142,7 +148,7 @@ export class NewsCategoryResolver {
 
   @Mutation(() => NewsCategory)
   async updateNewsCategory(
-    @Args('id') id: number,
+    @Args('id', { type: () => Int }) id: number,
     @Args('updateNewsCategoryInput')
     updateNewsCategoryInput: UpdateNewsCategoryInput,
   ) {
