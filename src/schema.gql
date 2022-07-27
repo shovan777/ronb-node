@@ -88,7 +88,7 @@ type Mutation {
   removePublicToilet(id: Int!): PublicToilet!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
-  updateNewsCategory(id: Float!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
+  updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
 }
 
