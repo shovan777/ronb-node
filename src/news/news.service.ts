@@ -1,8 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createWriteStream, mkdir } from 'fs';
-import { join } from 'path';
-import { finished } from 'stream/promises';
 import { Repository } from 'typeorm';
 import {
   CreateNewsCategoryInput,
@@ -225,16 +222,16 @@ export class NewsService {
         // };
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { ...updatedNews } = {
+      const { images = [], ...updatedNews } = {
         ...news,
         ...newsInputData,
         updatedAt: new Date(),
         updatedBy: 1, //TODO: get user from jwt
         // images: ['guur'],
       };
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // const { images = [], ...updatedNewsWithoutImage } = { ...updatedNews };
       // console.log(newsInputData);
-      // console.log(updatedNews);
       // this.newsArr[id] = updatedNews;
       return this.newsRepository.save(updatedNews);
     }
