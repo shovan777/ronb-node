@@ -97,11 +97,17 @@ export class News {
   @Column({ nullable: true })
   imgSource?: string;
 
-  @Field(() => [UserLikesNews], { description: 'News likes', nullable: true })
+  // @Field(() => [UserLikesNews], { description: 'News likes', nullable: true })
   @OneToMany(() => UserLikesNews, (likes) => likes.news, {
     nullable: true,
   })
   likes?: UserLikesNews[];
+
+  @Field(() => UserLikesNews, {
+    description: 'React of user to the news',
+    nullable: true,
+  })
+  like?: UserLikesNews | any;
 }
 
 @ObjectType()
