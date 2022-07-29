@@ -60,6 +60,11 @@ input CreatePublicToiletInput {
   singleImage: Upload
 }
 
+input CreateTagInput {
+  """Tag name"""
+  name: String!
+}
+
 input CreateUserLikesNewsInput {
   """News liked by the user"""
   newsId: Int!
@@ -82,6 +87,7 @@ type Mutation {
   createNews(createNewsInput: CreateNewsInput!): News!
   createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
+  createTag(createTagInput: CreateTagInput!): Tag!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
@@ -348,6 +354,52 @@ type Query {
     """Paginate last"""
     last: Float
   ): PublicToiletResponse!
+  tags(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): TagsResponse!
+}
+
+type Tag {
+  """id field for int"""
+  id: Int!
+
+  """name of the tag"""
+  name: String!
+
+  """slug of the tag"""
+  slug: String!
+}
+
+type TagConnection {
+  edges: [TagEdge!]!
+  pageInfo: TagPageInfo!
+}
+
+type TagEdge {
+  cursor: String
+  node: Tag
+}
+
+type TagPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type TagsResponse {
+  page: TagConnection!
+  pageData: PageData
 }
 
 input UpdateNewsCategoryInput {
