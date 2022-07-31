@@ -7,18 +7,18 @@ const sub = createClient({
 });
 const pub = sub.duplicate();
 
-// (async (sub, pub) => {
-//   await pub.connect();
-//   await sub.connect();
-// })(sub, pub);
-// Promise.all([sub, pub])
-//   .then(() => {
-//     console.log('**********redis connected');
-//   })
-//   .catch((err) => {
-//     console.log('not connected');
-//     throw err;
-//   });
+(async (sub, pub) => {
+  await pub.connect();
+  await sub.connect();
+})(sub, pub);
+Promise.all([sub, pub])
+  .then(() => {
+    console.log('**********redis connected');
+  })
+  .catch((err) => {
+    console.log('not connected');
+    throw err;
+  });
 
 @Injectable()
 export class SecurityMiddleware implements NestMiddleware {
