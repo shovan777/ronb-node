@@ -375,22 +375,25 @@ export class UserLikesNewsService {
     @InjectRepository(News)
     private newsRepository: Repository<News>,
   ) {}
-  async create(createUserLikesNewsInput: CreateUserLikesNewsInput) {
+  async create(
+    createUserLikesNewsInput: CreateUserLikesNewsInput,
+    user: number,
+  ) {
     const { newsId } = createUserLikesNewsInput;
     const news = await this.newsRepository.findOneBy({ id: newsId });
     if (!news) return new NotFoundException(`News with id ${newsId} not found`);
     return this.userLikesNewsRepository.save({
       news: news,
-      userId: 2, //TODO: get user from jwt
+      userId: user, //TODO: get user from jwt
     });
   }
 
-  async remove(newsId: number) {
+  async remove(newsId: number, user: number) {
     const userLikesNews = await this.userLikesNewsRepository.findOne({
       relations: { news: true },
       where: {
         news: { id: newsId },
-        userId: 2, //TODO: get user from jwt
+        userId: user, //TODO: get user from jwt
       },
     });
     if (!userLikesNews)

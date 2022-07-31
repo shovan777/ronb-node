@@ -32,6 +32,7 @@ import NewsResponse from './news.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { FilterNewsInput } from './dto/filter-news.input';
+import { User } from 'src/common/decorators/user.decorator';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -167,16 +168,22 @@ export class UserLikesNewsResolver {
 
   @Mutation(() => UserLikesNews)
   async createUserLikesNews(
+    @User() user: number,
     @Args('createUserLikesNewsInput')
     createUserLikesNewsInput: CreateUserLikesNewsInput,
   ) {
-    return await this.userLikesNewsService.create(createUserLikesNewsInput);
+    console.log(`hello from like ${user}`);
+    return await this.userLikesNewsService.create(
+      createUserLikesNewsInput,
+      user,
+    );
   }
 
   @Mutation(() => UserLikesNews)
   async removeUserLikesNews(
+    @User() user: number,
     @Args('newsId', { type: () => Int }) newsId: number,
   ) {
-    return await this.userLikesNewsService.remove(newsId);
+    return await this.userLikesNewsService.remove(newsId, user);
   }
 }
