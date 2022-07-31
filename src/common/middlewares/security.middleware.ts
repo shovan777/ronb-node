@@ -24,19 +24,31 @@ Promise.all([sub, pub])
 export class SecurityMiddleware implements NestMiddleware {
   // use(cookieParser)
   //   use(cookieParser()
-  use(req: Request, res: Response, next: NextFunction) {
+  async use(req: any, res: Response, next: NextFunction) {
     // do something
-    console.log('*******hello from security middleware');
     const cookies = req.cookies;
     const jwt_auth = cookies.JWT;
-    console.log(cookies);
+    console.log(jwt_auth);
     if (!jwt_auth) {
       console.log('No jwt token');
       res.status(401).send('Unauthorized');
       return;
     }
-
-
-    next();
+    await pub.publish('nodeLdjango-node', jwt_auth).then(() => {
+      sub.subscribe('nodeLdjango-django', (message) => {
+        const user_id = JSON.parse(message).user_id;
+        if (user_id) {
+          console.log(`hello again ${user_id}`);
+          const user = user_id;
+          req.user = user;
+          next();
+        } else {
+          console.log('Please login first');
+          res.status(401).send('Please login first');
+        }
+        sub.unsubscribe('nodeLdjango-django');
+      });
+    });
+    // next();
   }
 }
