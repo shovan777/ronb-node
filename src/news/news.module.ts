@@ -17,6 +17,7 @@ import {
   NewsImage,
   UserLikesNews,
 } from './entities/news.entity';
+import { NewsTaggit } from 'src/tags/entities/tag.entity';
 
 @Module({
   providers: [
@@ -29,7 +30,10 @@ import {
     UserLikesNewsService,
   ],
   imports: [
-    TypeOrmModule.forFeature([News, NewsImage, NewsCategory, UserLikesNews]),
+    TypeOrmModule.forFeature([News, NewsImage, NewsCategory, UserLikesNews, NewsTaggit]),
   ],
+  exports: [
+    TypeOrmModule.forFeature([News]),
+  ]
 })
 export class NewsModule {}

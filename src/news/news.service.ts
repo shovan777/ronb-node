@@ -19,6 +19,7 @@ import {
   UserLikesNews,
 } from './entities/news.entity';
 import { uploadFileStream } from 'src/common/utils/upload';
+import { NewsTaggit } from 'src/tags/entities/tag.entity';
 
 @Injectable()
 export class NewsService {
@@ -31,6 +32,8 @@ export class NewsService {
     private newsCategory: Repository<NewsCategory>,
     @InjectRepository(UserLikesNews)
     private userLikesNewsRepository: Repository<UserLikesNews>,
+    @InjectRepository(NewsTaggit)
+    private newsTaggitRepository: Repository<NewsTaggit>,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
@@ -301,6 +304,7 @@ export class NewsService {
     }
     return new NotFoundException(`News with id ${newsId} not found`);
   }
+
   async findUserLikesNews(newsId: number) {
     const userLikesNews = await this.userLikesNewsRepository.findOne({
       where: {
@@ -309,6 +313,17 @@ export class NewsService {
       },
     });
     return userLikesNews;
+  }
+
+  async findTagsofNews(newsId: number) {
+    const newsTaggit: NewsTaggit[] = await this.newsTaggitRepository.find({
+      where: { news: {id: newsId }},
+      relations: { 
+        tag: true,
+        news:false,
+      },
+    });
+    return newsTaggit;
   }
 }
 

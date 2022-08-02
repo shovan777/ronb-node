@@ -1,9 +1,8 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { TagsService } from './tags.service';
-import { Tag } from './entities/tag.entity';
-import { CreateTagInput } from './dto/create-tag.input';
+import { Resolver, Query, Mutation, Args, Int, ArgsType } from '@nestjs/graphql';
+import { NewsTaggitService, TagsService } from './tags.service';
+import { NewsTaggit, Tag } from './entities/tag.entity';
+import { CreateNewsTaggitInput, CreateTagInput } from './dto/create-tag.input';
 import { UpdateTagInput } from './dto/update-tag.input';
-import TagsResponse from './tags.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 
@@ -16,31 +15,26 @@ export class TagsResolver {
     return await this.tagsService.create(createTagInput);
   }
 
-  @Query(() => TagsResponse, { name: 'tags' })
-  async findAll(
-    @Args() args: ConnectionArgs,
-  ): Promise<TagsResponse> {
-    const { limit, offset } = args.pagingParams();
-    const [tags, count] = await this.tagsService.findAll(limit, offset);
-    const page = connectionFromArraySlice(tags, args, {
-      arrayLength: count,
-      sliceStart: offset || 0,
-    });
-    return { page, pageData: { count, limit, offset } };
+  @Query(() => [Tag], { name: 'tags' })
+  async findAll(): Promise<Tag[]> {
+    return this.tagsService.findAll();
+  }
+}
+
+@Resolver(() => NewsTaggit)
+export class NewsTaggitResolver {
+  constructor(private readonly newsTaggitService: NewsTaggitService) {}
+
+  @Mutation(() => NewsTaggit)
+  async createNewsTaggit(@Args('createNewsTaggitInput') createNewsTaggitInput: CreateNewsTaggitInput) {
+    return await this.newsTaggitService.create(createNewsTaggitInput);
   }
 
-  // @Query(() => Tag, { name: 'tag' })
-  // findOne(@Args('id', { type: () => Int }) id: number) {
-  //   return this.tagsService.findOne(id);
-  // }
-
-  // @Mutation(() => Tag)
-  // updateTag(@Args('updateTagInput') updateTagInput: UpdateTagInput) {
-  //   return this.tagsService.update(updateTagInput.id, updateTagInput);
-  // }
-
-  // @Mutation(() => Tag)
-  // removeTag(@Args('id', { type: () => Int }) id: number) {
-  //   return this.tagsService.remove(id);
-  // }
+  @Query(() => [NewsTaggit], { name: 'newsTaggit' })
+  async findAll(
+    // @ArgsType('filter', {nullable:true})
+    // filter?: 
+  ): Promise<NewsTaggit[]> {
+    return this.newsTaggitService.findAll();
+  }
 }

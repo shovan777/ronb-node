@@ -7,15 +7,11 @@ export class CreateTagInput {
   name: string;
 }
 
-
 @InputType()
-export class CreateTagItemInput {
-  @Field(() => Tag, { description: 'Tag object' })
-  tag: Tag;
-
-  @Field(() => Int, { description: 'related entitiy object id'})
-  objectId: number;
-
-  @Field(() => String, { description: 'related entitiy object type'})
-  objectType: string;
+export class CreateNewsTaggitInput{
+  @Field(()=>Int, { description: 'News id' })
+  news: number;
+  
+  @Field(()=>Int,{ description: 'Tag id' })
+  tag: number;
 }

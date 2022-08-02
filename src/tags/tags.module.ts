@@ -1,13 +1,20 @@
 import { Module } from '@nestjs/common';
-import { TagsService } from './tags.service';
-import { TagsResolver } from './tags.resolver';
+import { NewsTaggitService, TagsService } from './tags.service';
+import { NewsTaggitResolver, TagsResolver } from './tags.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {  Tag } from './entities/tag.entity';
+import {  NewsTaggit, Tag } from './entities/tag.entity';
+import { NewsModule } from 'src/news/news.module';
 
 @Module({
-  providers: [TagsResolver, TagsService],
+  providers: [
+    TagsResolver, 
+    TagsService, 
+    NewsTaggitResolver, 
+    NewsTaggitService,
+  ],
   imports: [
-    TypeOrmModule.forFeature([Tag,]),
+    TypeOrmModule.forFeature([Tag, NewsTaggit]),
+    NewsModule,
   ],
 })
 export class TagsModule {}
