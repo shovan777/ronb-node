@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { slugify } from 'src/common/utils/slugify';
 import { News } from 'src/news/entities/news.entity';
+import { NewsService } from 'src/news/news.service';
 import { Repository } from 'typeorm';
 import { CreateTagInput, CreateNewsTaggitInput } from './dto/create-tag.input';
 import { NewsTaggit, Tag } from './entities/tag.entity';
@@ -36,8 +37,8 @@ export class NewsTaggitService {
     private newsTaggitRepository: Repository<NewsTaggit>,
     @InjectRepository(Tag)
     private tagRepository: Repository<Tag>,
-    @InjectRepository(News)
-    private newsRepository: Repository<News>,
+    @Inject(forwardRef(() => NewsService))
+    private newsService: NewsService,
    ) {}
   
   async create(createNewsTaggitInput: CreateNewsTaggitInput): Promise<NewsTaggit> {
@@ -46,16 +47,15 @@ export class NewsTaggitService {
     }
     
     if (createNewsTaggitInput.news) {
-      const news: News = await this.newsRepository.findOneBy({
-        id: createNewsTaggitInput.news,
-      });
-      if (!news) {
-        throw new NotFoundException(`News with id ${createNewsTaggitInput.news} not found`);
+      try{
+        const news: News | NotFoundException = await this.newsService.findOne(createNewsTaggitInput.news);
+        newInputData = {
+          ...newInputData,
+          news: news,
+        };
+      } catch (error) {
+        throw new NotFoundException('News not found');
       }
-      newInputData = {
-        ...newInputData,
-        news: news,
-      };
     }
     if (createNewsTaggitInput.tag) {
       const tag: Tag = await this.tagRepository.findOneBy({
@@ -84,16 +84,17 @@ export class NewsTaggitService {
     });
   }
 
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} tag`;
-  // }
-
-  // update(id: number, updateTagInput: UpdateTagInput) {
-  //   return `This action updates a #${id} tag`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} tag`;
-  // }
+  async findAllByNews(newsId: number): Promise<NewsTaggit[]> {
+    return this.newsTaggitRepository.find({
+      where: {
+        news: {
+          id:newsId,
+        },
+      },
+      relations:{
+        tag:true,
+        news:true,
+      },
+    });
+  }
 }

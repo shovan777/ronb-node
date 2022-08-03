@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { NewsTaggitService, TagsService } from './tags.service';
 import { NewsTaggitResolver, TagsResolver } from './tags.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,8 +13,12 @@ import { NewsModule } from 'src/news/news.module';
     NewsTaggitService,
   ],
   imports: [
+    forwardRef(() => NewsModule),
     TypeOrmModule.forFeature([Tag, NewsTaggit]),
-    NewsModule,
+  ],
+  exports: [
+    TagsService,
+    NewsTaggitService,
   ],
 })
 export class TagsModule {}

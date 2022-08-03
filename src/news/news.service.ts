@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -19,7 +19,8 @@ import {
   UserLikesNews,
 } from './entities/news.entity';
 import { uploadFileStream } from 'src/common/utils/upload';
-import { NewsTaggit } from 'src/tags/entities/tag.entity';
+import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
+import { NewsTaggitService, TagsService } from 'src/tags/tags.service';
 
 @Injectable()
 export class NewsService {
@@ -32,8 +33,8 @@ export class NewsService {
     private newsCategory: Repository<NewsCategory>,
     @InjectRepository(UserLikesNews)
     private userLikesNewsRepository: Repository<UserLikesNews>,
-    @InjectRepository(NewsTaggit)
-    private newsTaggitRepository: Repository<NewsTaggit>,
+    private tagsService: TagsService,
+    private newsTaggitService: NewsTaggitService,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
@@ -43,7 +44,9 @@ export class NewsService {
       ...newsInput,
       singleImage: null,
       images: null,
+      tags: null,
     };
+
     if (newsInput.singleImage) {
       const imageFile: any = await newsInput.singleImage;
       const file_name = imageFile.filename;
@@ -60,6 +63,7 @@ export class NewsService {
         singleImage: file_path,
       };
     }
+
     if (newsInput.category) {
       const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
         id: newsInput.category,
@@ -74,6 +78,7 @@ export class NewsService {
         category: newsCategory,
       };
     }
+
     const newsData: News = await this.newsRepository.save({
       ...newsInputData,
       publishedAt: new Date(),
@@ -112,6 +117,14 @@ export class NewsService {
         ...newsInputData,
         images: await Promise.all(newImages),
       };
+    }
+
+    if (newsInput.tags) {
+      const tags = newsInput.tags.map(async (tag) => {
+        // const tagObject = await this.tagRepository.findOneBy({
+        //   id: tag.id,
+        // })
+      })
     }
 
     return await newsData;
@@ -313,17 +326,6 @@ export class NewsService {
       },
     });
     return userLikesNews;
-  }
-
-  async findTagsofNews(newsId: number) {
-    const newsTaggit: NewsTaggit[] = await this.newsTaggitRepository.find({
-      where: { news: {id: newsId }},
-      relations: { 
-        tag: true,
-        news:false,
-      },
-    });
-    return newsTaggit;
   }
 }
 

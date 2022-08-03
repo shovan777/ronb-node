@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import {
   NewsCategoryService,
   NewsService,
@@ -17,7 +17,7 @@ import {
   NewsImage,
   UserLikesNews,
 } from './entities/news.entity';
-import { NewsTaggit } from 'src/tags/entities/tag.entity';
+import { TagsModule } from 'src/tags/tags.module';
 
 @Module({
   providers: [
@@ -30,10 +30,11 @@ import { NewsTaggit } from 'src/tags/entities/tag.entity';
     UserLikesNewsService,
   ],
   imports: [
-    TypeOrmModule.forFeature([News, NewsImage, NewsCategory, UserLikesNews, NewsTaggit]),
+    forwardRef(() => TagsModule),
+    TypeOrmModule.forFeature([News, NewsImage, NewsCategory, UserLikesNews]),
   ],
   exports: [
-    TypeOrmModule.forFeature([News]),
-  ]
+    NewsService,
+  ],
 })
 export class NewsModule {}
