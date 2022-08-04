@@ -33,6 +33,7 @@ import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { FilterNewsInput } from './dto/filter-news.input';
 import { User } from 'src/common/decorators/user.decorator';
+import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -43,15 +44,14 @@ export class NewsResolver {
   constructor(private readonly newsService: NewsService) {}
 
   @Mutation(() => News)
-  async createNews(@Args('createNewsInput') createNewsInput: CreateNewsInput) {
-    // console.log(createNewsInput.singleImage);
-    return await this.newsService.create(createNewsInput);
+  async createNews(
+    @Args('createNewsInput') createNewsInput: CreateNewsInput,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return await this.newsService.create(createNewsInput, user);
   }
 
-  // @Query(() => [News], { name: 'news' })
-  // findAll(): Promise<News[]> {
-  //   return this.newsService.findAll();
-  // }
   @Query(() => NewsResponse, { name: 'news' })
   async findAll(
     @Args() args: ConnectionArgs,
@@ -83,7 +83,6 @@ export class NewsResolver {
   @ResolveField(() => [NewsImage])
   async images(@Parent() news: News) {
     const { id } = news;
-    // console.log(news);
     if (news.images) {
       return news.images;
     }
@@ -111,14 +110,18 @@ export class NewsResolver {
   async updateNews(
     @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateNewsInput') updateNewsInput: UpdateNewsInput,
+    @User() user: number,
   ) {
-    return await this.newsService.update(id, updateNewsInput);
+    checkUserAuthenticated(user);
+    return await this.newsService.update(id, updateNewsInput, user);
   }
 
   @Mutation(() => News)
   removeNews(
     @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
   ): Promise<NotFoundException | any> {
+    checkUserAuthenticated(user);
     return this.newsService.remove(id);
   }
 }
@@ -165,6 +168,11 @@ export class NewsCategoryResolver {
 @Resolver(() => UserLikesNews)
 export class UserLikesNewsResolver {
   constructor(private readonly userLikesNewsService: UserLikesNewsService) {}
+  // checkUserAuthenticated(user: number) {
+  //   if (!user) {
+  //     throw new NotFoundException('User not found');
+  //   }
+  // }
 
   @Mutation(() => UserLikesNews)
   async createUserLikesNews(
@@ -172,6 +180,7 @@ export class UserLikesNewsResolver {
     @Args('createUserLikesNewsInput')
     createUserLikesNewsInput: CreateUserLikesNewsInput,
   ) {
+    checkUserAuthenticated(user);
     console.log(`hello from like ${user}`);
     return await this.userLikesNewsService.create(
       createUserLikesNewsInput,
@@ -184,6 +193,7 @@ export class UserLikesNewsResolver {
     @User() user: number,
     @Args('newsId', { type: () => Int }) newsId: number,
   ) {
+    checkUserAuthenticated(user);
     return await this.userLikesNewsService.remove(newsId, user);
   }
 }
