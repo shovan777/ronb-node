@@ -34,6 +34,7 @@ import { connectionFromArraySlice } from 'graphql-relay';
 import { FilterNewsInput } from './dto/filter-news.input';
 import { User } from 'src/common/decorators/user.decorator';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
+import { check } from 'prettier';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -149,8 +150,10 @@ export class NewsCategoryResolver {
   async createNewsCategory(
     @Args('createNewsCategoryInput')
     createNewsCategoryInput: CreateNewsCategoryInput,
+    @User() user: number,
   ) {
-    return await this.newsCategoryService.create(createNewsCategoryInput);
+    checkUserAuthenticated(user);
+    return await this.newsCategoryService.create(createNewsCategoryInput, user);
   }
 
   @Mutation(() => NewsCategory)
@@ -158,12 +161,22 @@ export class NewsCategoryResolver {
     @Args('id', { type: () => Int }) id: number,
     @Args('updateNewsCategoryInput')
     updateNewsCategoryInput: UpdateNewsCategoryInput,
+    @User() user: number,
   ) {
-    return await this.newsCategoryService.update(id, updateNewsCategoryInput);
+    checkUserAuthenticated(user);
+    return await this.newsCategoryService.update(
+      id,
+      updateNewsCategoryInput,
+      user,
+    );
   }
 
   @Mutation(() => NewsCategory)
-  async removeNewsCategory(@Args('id', { type: () => Int }) id: number) {
+  async removeNewsCategory(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
     return this.newsCategoryService.remove(id);
   }
 }

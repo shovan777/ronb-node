@@ -310,22 +310,26 @@ export class NewsCategoryService {
     return newsCategory;
   }
 
-  async create(createNewsCategoryInput: CreateNewsCategoryInput) {
+  async create(createNewsCategoryInput: CreateNewsCategoryInput, user: number) {
     return this.newsCategoryRepository.save({
       ...createNewsCategoryInput,
-      createdBy: 1,
-      updatedBy: 1,
+      createdBy: user,
+      updatedBy: user,
     });
   }
 
-  async update(id: number, updateNewsCategoryInput: UpdateNewsCategoryInput) {
+  async update(
+    id: number,
+    updateNewsCategoryInput: UpdateNewsCategoryInput,
+    user: number,
+  ) {
     const newsCategory: NewsCategory =
       await this.newsCategoryRepository.findOneBy({ id });
     if (newsCategory) {
       return this.newsCategoryRepository.save({
         ...newsCategory,
         ...updateNewsCategoryInput,
-        updatedBy: 1, //TODO: get user from jwt
+        updatedBy: user, //TODO: get user from jwt
       });
     }
     return new NotFoundException(`NewsCategory with id ${id} not found`);
