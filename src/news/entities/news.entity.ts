@@ -1,5 +1,6 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
+import { NewsTaggit } from 'src/tags/entities/tag.entity';
 import {
   Column,
   CreateDateColumn,
@@ -82,8 +83,12 @@ export class News {
   })
   category?: NewsCategory;
 
-  @Field(() => [String], { description: 'News tags', nullable: true })
-  tags?: string[];
+  // tags?: string[];
+  @Field(() => [NewsTaggit], { description: 'News tags', nullable: true })
+  @OneToMany(() => NewsTaggit, (newsTaggit) => newsTaggit.news,{
+    nullable: true,
+  })
+  tags?: NewsTaggit[];
 
   @Field({ description: 'News link', nullable: true })
   @Column({ nullable: true })

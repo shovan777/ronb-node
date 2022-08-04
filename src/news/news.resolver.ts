@@ -32,6 +32,8 @@ import NewsResponse from './news.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { FilterNewsInput } from './dto/filter-news.input';
+import { NewsTaggit } from 'src/tags/entities/tag.entity';
+import { NewsTaggitService } from 'src/tags/tags.service';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -39,7 +41,10 @@ import { FilterNewsInput } from './dto/filter-news.input';
 
 @Resolver(() => News)
 export class NewsResolver {
-  constructor(private readonly newsService: NewsService) {}
+  constructor(
+      private readonly newsService: NewsService,
+      private readonly newsTaggitService: NewsTaggitService,
+    ) {}
 
   @Mutation(() => News)
   async createNews(@Args('createNewsInput') createNewsInput: CreateNewsInput) {
@@ -104,6 +109,12 @@ export class NewsResolver {
   async category(@Parent() news: News) {
     const { id } = news;
     return await this.newsService.findCategoryofNews(id);
+  }
+
+  @ResolveField(() => [NewsTaggit], {nullable:true})
+  async tags(@Parent() news: News) {
+    const { id } = news;
+    return await this.newsTaggitService.findAllByNews(id);
   }
 
   @Mutation(() => News)
