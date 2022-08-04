@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -121,10 +121,23 @@ export class NewsService {
 
     if (newsInput.tags) {
       const tags = newsInput.tags.map(async (tag) => {
-        // const tagObject = await this.tagRepository.findOneBy({
-        //   id: tag.id,
-        // })
-      })
+        const tagData: Tag = await this.tagsService.findOneOrCreate(tag);
+        return tagData;
+      });
+
+      const newsTags = tags.map(async (tag) => {
+        const tagData = await tag;
+        const newsTaggit: NewsTaggit = await this.newsTaggitService.create({
+          tag: tagData.id,
+          news: newsData.id,
+        });
+        return newsTaggit;
+      });
+
+      newsInputData = {
+        ...newsInputData,
+        tags: await Promise.all(newsTags),
+      };
     }
 
     return await newsData;
@@ -177,6 +190,7 @@ export class NewsService {
         singleImage: null,
         // images: null,
       };
+
       if (updateNewsInput.singleImage) {
         const imageFile: any = await updateNewsInput.singleImage;
         const file_name = imageFile.filename;
@@ -192,6 +206,7 @@ export class NewsService {
         };
         news.singleImage = newsInputData.singleImage;
       }
+
       if (updateNewsInput.category) {
         const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
           id: updateNewsInput.category,
@@ -207,6 +222,7 @@ export class NewsService {
         };
         news.category = newsInputData.category;
       }
+
       if (updateNewsInput.images) {
         const imagePaths = updateNewsInput.images.map(async (image) => {
           const imageFile: any = await image;
@@ -237,8 +253,25 @@ export class NewsService {
         //   images: await Promise.all(newImages),
         // };
       }
+
+      if (updateNewsInput.tags) {
+        console.log(updateNewsInput.tags);
+        const tags = updateNewsInput.tags.map(async (tag) => {
+          const tagData: Tag = await this.tagsService.findOneOrCreate(tag);
+          return tagData;
+        });
+
+        const newsTags = tags.map(async (tag) => {
+          const tagData = await tag; 
+          console.log(tagData);
+          const newsTaggit: NewsTaggit = await this.newsTaggitService.findOneOrCreate(tagData,news);
+          return newsTaggit;
+        });
+        await Promise.all(newsTags);
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { images = [], ...updatedNews } = {
+      const {tags=[], images = [], ...updatedNews } = {
         ...news,
         ...newsInputData,
         updatedAt: new Date(),
@@ -261,7 +294,7 @@ export class NewsService {
     // }
     const news: News = await this.newsRepository.findOne({
       where: { id: id },
-      relations: { images: true },
+      relations: { images: true, tags: true },
     });
     // console.log(news);
     if (news) {
@@ -270,6 +303,12 @@ export class NewsService {
         return await this.newsImageRepository.delete(image.id);
       });
       await Promise.all(deleteImage);
+
+      const deleteNewsTaggit = news.tags.map(async (tag) => {
+        return await this.newsTaggitService.remove(tag.id);
+      });
+      await Promise.all(deleteNewsTaggit);
+
       // }
       // console.log(deletedImages);
       await this.newsRepository.delete(news.id);

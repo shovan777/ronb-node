@@ -15,10 +15,8 @@ export class TagsService {
    ) {}
   
   async create(createTagInput: CreateTagInput): Promise<Tag> {
-    const slug = slugify(createTagInput.name);
     return this.tagRepository.save({
       ...createTagInput,
-      slug,
       createdBy:1,
       updatedBy:1,
     });
@@ -27,6 +25,32 @@ export class TagsService {
   async findAll(): Promise<Tag[]> {
     return this.tagRepository.find();
   }
+
+  async findOneById(id: number): Promise<Tag> {
+    const tag = await this.tagRepository.findOne({
+      where: {id}
+    });
+    if (!tag) {
+      throw new NotFoundException(`Tag with id ${id} not found`);
+    }
+    return tag;
+  }
+
+  async findOneByName(name: string): Promise<Tag> {
+    const tag = await this.tagRepository.findOne({ 
+      where: {name}
+    });
+    return tag;
+  }
+
+  async findOneOrCreate(name: string): Promise<Tag> {
+    const tag = await this.findOneByName(name);
+    if (tag) {
+      return tag;
+    }
+    return await this.create({name});
+  }
+  
 }
 
 
@@ -35,8 +59,7 @@ export class NewsTaggitService {
   constructor(
     @InjectRepository(NewsTaggit)
     private newsTaggitRepository: Repository<NewsTaggit>,
-    @InjectRepository(Tag)
-    private tagRepository: Repository<Tag>,
+    private tagService: TagsService,
     @Inject(forwardRef(() => NewsService))
     private newsService: NewsService,
    ) {}
@@ -58,12 +81,7 @@ export class NewsTaggitService {
       }
     }
     if (createNewsTaggitInput.tag) {
-      const tag: Tag = await this.tagRepository.findOneBy({
-        id: createNewsTaggitInput.tag,
-      });
-      if (!tag) {
-        throw new NotFoundException(`Tag with id ${createNewsTaggitInput.tag} not found`);
-      }
+      const tag: Tag = await this.tagService.findOneById(createNewsTaggitInput.tag);
       newInputData = {
         ...newInputData,
         tag: tag,
@@ -96,5 +114,55 @@ export class NewsTaggitService {
         news:true,
       },
     });
+  }
+
+  async findOneByTagAndNews(tagId: number, newsId: number): Promise<NewsTaggit> {
+    return await this.newsTaggitRepository.findOne({
+      where: {
+        tag: {
+          id:tagId,
+        },
+        news: {
+          id:newsId,
+        },
+      },
+      relations:{
+        tag:true,
+        news:true,
+      },
+    });
+  }
+
+  async findOne(id: number) {
+    const newsTaggit = await this.newsTaggitRepository.findOne({
+      where: {id},
+      relations:{
+        tag:true,
+        news:true,
+      },
+    });
+    if (!newsTaggit) {
+      throw new NotFoundException(`NewsTaggit with id ${id} not found`);
+    }
+    return newsTaggit;
+  }
+
+  async findOneOrCreate(tag: Tag, news: News): Promise<NewsTaggit> {
+    const newsTaggit = await this.findOneByTagAndNews(tag.id, news.id);
+    if (newsTaggit) {
+      return newsTaggit;
+    }
+    return this.create({
+      tag: tag.id,
+      news: news.id,
+    });
+  }
+
+  async remove(id: number) {
+    const newsTaggit: NewsTaggit = await this.findOne(id);
+    if (newsTaggit) {
+      await this.newsTaggitRepository.delete(id);
+      return newsTaggit;
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { News } from 'src/news/entities/news.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @ObjectType()
 @Entity()
@@ -17,20 +17,12 @@ export class Tag {
     length: 100,
   })
   name: string;
-
-
-  @Field({ description: "slug of the tag"})
-  @Column({
-    type: "varchar",
-    unique: true,
-    length: 100,
-  })
-  slug: string;
 }
 
 
 @ObjectType()
 @Entity()
+// @Unique("tag_news", ["tag", "news"]) // named; multiple fields
 export class NewsTaggit {
   @Field(() => Int, { description: 'id field for int' })
   @PrimaryGeneratedColumn()

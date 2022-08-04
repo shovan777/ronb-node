@@ -100,6 +100,7 @@ type Mutation {
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
+  removeNewsTaggit(id: Int!): NewsTaggit!
   removePublicToilet(id: Int!): PublicToilet!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
@@ -384,9 +385,6 @@ type Tag {
 
   """name of the tag"""
   name: String!
-
-  """slug of the tag"""
-  slug: String!
 }
 
 input UpdateNewsCategoryInput {
