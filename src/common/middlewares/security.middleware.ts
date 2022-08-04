@@ -28,10 +28,12 @@ export class SecurityMiddleware implements NestMiddleware {
     // do something
     const cookies = req.cookies;
     const jwt_auth = cookies.JWT;
-    console.log(jwt_auth);
+    // console.log(jwt_auth);
     if (!jwt_auth) {
       console.log('No jwt token');
-      res.status(401).send('Unauthorized');
+      // res.status(401).send('Unauthorized');
+      req.user = null;
+      next();
       return;
     }
     await pub.publish('nodeLdjango-node', jwt_auth).then(() => {
@@ -46,7 +48,9 @@ export class SecurityMiddleware implements NestMiddleware {
           console.log('Please login first');
           res.status(401).send('Please login first');
         }
-        sub.unsubscribe('nodeLdjango-django');
+        sub.unsubscribe('nodeLdjango-django').then(() => {
+          console.log('unsubscribed from the channel');
+        });
       });
     });
     // next();
