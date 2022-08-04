@@ -90,9 +90,12 @@ export class NewsResolver {
   }
 
   @ResolveField(() => UserLikesNews)
-  async like(@Parent() news: News) {
+  async like(@Parent() news: News, @User() user: number) {
     const { id } = news;
-    return await this.newsService.findUserLikesNews(id);
+    if (!user) {
+      return null;
+    }
+    return await this.newsService.findUserLikesNews(id, user);
   }
 
   @ResolveField(() => Int)

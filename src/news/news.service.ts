@@ -35,7 +35,6 @@ export class NewsService {
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
   async create(newsInput: CreateNewsInput, user: number): Promise<News> {
-    // return 'This action adds a new news';
     let newsInputData: any = {
       ...newsInput,
       singleImage: null,
@@ -141,7 +140,6 @@ export class NewsService {
       where: { id: id },
       relations: { images: true, likes: true },
     });
-    // console.log(news);
     if (news) {
       return news;
     }
@@ -283,11 +281,11 @@ export class NewsService {
     }
     return new NotFoundException(`News with id ${newsId} not found`);
   }
-  async findUserLikesNews(newsId: number) {
+  async findUserLikesNews(newsId: number, user: number) {
     const userLikesNews = await this.userLikesNewsRepository.findOne({
       where: {
         news: { id: newsId },
-        userId: 2, //TODO: get user from jwt
+        userId: user, //TODO: get user from jwt
       },
     });
     return userLikesNews;
