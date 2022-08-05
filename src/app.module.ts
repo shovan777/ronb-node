@@ -1,4 +1,4 @@
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NewsModule } from './news/news.module';
 import { PublicToiletModule } from './public-toilet/public-toilet.module';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PublicToiletModule } from './public-toilet/public-toilet.module';
     }),
     NewsModule,
     PublicToiletModule,
+    TagsModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     GraphQLModule.forRoot({
       driver: ApolloDriver,

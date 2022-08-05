@@ -40,6 +40,14 @@ input CreateNewsInput {
   title: String
 }
 
+input CreateNewsTaggitInput {
+  """News id"""
+  news: Int!
+
+  """Tag id"""
+  tag: Int!
+}
+
 input CreatePublicToiletInput {
   """Public Toilet address"""
   address: String!
@@ -58,6 +66,11 @@ input CreatePublicToiletInput {
 
   """Public Toilet Feature Image"""
   singleImage: Upload
+}
+
+input CreateTagInput {
+  """Tag name"""
+  name: String!
 }
 
 input CreateUserLikesNewsInput {
@@ -81,10 +94,13 @@ scalar GeoJSONPointScalar
 type Mutation {
   createNews(createNewsInput: CreateNewsInput!): News!
   createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
+  createNewsTaggit(createNewsTaggitInput: CreateNewsTaggitInput!): NewsTaggit!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
+  createTag(createTagInput: CreateTagInput!): Tag!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
+  removeNewsTaggit(id: Int!): NewsTaggit!
   removePublicToilet(id: Int!): PublicToilet!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
@@ -134,7 +150,7 @@ type News {
   source: String
 
   """News tags"""
-  tags: [String!]
+  tags: [NewsTaggit!]
 
   """News title"""
   title: String
@@ -213,6 +229,17 @@ type NewsPageInfo {
 type NewsResponse {
   page: NewsConnection!
   pageData: PageData
+}
+
+type NewsTaggit {
+  """id field for int"""
+  id: Int!
+
+  """news name"""
+  news: News!
+
+  """Tag name"""
+  tag: Tag!
 }
 
 type PageData {
@@ -320,6 +347,7 @@ type Query {
   newsById(id: Int!): News!
   newsCategories: [NewsCategory!]!
   newsCategoryById(id: Int!): NewsCategory!
+  newsTaggit: [NewsTaggit!]!
   publicToiletById(id: Int!): PublicToilet!
   publicToiletNearMe(
     """Paginate after cursor"""
@@ -348,6 +376,15 @@ type Query {
     """Paginate last"""
     last: Float
   ): PublicToiletResponse!
+  tags: [Tag!]!
+}
+
+type Tag {
+  """id field for int"""
+  id: Int!
+
+  """name of the tag"""
+  name: String!
 }
 
 input UpdateNewsCategoryInput {

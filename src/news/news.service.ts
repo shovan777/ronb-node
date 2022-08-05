@@ -19,6 +19,8 @@ import {
   UserLikesNews,
 } from './entities/news.entity';
 import { uploadFileStream } from 'src/common/utils/upload';
+import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
+import { NewsTaggitService, TagsService } from 'src/tags/tags.service';
 
 @Injectable()
 export class NewsService {
@@ -31,6 +33,8 @@ export class NewsService {
     private newsCategory: Repository<NewsCategory>,
     @InjectRepository(UserLikesNews)
     private userLikesNewsRepository: Repository<UserLikesNews>,
+    private tagsService: TagsService,
+    private newsTaggitService: NewsTaggitService,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
@@ -40,7 +44,9 @@ export class NewsService {
       ...newsInput,
       singleImage: null,
       images: null,
+      tags: null,
     };
+
     if (newsInput.singleImage) {
       const imageFile: any = await newsInput.singleImage;
       const file_name = imageFile.filename;
@@ -57,6 +63,7 @@ export class NewsService {
         singleImage: file_path,
       };
     }
+
     if (newsInput.category) {
       const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
         id: newsInput.category,
@@ -71,6 +78,7 @@ export class NewsService {
         category: newsCategory,
       };
     }
+
     const newsData: News = await this.newsRepository.save({
       ...newsInputData,
       publishedAt: new Date(),
@@ -108,6 +116,27 @@ export class NewsService {
       newsInputData = {
         ...newsInputData,
         images: await Promise.all(newImages),
+      };
+    }
+
+    if (newsInput.tags) {
+      const tags = newsInput.tags.map(async (tag) => {
+        const tagData: Tag = await this.tagsService.findOneOrCreate(tag);
+        return tagData;
+      });
+
+      const newsTags = tags.map(async (tag) => {
+        const tagData = await tag;
+        const newsTaggit: NewsTaggit = await this.newsTaggitService.create({
+          tag: tagData.id,
+          news: newsData.id,
+        });
+        return newsTaggit;
+      });
+
+      newsInputData = {
+        ...newsInputData,
+        tags: await Promise.all(newsTags),
       };
     }
 
@@ -161,6 +190,7 @@ export class NewsService {
         singleImage: null,
         // images: null,
       };
+
       if (updateNewsInput.singleImage) {
         const imageFile: any = await updateNewsInput.singleImage;
         const file_name = imageFile.filename;
@@ -176,6 +206,7 @@ export class NewsService {
         };
         news.singleImage = newsInputData.singleImage;
       }
+
       if (updateNewsInput.category) {
         const newsCategory: NewsCategory = await this.newsCategory.findOneBy({
           id: updateNewsInput.category,
@@ -191,6 +222,7 @@ export class NewsService {
         };
         news.category = newsInputData.category;
       }
+
       if (updateNewsInput.images) {
         const imagePaths = updateNewsInput.images.map(async (image) => {
           const imageFile: any = await image;
@@ -221,8 +253,25 @@ export class NewsService {
         //   images: await Promise.all(newImages),
         // };
       }
+
+      if (updateNewsInput.tags) {
+        console.log(updateNewsInput.tags);
+        const tags = updateNewsInput.tags.map(async (tag) => {
+          const tagData: Tag = await this.tagsService.findOneOrCreate(tag);
+          return tagData;
+        });
+
+        const newsTags = tags.map(async (tag) => {
+          const tagData = await tag; 
+          console.log(tagData);
+          const newsTaggit: NewsTaggit = await this.newsTaggitService.findOneOrCreate(tagData,news);
+          return newsTaggit;
+        });
+        await Promise.all(newsTags);
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { images = [], ...updatedNews } = {
+      const {tags=[], images = [], ...updatedNews } = {
         ...news,
         ...newsInputData,
         updatedAt: new Date(),
@@ -245,7 +294,7 @@ export class NewsService {
     // }
     const news: News = await this.newsRepository.findOne({
       where: { id: id },
-      relations: { images: true },
+      relations: { images: true, tags: true },
     });
     // console.log(news);
     if (news) {
@@ -254,6 +303,12 @@ export class NewsService {
         return await this.newsImageRepository.delete(image.id);
       });
       await Promise.all(deleteImage);
+
+      const deleteNewsTaggit = news.tags.map(async (tag) => {
+        return await this.newsTaggitService.remove(tag.id);
+      });
+      await Promise.all(deleteNewsTaggit);
+
       // }
       // console.log(deletedImages);
       await this.newsRepository.delete(news.id);
@@ -301,6 +356,7 @@ export class NewsService {
     }
     return new NotFoundException(`News with id ${newsId} not found`);
   }
+
   async findUserLikesNews(newsId: number) {
     const userLikesNews = await this.userLikesNewsRepository.findOne({
       where: {
