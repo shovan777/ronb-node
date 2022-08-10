@@ -2,22 +2,20 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Comment {
-  """Example field (placeholder)"""
-  exampleField: Int!
-}
-
-input CreateCommentInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
-}
-
 input CreateNewsCategoryInput {
   """News category description"""
   description: String
 
   """News category name"""
   name: String!
+}
+
+input CreateNewsCommentInput {
+  """Comment content"""
+  content: String!
+
+  """News id"""
+  news: Int!
 }
 
 input CreateNewsInput {
@@ -102,28 +100,29 @@ input FilterNewsInput {
 scalar GeoJSONPointScalar
 
 type Mutation {
-  createComment(createCommentInput: CreateCommentInput!): Comment!
   createNews(createNewsInput: CreateNewsInput!): News!
   createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
+  createNewsComment(createNewsCommentInput: CreateNewsCommentInput!): NewsComment!
   createNewsTaggit(createNewsTaggitInput: CreateNewsTaggitInput!): NewsTaggit!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
   createTag(createTagInput: CreateTagInput!): Tag!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
-  removeComment(id: Int!): Comment!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
+  removeNewsComment(id: Int!): NewsComment!
   removeNewsTaggit(id: Int!): NewsTaggit!
   removePublicToilet(id: Int!): PublicToilet!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
-  updateComment(updateCommentInput: UpdateCommentInput!): Comment!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
+  updateNewsComment(id: Int!, updateNewsCommentInput: UpdateNewsCommentInput!): NewsComment!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
 }
 
 type News {
   """News category"""
   category: NewsCategory
+  commentCount: Int!
 
   """News content"""
   content: String!
@@ -176,10 +175,10 @@ type News {
 }
 
 type NewsCategory {
-  """News image createdAt"""
+  """date of creation"""
   createdAt: DateTime!
 
-  """News image createdBy"""
+  """one who created"""
   createdBy: Int!
 
   """News category description"""
@@ -194,11 +193,31 @@ type NewsCategory {
   """News in this category"""
   news: [News!]!
 
-  """News image updatedAt"""
+  """date of update"""
   updatedAt: DateTime!
 
-  """News image updatedBy"""
+  """one who updated"""
   updatedBy: Int!
+}
+
+type NewsComment {
+  """one wrote the comment"""
+  author: Int!
+
+  """Comment content"""
+  content: String!
+
+  """date of creation"""
+  createdAt: DateTime!
+
+  """id field for int"""
+  id: Int!
+
+  """Replies to this comment"""
+  replies: [NewsReply!]!
+
+  """date of update"""
+  updatedAt: DateTime!
 }
 
 type NewsConnection {
@@ -237,6 +256,29 @@ type NewsPageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
   startCursor: String
+}
+
+type NewsReply {
+  """one wrote the comment"""
+  author: Int!
+
+  """Replied comment"""
+  comment: NewsComment!
+
+  """Comment content"""
+  content: String!
+
+  """date of creation"""
+  createdAt: DateTime!
+
+  """id field for int"""
+  id: Int!
+
+  """User who is replied to"""
+  repliedTo: Int!
+
+  """date of update"""
+  updatedAt: DateTime!
 }
 
 type NewsResponse {
@@ -343,8 +385,6 @@ type PublicToiletResponse {
 }
 
 type Query {
-  comment(id: Int!): Comment!
-  comments: [Comment!]!
   news(
     """Paginate after cursor"""
     after: String
@@ -362,6 +402,8 @@ type Query {
   newsById(id: Int!): News!
   newsCategories: [NewsCategory!]!
   newsCategoryById(id: Int!): NewsCategory!
+  newsComment(id: Int!): NewsComment!
+  newsComments(newsId: Int!): [NewsComment!]!
   newsTaggit: [NewsTaggit!]!
   publicToiletById(id: Int!): PublicToilet!
   publicToiletNearMe(
@@ -402,18 +444,17 @@ type Tag {
   name: String!
 }
 
-input UpdateCommentInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
-}
-
 input UpdateNewsCategoryInput {
   """News category description"""
   description: String
 
   """News category name"""
   name: String
+}
+
+input UpdateNewsCommentInput {
+  """Comment content"""
+  content: String!
 }
 
 input UpdateNewsInput {
