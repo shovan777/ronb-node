@@ -1,4 +1,4 @@
- import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -10,6 +10,7 @@ import { AppService } from './app.service';
 import { NewsModule } from './news/news.module';
 import { PublicToiletModule } from './public-toilet/public-toilet.module';
 import { TagsModule } from './tags/tags.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { TagsModule } from './tags/tags.module';
         index: false,
       },
     }),
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
