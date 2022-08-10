@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import {
   NewsCategoryService,
   NewsService,
@@ -17,6 +17,7 @@ import {
   NewsImage,
   UserLikesNews,
 } from './entities/news.entity';
+import { TagsModule } from 'src/tags/tags.module';
 
 @Module({
   providers: [
@@ -29,7 +30,11 @@ import {
     UserLikesNewsService,
   ],
   imports: [
+    forwardRef(() => TagsModule),
     TypeOrmModule.forFeature([News, NewsImage, NewsCategory, UserLikesNews]),
+  ],
+  exports: [
+    NewsService,
   ],
 })
 export class NewsModule {}
