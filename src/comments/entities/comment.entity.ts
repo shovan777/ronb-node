@@ -39,7 +39,9 @@ export abstract class BaseComment extends BaseIdEntity {
 @ObjectType()
 export class NewsComment extends BaseComment {
   // @Field(() => News, { description: 'Commented news' })
-  @ManyToOne(() => News, (news) => news.comments)
+  @ManyToOne(() => News, (news) => news.comments, {
+    onDelete: 'CASCADE',
+  })
   news: News;
 
   @Field(() => [NewsReply], { description: 'Replies to this comment' })
@@ -47,6 +49,9 @@ export class NewsComment extends BaseComment {
     nullable: true,
   })
   replies?: NewsReply[];
+
+  @Field(() => Int, { description: 'Number of replies' })
+  replyCount: number;
 
   // @Field(() => [NewsComment], {
   //   description: 'News comment replies',
@@ -69,8 +74,10 @@ export class NewsComment extends BaseComment {
 @Entity()
 @ObjectType()
 export class NewsReply extends BaseComment {
-  @Field(() => NewsComment, { description: 'Replied comment' })
-  @ManyToOne(() => NewsComment, (comment) => comment.replies)
+  // @Field(() => NewsComment, { description: 'Replied comment' })
+  @ManyToOne(() => NewsComment, (comment) => comment.replies, {
+    onDelete: 'CASCADE',
+  })
   comment: NewsComment;
 
   @Field(() => Int, { description: 'User who is replied to' })
