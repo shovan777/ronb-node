@@ -42,9 +42,9 @@ import { NewsTaggitService } from 'src/tags/tags.service';
 @Resolver(() => News)
 export class NewsResolver {
   constructor(
-      private readonly newsService: NewsService,
-      private readonly newsTaggitService: NewsTaggitService,
-    ) {}
+    private readonly newsService: NewsService,
+    private readonly newsTaggitService: NewsTaggitService,
+  ) {}
 
   @Mutation(() => News)
   async createNews(@Args('createNewsInput') createNewsInput: CreateNewsInput) {
@@ -105,13 +105,20 @@ export class NewsResolver {
     const { id } = news;
     return await this.newsService.countLikes(id);
   }
+
+  @ResolveField(() => Int)
+  async commentCount(@Parent() news: News) {
+    const { id } = news;
+    return await this.newsService.countComments(id);
+  }
+
   @ResolveField(() => NewsCategory)
   async category(@Parent() news: News) {
     const { id } = news;
     return await this.newsService.findCategoryofNews(id);
   }
 
-  @ResolveField(() => [NewsTaggit], {nullable:true})
+  @ResolveField(() => [NewsTaggit], { nullable: true })
   async tags(@Parent() news: News) {
     const { id } = news;
     return await this.newsTaggitService.findAllByNews(id);

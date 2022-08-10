@@ -33,8 +33,6 @@ import { TagsModule } from 'src/tags/tags.module';
     forwardRef(() => TagsModule),
     TypeOrmModule.forFeature([News, NewsImage, NewsCategory, UserLikesNews]),
   ],
-  exports: [
-    NewsService,
-  ],
+  exports: [NewsService],
 })
 export class NewsModule {}

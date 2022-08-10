@@ -1,4 +1,5 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { NewsComment } from 'src/comments/entities/comment.entity';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
 import { NewsTaggit } from 'src/tags/entities/tag.entity';
 import {
@@ -85,7 +86,7 @@ export class News {
 
   // tags?: string[];
   @Field(() => [NewsTaggit], { description: 'News tags', nullable: true })
-  @OneToMany(() => NewsTaggit, (newsTaggit) => newsTaggit.news,{
+  @OneToMany(() => NewsTaggit, (newsTaggit) => newsTaggit.news, {
     nullable: true,
   })
   tags?: NewsTaggit[];
@@ -107,6 +108,12 @@ export class News {
     nullable: true,
   })
   likes?: UserLikesNews[];
+
+  // @Field(() => [NewsComment], { description: 'News comments', nullable: true })
+  @OneToMany(() => NewsComment, (comment) => comment.news, {
+    nullable: true,
+  })
+  comments?: Comment[];
 
   @Field(() => UserLikesNews, {
     description: 'React of user to the news',

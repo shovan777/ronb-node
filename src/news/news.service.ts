@@ -164,17 +164,17 @@ export class NewsService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, withRelations = true) {
     // return `This action returns a #${id} news`;
     const news = await this.newsRepository.findOne({
       where: { id: id },
-      relations: { images: true, likes: true },
+      relations: withRelations ? { images: true, likes: true } : {},
     });
     // console.log(news);
     if (news) {
       return news;
     }
-    return new NotFoundException(`News with id ${id} not found`);
+    throw new NotFoundException(`News with id ${id} not found`);
   }
 
   async update(id: number, updateNewsInput: UpdateNewsInput) {
@@ -262,16 +262,21 @@ export class NewsService {
         });
 
         const newsTags = tags.map(async (tag) => {
-          const tagData = await tag; 
+          const tagData = await tag;
           console.log(tagData);
-          const newsTaggit: NewsTaggit = await this.newsTaggitService.findOneOrCreate(tagData,news);
+          const newsTaggit: NewsTaggit =
+            await this.newsTaggitService.findOneOrCreate(tagData, news);
           return newsTaggit;
         });
         await Promise.all(newsTags);
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {tags=[], images = [], ...updatedNews } = {
+      const {
+        tags = [],
+        images = [],
+        ...updatedNews
+      } = {
         ...news,
         ...newsInputData,
         updatedAt: new Date(),
@@ -353,6 +358,17 @@ export class NewsService {
     });
     if (news) {
       return news.likes.length;
+    }
+    return new NotFoundException(`News with id ${newsId} not found`);
+  }
+
+  async countComments(newsId: number) {
+    const news: News = await this.newsRepository.findOne({
+      where: { id: newsId },
+      relations: { comments: true },
+    });
+    if (news) {
+      return news.comments.length;
     }
     return new NotFoundException(`News with id ${newsId} not found`);
   }
