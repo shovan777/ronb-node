@@ -32,6 +32,8 @@ import NewsResponse from './news.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { FilterNewsInput } from './dto/filter-news.input';
+import { User } from 'src/common/decorators/user.decorator';
+import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 import { NewsTaggit } from 'src/tags/entities/tag.entity';
 import { NewsTaggitService } from 'src/tags/tags.service';
 
@@ -47,15 +49,14 @@ export class NewsResolver {
   ) {}
 
   @Mutation(() => News)
-  async createNews(@Args('createNewsInput') createNewsInput: CreateNewsInput) {
-    // console.log(createNewsInput.singleImage);
-    return await this.newsService.create(createNewsInput);
+  async createNews(
+    @Args('createNewsInput') createNewsInput: CreateNewsInput,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return await this.newsService.create(createNewsInput, user);
   }
 
-  // @Query(() => [News], { name: 'news' })
-  // findAll(): Promise<News[]> {
-  //   return this.newsService.findAll();
-  // }
   @Query(() => NewsResponse, { name: 'news' })
   async findAll(
     @Args() args: ConnectionArgs,
@@ -87,7 +88,6 @@ export class NewsResolver {
   @ResolveField(() => [NewsImage])
   async images(@Parent() news: News) {
     const { id } = news;
-    // console.log(news);
     if (news.images) {
       return news.images;
     }
@@ -95,9 +95,12 @@ export class NewsResolver {
   }
 
   @ResolveField(() => UserLikesNews)
-  async like(@Parent() news: News) {
+  async like(@Parent() news: News, @User() user: number) {
     const { id } = news;
-    return await this.newsService.findUserLikesNews(id);
+    if (!user) {
+      return null;
+    }
+    return await this.newsService.findUserLikesNews(id, user);
   }
 
   @ResolveField(() => Int)
@@ -128,14 +131,18 @@ export class NewsResolver {
   async updateNews(
     @Args({ name: 'id', type: () => Int }) id: number,
     @Args('updateNewsInput') updateNewsInput: UpdateNewsInput,
+    @User() user: number,
   ) {
-    return await this.newsService.update(id, updateNewsInput);
+    checkUserAuthenticated(user);
+    return await this.newsService.update(id, updateNewsInput, user);
   }
 
   @Mutation(() => News)
   removeNews(
     @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
   ): Promise<NotFoundException | any> {
+    checkUserAuthenticated(user);
     return this.newsService.remove(id);
   }
 }
@@ -160,8 +167,10 @@ export class NewsCategoryResolver {
   async createNewsCategory(
     @Args('createNewsCategoryInput')
     createNewsCategoryInput: CreateNewsCategoryInput,
+    @User() user: number,
   ) {
-    return await this.newsCategoryService.create(createNewsCategoryInput);
+    checkUserAuthenticated(user);
+    return await this.newsCategoryService.create(createNewsCategoryInput, user);
   }
 
   @Mutation(() => NewsCategory)
@@ -169,12 +178,22 @@ export class NewsCategoryResolver {
     @Args('id', { type: () => Int }) id: number,
     @Args('updateNewsCategoryInput')
     updateNewsCategoryInput: UpdateNewsCategoryInput,
+    @User() user: number,
   ) {
-    return await this.newsCategoryService.update(id, updateNewsCategoryInput);
+    checkUserAuthenticated(user);
+    return await this.newsCategoryService.update(
+      id,
+      updateNewsCategoryInput,
+      user,
+    );
   }
 
   @Mutation(() => NewsCategory)
-  async removeNewsCategory(@Args('id', { type: () => Int }) id: number) {
+  async removeNewsCategory(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
     return this.newsCategoryService.remove(id);
   }
 }
@@ -182,19 +201,32 @@ export class NewsCategoryResolver {
 @Resolver(() => UserLikesNews)
 export class UserLikesNewsResolver {
   constructor(private readonly userLikesNewsService: UserLikesNewsService) {}
+  // checkUserAuthenticated(user: number) {
+  //   if (!user) {
+  //     throw new NotFoundException('User not found');
+  //   }
+  // }
 
   @Mutation(() => UserLikesNews)
   async createUserLikesNews(
+    @User() user: number,
     @Args('createUserLikesNewsInput')
     createUserLikesNewsInput: CreateUserLikesNewsInput,
   ) {
-    return await this.userLikesNewsService.create(createUserLikesNewsInput);
+    checkUserAuthenticated(user);
+    console.log(`hello from like ${user}`);
+    return await this.userLikesNewsService.create(
+      createUserLikesNewsInput,
+      user,
+    );
   }
 
   @Mutation(() => UserLikesNews)
   async removeUserLikesNews(
+    @User() user: number,
     @Args('newsId', { type: () => Int }) newsId: number,
   ) {
-    return await this.userLikesNewsService.remove(newsId);
+    checkUserAuthenticated(user);
+    return await this.userLikesNewsService.remove(newsId, user);
   }
 }

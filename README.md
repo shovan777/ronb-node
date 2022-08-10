@@ -62,10 +62,13 @@ $ npm run test:cov
 
 ```bash 
 # generate migration
-npm run typeorm:migration:generate src/migrations/<name-of-migrations>
+npm run migration:generate src/migrations/<name-of-migrations>
 
-# run migration
-npm run typrorm:migration:run 
+# run migration in live
+npm run migration:run 
+
+# run migration in dev
+npm run migration:run:dev
 ```
 
 ## Support

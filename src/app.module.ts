@@ -1,5 +1,5 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { SecurityMiddleware } from './common/middlewares/security.middleware';
 import { NewsModule } from './news/news.module';
 import { PublicToiletModule } from './public-toilet/public-toilet.module';
 import { TagsModule } from './tags/tags.module';
@@ -56,4 +57,8 @@ import { CommentsModule } from './comments/comments.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(SecurityMiddleware).forRoutes('*');
+  // }
+}

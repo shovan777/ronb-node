@@ -38,8 +38,7 @@ export class NewsService {
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
-  async create(newsInput: CreateNewsInput): Promise<News> {
-    // return 'This action adds a new news';
+  async create(newsInput: CreateNewsInput, user: number): Promise<News> {
     let newsInputData: any = {
       ...newsInput,
       singleImage: null,
@@ -84,8 +83,8 @@ export class NewsService {
       publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      createdBy: 1, //TODO: get user from jwt
-      updatedBy: 1,
+      createdBy: user, //TODO: get user from jwt
+      updatedBy: user,
     });
 
     if (newsInput.images) {
@@ -107,8 +106,8 @@ export class NewsService {
             createdAt: new Date(),
             updatedAt: new Date(),
             news: newsData,
-            createdBy: 1,
-            updatedBy: 1,
+            createdBy: user,
+            updatedBy: user,
           });
         },
       );
@@ -170,14 +169,13 @@ export class NewsService {
       where: { id: id },
       relations: withRelations ? { images: true, likes: true } : {},
     });
-    // console.log(news);
     if (news) {
       return news;
     }
     throw new NotFoundException(`News with id ${id} not found`);
   }
 
-  async update(id: number, updateNewsInput: UpdateNewsInput) {
+  async update(id: number, updateNewsInput: UpdateNewsInput, user: number) {
     // return `This action updates a #${id} news`;
     // const news = this.newsArr.find((news) => news.id === id);
     const news: News = await this.newsRepository.findOne({
@@ -242,16 +240,12 @@ export class NewsService {
               createdAt: new Date(),
               updatedAt: new Date(),
               news: news,
-              createdBy: 1,
-              updatedBy: 1,
+              createdBy: user,
+              updatedBy: user,
             });
           },
         );
         await Promise.all(newImages);
-        // newsInputData = {
-        //   ...newsInputData,
-        //   images: await Promise.all(newImages),
-        // };
       }
 
       if (updateNewsInput.tags) {
@@ -280,30 +274,21 @@ export class NewsService {
         ...news,
         ...newsInputData,
         updatedAt: new Date(),
-        updatedBy: 1, //TODO: get user from jwt
+        updatedBy: user, //TODO: get user from jwt
         // images: ['guur'],
       };
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      // const { images = [], ...updatedNewsWithoutImage } = { ...updatedNews };
-      // console.log(newsInputData);
-      // this.newsArr[id] = updatedNews;
       return this.newsRepository.save(updatedNews);
     }
     throw new NotFoundException(`News with id ${id} not found`);
   }
 
   async remove(id: number) {
-    // const rmIndex = this.newsArr.findIndex((news) => news.id === id);
-    // if (rmIndex !== -1) {
-    //   return this.newsArr.splice(rmIndex, 1)[0];
-    // }
     const news: News = await this.newsRepository.findOne({
       where: { id: id },
       relations: { images: true, tags: true },
     });
-    // console.log(news);
     if (news) {
-      // if (news.images) {
       const deleteImage = news.images.map(async (image) => {
         return await this.newsImageRepository.delete(image.id);
       });
@@ -317,13 +302,10 @@ export class NewsService {
       // }
       // console.log(deletedImages);
       await this.newsRepository.delete(news.id);
-      // console.log(deletedNews.raw);
       return news;
     }
 
     return new NotFoundException(`News with id ${id} not found`);
-
-    // return `This action removes a #${id} news`;
   }
 
   async findImagesofNews(newsId: number) {
@@ -373,11 +355,11 @@ export class NewsService {
     return new NotFoundException(`News with id ${newsId} not found`);
   }
 
-  async findUserLikesNews(newsId: number) {
+  async findUserLikesNews(newsId: number, user: number) {
     const userLikesNews = await this.userLikesNewsRepository.findOne({
       where: {
         news: { id: newsId },
-        userId: 2, //TODO: get user from jwt
+        userId: user, //TODO: get user from jwt
       },
     });
     return userLikesNews;
@@ -402,22 +384,26 @@ export class NewsCategoryService {
     return newsCategory;
   }
 
-  async create(createNewsCategoryInput: CreateNewsCategoryInput) {
+  async create(createNewsCategoryInput: CreateNewsCategoryInput, user: number) {
     return this.newsCategoryRepository.save({
       ...createNewsCategoryInput,
-      createdBy: 1,
-      updatedBy: 1,
+      createdBy: user,
+      updatedBy: user,
     });
   }
 
-  async update(id: number, updateNewsCategoryInput: UpdateNewsCategoryInput) {
+  async update(
+    id: number,
+    updateNewsCategoryInput: UpdateNewsCategoryInput,
+    user: number,
+  ) {
     const newsCategory: NewsCategory =
       await this.newsCategoryRepository.findOneBy({ id });
     if (newsCategory) {
       return this.newsCategoryRepository.save({
         ...newsCategory,
         ...updateNewsCategoryInput,
-        updatedBy: 1, //TODO: get user from jwt
+        updatedBy: user, //TODO: get user from jwt
       });
     }
     return new NotFoundException(`NewsCategory with id ${id} not found`);
@@ -447,22 +433,25 @@ export class UserLikesNewsService {
     @InjectRepository(News)
     private newsRepository: Repository<News>,
   ) {}
-  async create(createUserLikesNewsInput: CreateUserLikesNewsInput) {
+  async create(
+    createUserLikesNewsInput: CreateUserLikesNewsInput,
+    user: number,
+  ) {
     const { newsId } = createUserLikesNewsInput;
     const news = await this.newsRepository.findOneBy({ id: newsId });
     if (!news) return new NotFoundException(`News with id ${newsId} not found`);
     return this.userLikesNewsRepository.save({
       news: news,
-      userId: 2, //TODO: get user from jwt
+      userId: user, //TODO: get user from jwt
     });
   }
 
-  async remove(newsId: number) {
+  async remove(newsId: number, user: number) {
     const userLikesNews = await this.userLikesNewsRepository.findOne({
       relations: { news: true },
       where: {
         news: { id: newsId },
-        userId: 2, //TODO: get user from jwt
+        userId: user, //TODO: get user from jwt
       },
     });
     if (!userLikesNews)

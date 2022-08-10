@@ -1,12 +1,16 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import * as cookieParser from 'cookie-parser';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { AppModule } from './app.module';
+import { SecurityMiddleware } from './common/middlewares/security.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+  app.use(cookieParser());
+  app.use(new SecurityMiddleware().use);
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));
   // implment global validation pipeline for explicit transformation
   app.useGlobalPipes(
