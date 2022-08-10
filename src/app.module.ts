@@ -11,6 +11,7 @@ import { SecurityMiddleware } from './common/middlewares/security.middleware';
 import { NewsModule } from './news/news.module';
 import { PublicToiletModule } from './public-toilet/public-toilet.module';
 import { TagsModule } from './tags/tags.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { TagsModule } from './tags/tags.module';
         index: false,
       },
     }),
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

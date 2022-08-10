@@ -1,4 +1,9 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { slugify } from 'src/common/utils/slugify';
 import { News } from 'src/news/entities/news.entity';
@@ -12,13 +17,13 @@ export class TagsService {
   constructor(
     @InjectRepository(Tag)
     private tagRepository: Repository<Tag>,
-   ) {}
-  
+  ) {}
+
   async create(createTagInput: CreateTagInput): Promise<Tag> {
     return this.tagRepository.save({
       ...createTagInput,
-      createdBy:1,
-      updatedBy:1,
+      createdBy: 1,
+      updatedBy: 1,
     });
   }
 
@@ -28,7 +33,7 @@ export class TagsService {
 
   async findOneById(id: number): Promise<Tag> {
     const tag = await this.tagRepository.findOne({
-      where: {id}
+      where: { id },
     });
     if (!tag) {
       throw new NotFoundException(`Tag with id ${id} not found`);
@@ -37,8 +42,8 @@ export class TagsService {
   }
 
   async findOneByName(name: string): Promise<Tag> {
-    const tag = await this.tagRepository.findOne({ 
-      where: {name}
+    const tag = await this.tagRepository.findOne({
+      where: { name },
     });
     return tag;
   }
@@ -48,11 +53,9 @@ export class TagsService {
     if (tag) {
       return tag;
     }
-    return await this.create({name});
+    return await this.create({ name });
   }
-  
 }
-
 
 @Injectable()
 export class NewsTaggitService {
@@ -62,16 +65,20 @@ export class NewsTaggitService {
     private tagService: TagsService,
     @Inject(forwardRef(() => NewsService))
     private newsService: NewsService,
-   ) {}
-  
-  async create(createNewsTaggitInput: CreateNewsTaggitInput): Promise<NewsTaggit> {
+  ) {}
+
+  async create(
+    createNewsTaggitInput: CreateNewsTaggitInput,
+  ): Promise<NewsTaggit> {
     let newInputData: any = {
       ...createNewsTaggitInput,
-    }
-    
+    };
+
     if (createNewsTaggitInput.news) {
-      try{
-        const news: News | NotFoundException = await this.newsService.findOne(createNewsTaggitInput.news);
+      try {
+        const news: News | NotFoundException = await this.newsService.findOne(
+          createNewsTaggitInput.news,
+        );
         newInputData = {
           ...newInputData,
           news: news,
@@ -81,13 +88,15 @@ export class NewsTaggitService {
       }
     }
     if (createNewsTaggitInput.tag) {
-      const tag: Tag = await this.tagService.findOneById(createNewsTaggitInput.tag);
+      const tag: Tag = await this.tagService.findOneById(
+        createNewsTaggitInput.tag,
+      );
       newInputData = {
         ...newInputData,
         tag: tag,
       };
     }
-    
+
     return this.newsTaggitRepository.save({
       ...newInputData,
     });
@@ -95,9 +104,9 @@ export class NewsTaggitService {
 
   async findAll(): Promise<NewsTaggit[]> {
     return this.newsTaggitRepository.find({
-      relations:{
-        tag:true,
-        news:true,
+      relations: {
+        tag: true,
+        news: true,
       },
     });
   }
@@ -106,39 +115,42 @@ export class NewsTaggitService {
     return this.newsTaggitRepository.find({
       where: {
         news: {
-          id:newsId,
+          id: newsId,
         },
       },
-      relations:{
-        tag:true,
-        news:true,
+      relations: {
+        tag: true,
+        news: true,
       },
     });
   }
 
-  async findOneByTagAndNews(tagId: number, newsId: number): Promise<NewsTaggit> {
+  async findOneByTagAndNews(
+    tagId: number,
+    newsId: number,
+  ): Promise<NewsTaggit> {
     return await this.newsTaggitRepository.findOne({
       where: {
         tag: {
-          id:tagId,
+          id: tagId,
         },
         news: {
-          id:newsId,
+          id: newsId,
         },
       },
-      relations:{
-        tag:true,
-        news:true,
+      relations: {
+        tag: true,
+        news: true,
       },
     });
   }
 
   async findOne(id: number) {
     const newsTaggit = await this.newsTaggitRepository.findOne({
-      where: {id},
-      relations:{
-        tag:true,
-        news:true,
+      where: { id },
+      relations: {
+        tag: true,
+        news: true,
       },
     });
     if (!newsTaggit) {

@@ -108,6 +108,13 @@ export class NewsResolver {
     const { id } = news;
     return await this.newsService.countLikes(id);
   }
+
+  @ResolveField(() => Int)
+  async commentCount(@Parent() news: News) {
+    const { id } = news;
+    return await this.newsService.countComments(id);
+  }
+
   @ResolveField(() => NewsCategory)
   async category(@Parent() news: News) {
     const { id } = news;

@@ -8,29 +8,27 @@ import {
 } from 'typeorm';
 
 @ObjectType({ isAbstract: true })
-@Entity()
-export abstract class BaseEntity {
+export abstract class BaseIdEntity {
   @Field(() => Int, { description: 'id field for int' })
   @PrimaryGeneratedColumn()
   id: number;
 }
 
 @ObjectType({ isAbstract: true })
-@Entity()
-export abstract class CreatorBaseEntity extends BaseEntity {
-  @Field({ description: 'News image createdAt' })
+export abstract class CreatorBaseEntity extends BaseIdEntity {
+  @Field({ description: 'date of creation' })
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field({ description: 'News image updatedAt' })
+  @Field({ description: 'date of update' })
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Field(() => Int, { description: 'News image createdBy' })
+  @Field(() => Int, { description: 'one who created' })
   @Column()
   createdBy: number;
 
-  @Field(() => Int, { description: 'News image updatedBy' })
+  @Field(() => Int, { description: 'one who updated' })
   @Column()
   updatedBy: number;
 }

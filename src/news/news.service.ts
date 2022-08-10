@@ -163,16 +163,16 @@ export class NewsService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, withRelations = true) {
     // return `This action returns a #${id} news`;
     const news = await this.newsRepository.findOne({
       where: { id: id },
-      relations: { images: true, likes: true },
+      relations: withRelations ? { images: true, likes: true } : {},
     });
     if (news) {
       return news;
     }
-    return new NotFoundException(`News with id ${id} not found`);
+    throw new NotFoundException(`News with id ${id} not found`);
   }
 
   async update(id: number, updateNewsInput: UpdateNewsInput, user: number) {
@@ -343,6 +343,18 @@ export class NewsService {
     }
     return new NotFoundException(`News with id ${newsId} not found`);
   }
+
+  async countComments(newsId: number) {
+    const news: News = await this.newsRepository.findOne({
+      where: { id: newsId },
+      relations: { comments: true },
+    });
+    if (news) {
+      return news.comments.length;
+    }
+    return new NotFoundException(`News with id ${newsId} not found`);
+  }
+
   async findUserLikesNews(newsId: number, user: number) {
     const userLikesNews = await this.userLikesNewsRepository.findOne({
       where: {
