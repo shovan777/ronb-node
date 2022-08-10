@@ -1,7 +1,9 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
 
 @InputType()
-export class CreateCommentInput {
-  @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number;
+export class CreateNewsCommentInput {
+  @Field(() => Int, { description: 'News id' })
+  news: number;
+  @Field({ description: 'Comment content' })
+  content: string;
 }

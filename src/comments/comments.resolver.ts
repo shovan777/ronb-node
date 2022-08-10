@@ -1,42 +1,42 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { CommentsService } from './comments.service';
-import { Comment } from './entities/comment.entity';
-import { CreateCommentInput } from './dto/create-comment.input';
-import { UpdateCommentInput } from './dto/update-comment.input';
+import { NewsCommentsService } from './comments.service';
+import { NewsComment } from './entities/comment.entity';
+import { CreateNewsCommentInput } from './dto/create-comment.input';
+import { UpdateNewsCommentInput } from './dto/update-comment.input';
 
-@Resolver(() => Comment)
-export class CommentsResolver {
-  constructor(private readonly commentsService: CommentsService) {}
+@Resolver(() => NewsComment)
+export class NewsCommentsResolver {
+  constructor(private readonly NewsCommentsService: NewsCommentsService) {}
 
-  @Mutation(() => Comment)
-  createComment(
-    @Args('createCommentInput') createCommentInput: CreateCommentInput,
+  @Mutation(() => NewsComment)
+  createNewsComment(
+    @Args('createNewsCommentInput')
+    createNewsCommentInput: CreateNewsCommentInput,
   ) {
-    return this.commentsService.create(createCommentInput);
+    return this.NewsCommentsService.create(createNewsCommentInput);
   }
 
-  @Query(() => [Comment], { name: 'comments' })
-  findAll() {
-    return this.commentsService.findAll();
+  @Query(() => [NewsComment], { name: 'newsComments' })
+  findAll(@Args('newsId', { type: () => Int }) newsId: number) {
+    return this.NewsCommentsService.findAll(newsId);
   }
 
-  @Query(() => Comment, { name: 'comment' })
+  @Query(() => NewsComment, { name: 'newsComment' })
   findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.commentsService.findOne(id);
+    return this.NewsCommentsService.findOne(id);
   }
 
-  @Mutation(() => Comment)
-  updateComment(
-    @Args('updateCommentInput') updateCommentInput: UpdateCommentInput,
+  @Mutation(() => NewsComment)
+  updateNewsComment(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('updateNewsCommentInput')
+    updateNewsCommentInput: UpdateNewsCommentInput,
   ) {
-    return this.commentsService.update(
-      updateCommentInput.id,
-      updateCommentInput,
-    );
+    return this.NewsCommentsService.update(id, updateNewsCommentInput);
   }
 
-  @Mutation(() => Comment)
-  removeComment(@Args('id', { type: () => Int }) id: number) {
-    return this.commentsService.remove(id);
+  @Mutation(() => NewsComment)
+  removeNewsComment(@Args('id', { type: () => Int }) id: number) {
+    return this.NewsCommentsService.remove(id);
   }
 }
