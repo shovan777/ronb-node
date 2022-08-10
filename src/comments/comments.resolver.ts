@@ -17,6 +17,8 @@ import {
   UpdateNewsCommentInput,
   UpdateNewsReplyInput,
 } from './dto/update-comment.input';
+import { User } from 'src/common/decorators/user.decorator';
+import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 
 @Resolver(() => NewsComment)
 export class NewsCommentsResolver {
@@ -26,8 +28,10 @@ export class NewsCommentsResolver {
   createNewsComment(
     @Args('createNewsCommentInput')
     createNewsCommentInput: CreateNewsCommentInput,
+    @User() user: number,
   ) {
-    return this.newsCommentsService.create(createNewsCommentInput);
+    checkUserAuthenticated(user);
+    return this.newsCommentsService.create(createNewsCommentInput, user);
   }
 
   @Query(() => [NewsComment], { name: 'newsComments' })
@@ -45,13 +49,19 @@ export class NewsCommentsResolver {
     @Args('id', { type: () => Int }) id: number,
     @Args('updateNewsCommentInput')
     updateNewsCommentInput: UpdateNewsCommentInput,
+    @User() user: number,
   ) {
-    return this.newsCommentsService.update(id, updateNewsCommentInput);
+    checkUserAuthenticated(user);
+    return this.newsCommentsService.update(id, updateNewsCommentInput, user);
   }
 
   @Mutation(() => NewsComment)
-  removeNewsComment(@Args('id', { type: () => Int }) id: number) {
-    return this.newsCommentsService.remove(id);
+  removeNewsComment(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return this.newsCommentsService.remove(id, user);
   }
 
   @ResolveField(() => Int)
@@ -69,8 +79,10 @@ export class NewsRepliesResolver {
   createNewsReply(
     @Args('createNewsReplyInput')
     createNewsReplyInput: CreateNewsReplyInput,
+    @User() user: number,
   ) {
-    return this.newsReplyService.create(createNewsReplyInput);
+    checkUserAuthenticated(user);
+    return this.newsReplyService.create(createNewsReplyInput, user);
   }
 
   @Query(() => [NewsReply], { name: 'newsReplies' })
@@ -83,12 +95,18 @@ export class NewsRepliesResolver {
     @Args('id', { type: () => Int }) id: number,
     @Args('updateNewsReplyInput')
     updateNewsReplyInput: UpdateNewsReplyInput,
+    @User() user: number,
   ) {
-    return this.newsReplyService.update(id, updateNewsReplyInput);
+    checkUserAuthenticated(user);
+    return this.newsReplyService.update(id, updateNewsReplyInput, user);
   }
 
   @Mutation(() => NewsReply)
-  removeNewsReply(@Args('id', { type: () => Int }) id: number) {
-    return this.newsReplyService.remove(id);
+  removeNewsReply(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return this.newsReplyService.remove(id, user);
   }
 }

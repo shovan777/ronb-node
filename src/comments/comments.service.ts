@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { checkUserIsAuthor } from 'src/common/utils/checkUserAuthentication';
 import { NewsService } from 'src/news/news.service';
 import { Repository } from 'typeorm';
 import {
@@ -22,6 +27,7 @@ export class NewsCommentsService {
 
   async create(
     createCommentInput: CreateNewsCommentInput,
+    user: number,
   ): Promise<NewsComment> {
     let commentInputData: any = {
       ...createCommentInput,
@@ -33,7 +39,7 @@ export class NewsCommentsService {
     };
     return this.newsCommentRepository.save({
       ...commentInputData,
-      author: 2,
+      author: user,
     });
   }
 
@@ -61,16 +67,19 @@ export class NewsCommentsService {
   async update(
     id: number,
     updateCommentInput: UpdateNewsCommentInput,
+    user: number,
   ): Promise<NewsComment> {
     const comment: NewsComment = await this.findOne(id);
+    checkUserIsAuthor(user, comment.author);
     return this.newsCommentRepository.save({
       ...comment,
       ...updateCommentInput,
     });
   }
 
-  async remove(id: number) {
+  async remove(id: number, user: number) {
     const comment: NewsComment = await this.findOne(id);
+    checkUserIsAuthor(user, comment.author);
     await this.newsCommentRepository.delete(comment.id);
     return comment;
   }
@@ -94,7 +103,10 @@ export class NewsRepliesService {
     private newsReplyRepository: Repository<NewsReply>,
     private newsCommentService: NewsCommentsService,
   ) {}
-  async create(createReplyInput: CreateNewsReplyInput): Promise<NewsComment> {
+  async create(
+    createReplyInput: CreateNewsReplyInput,
+    user: number,
+  ): Promise<NewsComment> {
     let commentInputData: any = {
       ...createReplyInput,
     };
@@ -103,7 +115,7 @@ export class NewsRepliesService {
     commentInputData = {
       ...commentInputData,
       comment: comment,
-      author: 2,
+      author: user,
     };
     return this.newsReplyRepository.save({
       ...commentInputData,
@@ -131,16 +143,19 @@ export class NewsRepliesService {
   async update(
     id: number,
     updateReplyInput: UpdateNewsReplyInput,
+    user: number,
   ): Promise<NewsReply> {
     const reply: NewsReply = await this.findOne(id);
+    checkUserIsAuthor(user, reply.author);
     return this.newsReplyRepository.save({
       ...reply,
       ...updateReplyInput,
     });
   }
 
-  async remove(id: number): Promise<NewsReply> {
+  async remove(id: number, user: number): Promise<NewsReply> {
     const reply: NewsReply = await this.findOne(id);
+    checkUserIsAuthor(user, reply.author);
     await this.newsReplyRepository.delete(reply.id);
     return reply;
   }
