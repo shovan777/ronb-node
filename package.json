@@ -21,7 +21,9 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "npm run typeorm -- migration:generate -d src/config/datasource.ts",
     "migration:run:dev": "npm run typeorm -- migration:run -d src/config/datasource.ts",
-    "migration:run": "npx typeorm migration:run -d dist/config/datasource.js"
+    "migration:revert:dev" : "npm run typeorm -- migration:revert -d src/config/datasource.ts",
+    "migration:run": "npx typeorm migration:run -d dist/config/datasource.js",
+    "migration:revert": "npx typeorm migration:revert -d dist/config/datasource.js"
   },
   "dependencies": {
     "@nestjs/apollo": "^10.0.17",
@@ -44,6 +46,7 @@
     "graphql-tools": "^8.3.0",
     "graphql-type-json": "^0.3.2",
     "graphql-upload": "^13.0.0",
+    "mongoose": "^6.5.1",
     "pg": "^8.7.3",
     "redis": "^4.2.0",
     "reflect-metadata": "^0.1.13",
