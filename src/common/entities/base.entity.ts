@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 
 @ObjectType({ isAbstract: true })
-@Entity()
 export abstract class BaseIdEntity {
   @Field(() => Int, { description: 'id field for int' })
   @PrimaryGeneratedColumn()
@@ -16,7 +15,6 @@ export abstract class BaseIdEntity {
 }
 
 @ObjectType({ isAbstract: true })
-@Entity()
 export abstract class CreatorBaseEntity extends BaseIdEntity {
   @Field({ description: 'date of creation' })
   @CreateDateColumn()
