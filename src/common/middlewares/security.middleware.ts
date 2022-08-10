@@ -1,9 +1,10 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
+import { join } from 'path';
 import { createClient } from 'redis';
 
 const sub = createClient({
-  url: 'redis://localhost:6379/2',
+  url: `${process.env.REDIS_URL}/2`,
 });
 const pub = sub.duplicate();
 
