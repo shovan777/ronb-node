@@ -48,6 +48,17 @@ input CreateNewsInput {
   title: String
 }
 
+input CreateNewsReplyInput {
+  """News comment id"""
+  comment: Int!
+
+  """Comment content"""
+  content: String!
+
+  """User who is replied to by this comment"""
+  repliedTo: Int!
+}
+
 input CreateNewsTaggitInput {
   """News id"""
   news: Int!
@@ -103,6 +114,7 @@ type Mutation {
   createNews(createNewsInput: CreateNewsInput!): News!
   createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
   createNewsComment(createNewsCommentInput: CreateNewsCommentInput!): NewsComment!
+  createNewsReply(createNewsReplyInput: CreateNewsReplyInput!): NewsReply!
   createNewsTaggit(createNewsTaggitInput: CreateNewsTaggitInput!): NewsTaggit!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
   createTag(createTagInput: CreateTagInput!): Tag!
@@ -110,12 +122,14 @@ type Mutation {
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
   removeNewsComment(id: Int!): NewsComment!
+  removeNewsReply(id: Int!): NewsReply!
   removeNewsTaggit(id: Int!): NewsTaggit!
   removePublicToilet(id: Int!): PublicToilet!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
   updateNewsComment(id: Int!, updateNewsCommentInput: UpdateNewsCommentInput!): NewsComment!
+  updateNewsReply(id: Int!, updateNewsReplyInput: UpdateNewsReplyInput!): NewsReply!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
 }
 
@@ -216,6 +230,9 @@ type NewsComment {
   """Replies to this comment"""
   replies: [NewsReply!]!
 
+  """Number of replies"""
+  replyCount: Int!
+
   """date of update"""
   updatedAt: DateTime!
 }
@@ -261,9 +278,6 @@ type NewsPageInfo {
 type NewsReply {
   """one wrote the comment"""
   author: Int!
-
-  """Replied comment"""
-  comment: NewsComment!
 
   """Comment content"""
   content: String!
@@ -404,6 +418,7 @@ type Query {
   newsCategoryById(id: Int!): NewsCategory!
   newsComment(id: Int!): NewsComment!
   newsComments(newsId: Int!): [NewsComment!]!
+  newsReplies(newsCommentId: Int!): [NewsReply!]!
   newsTaggit: [NewsTaggit!]!
   publicToiletById(id: Int!): PublicToilet!
   publicToiletNearMe(
@@ -485,6 +500,11 @@ input UpdateNewsInput {
 
   """News title"""
   title: String
+}
+
+input UpdateNewsReplyInput {
+  """Comment content"""
+  content: String!
 }
 
 input UpdatePublicToiletInput {

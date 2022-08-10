@@ -2,9 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NewsService } from 'src/news/news.service';
 import { Repository } from 'typeorm';
-import { CreateNewsCommentInput } from './dto/create-comment.input';
-import { UpdateNewsCommentInput } from './dto/update-comment.input';
-import { NewsComment } from './entities/comment.entity';
+import {
+  CreateNewsCommentInput,
+  CreateNewsReplyInput,
+} from './dto/create-comment.input';
+import {
+  UpdateNewsCommentInput,
+  UpdateNewsReplyInput,
+} from './dto/update-comment.input';
+import { NewsComment, NewsReply } from './entities/comment.entity';
 
 @Injectable()
 export class NewsCommentsService {
@@ -40,20 +46,23 @@ export class NewsCommentsService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
+  async findOne(id: number) {
+    const newsComment = await this.newsCommentRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!newsComment) {
+      throw new NotFoundException(`Comment with id ${id} not found`);
+    }
+    return newsComment;
   }
 
   async update(
     id: number,
     updateCommentInput: UpdateNewsCommentInput,
   ): Promise<NewsComment> {
-    const comment = await this.newsCommentRepository.findOne({
-      where: { id },
-    });
-    if (!comment) {
-      throw new NotFoundException(`Comment with id ${id} not found`);
-    }
+    const comment: NewsComment = await this.findOne(id);
     return this.newsCommentRepository.save({
       ...comment,
       ...updateCommentInput,
@@ -61,13 +70,78 @@ export class NewsCommentsService {
   }
 
   async remove(id: number) {
-    const comment = await this.newsCommentRepository.findOne({
-      where: { id },
-    });
-    if (!comment) {
-      throw new NotFoundException(`Comment with id ${id} not found`);
-    }
+    const comment: NewsComment = await this.findOne(id);
     await this.newsCommentRepository.delete(comment.id);
     return comment;
+  }
+
+  async countReplies(commentId: number) {
+    const comment = await this.newsCommentRepository.findOne({
+      where: { id: commentId },
+      relations: { replies: true },
+    });
+    if (!comment) {
+      throw new NotFoundException(`Comment with id ${commentId} not found`);
+    }
+    return comment.replies.length;
+  }
+}
+
+@Injectable()
+export class NewsRepliesService {
+  constructor(
+    @InjectRepository(NewsReply)
+    private newsReplyRepository: Repository<NewsReply>,
+    private newsCommentService: NewsCommentsService,
+  ) {}
+  async create(createReplyInput: CreateNewsReplyInput): Promise<NewsComment> {
+    let commentInputData: any = {
+      ...createReplyInput,
+    };
+    const commentId = createReplyInput.comment;
+    const comment = await this.newsCommentService.findOne(commentId);
+    commentInputData = {
+      ...commentInputData,
+      comment: comment,
+      author: 2,
+    };
+    return this.newsReplyRepository.save({
+      ...commentInputData,
+    });
+  }
+
+  async findAll(commentId: number): Promise<NewsReply[]> {
+    return this.newsReplyRepository.find({
+      where: {
+        comment: { id: commentId },
+      },
+    });
+  }
+
+  async findOne(id: number): Promise<NewsReply> {
+    const newsReply: NewsReply = await this.newsReplyRepository.findOne({
+      where: { id },
+    });
+    if (!newsReply) {
+      throw new NotFoundException(`Reply with id ${id} not found`);
+    }
+    return newsReply;
+  }
+
+  async update(
+    id: number,
+    updateReplyInput: UpdateNewsReplyInput,
+  ): Promise<NewsReply> {
+    const reply: NewsReply = await this.findOne(id);
+    return this.newsReplyRepository.save({
+      ...reply,
+      ...updateReplyInput,
+    });
+  }
+
+  async remove(id: number): Promise<NewsReply> {
+    const reply: NewsReply = await this.findOne(id);
+    await this.newsReplyRepository.delete(reply.id);
+    return reply;
   }
 }
