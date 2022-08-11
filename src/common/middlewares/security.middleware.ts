@@ -27,9 +27,11 @@ export class SecurityMiddleware implements NestMiddleware {
   //   use(cookieParser()
   async use(req: any, res: Response, next: NextFunction) {
     // do something
+    console.log('**********security middleware');
     const cookies = req.cookies;
+    console.log(`the cookies here: ${cookies}`);
     const jwt_auth = cookies.JWT;
-    // console.log(jwt_auth);
+    console.log(jwt_auth);
     if (!jwt_auth) {
       console.log('No jwt token');
       // res.status(401).send('Unauthorized');
