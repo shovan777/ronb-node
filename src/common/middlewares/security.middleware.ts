@@ -46,15 +46,15 @@ export class SecurityMiddleware implements NestMiddleware {
           console.log(`hello again ${user_id}`);
           const user = user_id;
           req.user = user;
-          // next();
+          next();
         } else {
           console.log('Please login first');
           res.status(401).send('Please login first');
         }
-        sub.unsubscribe('nodeLdjango-django').then(() => {
-          console.log('unsubscribed from the channel');
-        });
-        next();
+        // sub.unsubscribe('nodeLdjango-django').then(() => {
+        //   console.log('unsubscribed from the channel');
+        // });
+        // next();
       });
     });
 
