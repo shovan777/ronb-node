@@ -9,9 +9,9 @@ import { SecurityMiddleware } from './common/middlewares/security.middleware';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));
   app.use(cookieParser());
   app.use(new SecurityMiddleware().use);
-  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));
   // implment global validation pipeline for explicit transformation
   app.useGlobalPipes(
     new ValidationPipe({
