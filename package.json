@@ -21,7 +21,7 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "npm run typeorm -- migration:generate -d src/config/datasource.ts",
     "migration:run:dev": "npm run typeorm -- migration:run -d src/config/datasource.ts",
-    "migration:revert:dev" : "npm run typeorm -- migration:revert -d src/config/datasource.ts",
+    "migration:revert:dev": "npm run typeorm -- migration:revert -d src/config/datasource.ts",
     "migration:run": "npx typeorm migration:run -d dist/config/datasource.js",
     "migration:revert": "npx typeorm migration:revert -d dist/config/datasource.js"
   },
@@ -40,6 +40,7 @@
     "class-validator": "^0.13.2",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.1",
+    "fs-capacitor": "^6.2.0",
     "geojson-validation": "^1.0.2",
     "graphql": "^16.5.0",
     "graphql-relay": "^0.10.0",
