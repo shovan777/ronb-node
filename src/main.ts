@@ -11,7 +11,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));
   app.use(cookieParser());
-  app.use(new SecurityMiddleware().use);
+  app.use(await new SecurityMiddleware().use);
   // implment global validation pipeline for explicit transformation
   app.useGlobalPipes(
     new ValidationPipe({

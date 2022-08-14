@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { createClient } from 'redis';
 
 const sub = createClient({
@@ -42,29 +42,32 @@ export class SecurityMiddleware implements NestMiddleware {
       return;
     }
     // req.pause();
-    await pub.publish('nodeLdjango-node', jwt_auth).then(() => {
-      sub.subscribe('nodeLdjango-django', (message) => {
-        const user_id = JSON.parse(message).user_id;
-        if (user_id) {
-          console.log(`hello again ${user_id}`);
-          const user = user_id;
-          req.user = user;
-          // req.resume();
-          // next();
-        } else {
-          console.log('Please login first');
-          res.status(401).send('Please login first');
-        }
-        // next();
-        sub.unsubscribe('nodeLdjango-django').then(() => {
-          console.log('unsubscribed from the channel');
-        });
+    await pub.publish('nodeLdjango-node', jwt_auth);
+    await sub.subscribe('nodeLdjango-django', (message) => {
+      const user_id = JSON.parse(message).user_id;
+      if (user_id) {
+        console.log(`hello again ${user_id}`);
+        const user = user_id;
+        req.user = user;
         // req.resume();
         // next();
+      } else {
+        console.log('Please login first');
+        res.status(401).send('Please login first');
+      }
+      // next();
+      sub.unsubscribe('nodeLdjango-django').then(() => {
+        console.log('unsubscribed from the channel');
       });
+      req.resume();
+      next();
     });
-    req.resume();
-    next();
+    // while (!truth) {
+    //   // console.log(`waiting for the message ${truth}`);
+    // }
+
+    // req.resume();
+    // next();
     // next();
   }
 }

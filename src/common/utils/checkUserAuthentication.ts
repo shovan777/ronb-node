@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common/exceptions';
 
 export const checkUserAuthenticated = (user: number) => {
+  console.log(`user ${user} is commenting`);
   if (!user) {
     throw new UnauthorizedException('User not logged in');
   }

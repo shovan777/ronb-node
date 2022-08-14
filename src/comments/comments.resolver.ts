@@ -30,6 +30,7 @@ export class NewsCommentsResolver {
     createNewsCommentInput: CreateNewsCommentInput,
     @User() user: number,
   ) {
+    console.log(createNewsCommentInput);
     checkUserAuthenticated(user);
     return this.newsCommentsService.create(createNewsCommentInput, user);
   }
