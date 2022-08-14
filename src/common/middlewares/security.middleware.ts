@@ -27,7 +27,7 @@ export class SecurityMiddleware implements NestMiddleware {
   //   use(cookieParser()
   async use(req: any, res: Response, next: NextFunction) {
     // do something
-
+    // req.pause();
     console.log('**********security middleware');
     const cookies = await req.cookies;
     console.log(`the cookies here: ${cookies.JWT}`);
@@ -48,15 +48,18 @@ export class SecurityMiddleware implements NestMiddleware {
           console.log(`hello again ${user_id}`);
           const user = user_id;
           req.user = user;
-          next();
+          // req.resume();
+          // next();
         } else {
           console.log('Please login first');
           res.status(401).send('Please login first');
         }
+        req.resume();
+        // next();
         sub.unsubscribe('nodeLdjango-django').then(() => {
           console.log('unsubscribed from the channel');
         });
-        // next();
+        next();
       });
     });
 
