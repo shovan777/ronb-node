@@ -68,7 +68,7 @@ export class SecurityMiddleware implements NestMiddleware {
     // while (!truth) {
     //   // console.log(`waiting for the message ${truth}`);
     // }
-    await sleep(0.01);
+    await sleep(0.5);
     req.resume();
     next();
   }
