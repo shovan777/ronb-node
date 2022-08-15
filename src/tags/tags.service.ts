@@ -17,13 +17,16 @@ export class TagsService {
   constructor(
     @InjectRepository(Tag)
     private tagRepository: Repository<Tag>,
-  ) {}
-
-  async create(createTagInput: CreateTagInput): Promise<Tag> {
+   ) {}
+  
+  async create(
+    createTagInput: CreateTagInput,
+    user: number  
+  ): Promise<Tag> {
     return this.tagRepository.save({
       ...createTagInput,
-      createdBy: 1,
-      updatedBy: 1,
+      createdBy:user,
+      updatedBy:user,
     });
   }
 
@@ -48,12 +51,12 @@ export class TagsService {
     return tag;
   }
 
-  async findOneOrCreate(name: string): Promise<Tag> {
+  async findOneOrCreate(name: string, user: number): Promise<Tag> {
     const tag = await this.findOneByName(name);
     if (tag) {
       return tag;
     }
-    return await this.create({ name });
+    return await this.create({name}, user);
   }
 }
 
@@ -65,10 +68,11 @@ export class NewsTaggitService {
     private tagService: TagsService,
     @Inject(forwardRef(() => NewsService))
     private newsService: NewsService,
-  ) {}
-
+   ) {}
+  
   async create(
     createNewsTaggitInput: CreateNewsTaggitInput,
+    user: number
   ): Promise<NewsTaggit> {
     let newInputData: any = {
       ...createNewsTaggitInput,
@@ -159,7 +163,7 @@ export class NewsTaggitService {
     return newsTaggit;
   }
 
-  async findOneOrCreate(tag: Tag, news: News): Promise<NewsTaggit> {
+  async findOneOrCreate(tag: Tag, news: News, user): Promise<NewsTaggit> {
     const newsTaggit = await this.findOneByTagAndNews(tag.id, news.id);
     if (newsTaggit) {
       return newsTaggit;
@@ -167,7 +171,7 @@ export class NewsTaggitService {
     return this.create({
       tag: tag.id,
       news: news.id,
-    });
+    }, user);
   }
 
   async remove(id: number) {
