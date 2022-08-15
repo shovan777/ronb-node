@@ -31,9 +31,9 @@ export class SecurityMiddleware implements NestMiddleware {
   async use(req: any, res: Response, next: NextFunction) {
     // do something
     req.pause();
-    console.log('**********security middleware');
+    // console.log('**********security middleware');
     const cookies = await req.cookies;
-    console.log(`the cookies here: ${cookies.JWT}`);
+    // console.log(`the cookies here: ${cookies.JWT}`);
     const jwt_auth = cookies.JWT;
     console.log(jwt_auth);
     if (!jwt_auth) {
@@ -49,7 +49,7 @@ export class SecurityMiddleware implements NestMiddleware {
     await sub.subscribe('nodeLdjango-django', (message) => {
       const user_id = JSON.parse(message).user_id;
       if (user_id) {
-        console.log(`hello again ${user_id}`);
+        // console.log(`hello again ${user_id}`);
         const user = user_id;
         req.user = user;
         // req.resume();
@@ -60,7 +60,7 @@ export class SecurityMiddleware implements NestMiddleware {
       }
       // next();
       sub.unsubscribe('nodeLdjango-django').then(() => {
-        console.log('unsubscribed from the channel');
+        // console.log('unsubscribed from the channel');
       });
       // req.resume();
       // next();
@@ -68,7 +68,7 @@ export class SecurityMiddleware implements NestMiddleware {
     // while (!truth) {
     //   // console.log(`waiting for the message ${truth}`);
     // }
-    await sleep(1);
+    await sleep(0.5);
     req.resume();
     next();
   }
