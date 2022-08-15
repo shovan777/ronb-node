@@ -33,6 +33,16 @@ import { CommentsModule } from './comments/comments.module';
       //   maxFiles: 5,
       // },
       uploads: false,
+      cors: {
+        origin: function (origin, callback) {
+          if (!origin || process.env.CORS_WHITELIST.split(',').indexOf(origin) !== -1) {
+            callback(null, true)
+          } else {
+            callback(new Error('Not allowed by CORS'))
+          }
+        },
+        credentials: true,
+      }
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
