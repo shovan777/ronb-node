@@ -21,6 +21,9 @@ Promise.all([sub, pub])
     throw err;
   });
 
+const sleep = (sec) =>
+  new Promise((resolve) => setTimeout(resolve, sec * 1000));
+
 @Injectable()
 export class SecurityMiddleware implements NestMiddleware {
   // use(cookieParser)
@@ -59,15 +62,14 @@ export class SecurityMiddleware implements NestMiddleware {
       sub.unsubscribe('nodeLdjango-django').then(() => {
         console.log('unsubscribed from the channel');
       });
-      req.resume();
-      next();
+      // req.resume();
+      // next();
     });
     // while (!truth) {
     //   // console.log(`waiting for the message ${truth}`);
     // }
-
-    // req.resume();
-    // next();
-    // next();
+    await sleep(0.3);
+    req.resume();
+    next();
   }
 }
