@@ -6,14 +6,20 @@ import { UpdateTagInput } from './dto/update-tag.input';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { NotFoundException } from '@nestjs/common';
+import { User } from 'src/common/decorators/user.decorator';
+import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 
 @Resolver(() => Tag)
 export class TagsResolver {
   constructor(private readonly tagsService: TagsService) {}
 
   @Mutation(() => Tag)
-  async createTag(@Args('createTagInput') createTagInput: CreateTagInput) {
-    return await this.tagsService.create(createTagInput);
+  async createTag(
+    @Args('createTagInput') createTagInput: CreateTagInput,
+    @User() user: number
+  ) {
+    checkUserAuthenticated(user);
+    return await this.tagsService.create(createTagInput, user);
   }
 
   @Query(() => [Tag], { name: 'tags' })
@@ -27,8 +33,12 @@ export class NewsTaggitResolver {
   constructor(private readonly newsTaggitService: NewsTaggitService) {}
 
   @Mutation(() => NewsTaggit)
-  async createNewsTaggit(@Args('createNewsTaggitInput') createNewsTaggitInput: CreateNewsTaggitInput) {
-    return await this.newsTaggitService.create(createNewsTaggitInput);
+  async createNewsTaggit(
+    @Args('createNewsTaggitInput') createNewsTaggitInput: CreateNewsTaggitInput,
+    @User() user: number  
+  ) {
+    checkUserAuthenticated(user);
+    return await this.newsTaggitService.create(createNewsTaggitInput, user);
   }
 
   @Query(() => [NewsTaggit], { name: 'newsTaggit' })
