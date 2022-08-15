@@ -120,7 +120,7 @@ export class NewsService {
 
     if (newsInput.tags) {
       const tags = newsInput.tags.map(async (tag) => {
-        const tagData: Tag = await this.tagsService.findOneOrCreate(tag);
+        const tagData: Tag = await this.tagsService.findOneOrCreate(tag, user);
         return tagData;
       });
 
@@ -129,7 +129,7 @@ export class NewsService {
         const newsTaggit: NewsTaggit = await this.newsTaggitService.create({
           tag: tagData.id,
           news: newsData.id,
-        });
+        }, user);
         return newsTaggit;
       });
 
@@ -251,7 +251,7 @@ export class NewsService {
       if (updateNewsInput.tags) {
         console.log(updateNewsInput.tags);
         const tags = updateNewsInput.tags.map(async (tag) => {
-          const tagData: Tag = await this.tagsService.findOneOrCreate(tag);
+          const tagData: Tag = await this.tagsService.findOneOrCreate(tag, user);
           return tagData;
         });
 
@@ -259,7 +259,7 @@ export class NewsService {
           const tagData = await tag;
           console.log(tagData);
           const newsTaggit: NewsTaggit =
-            await this.newsTaggitService.findOneOrCreate(tagData, news);
+            await this.newsTaggitService.findOneOrCreate(tagData, news, user);
           return newsTaggit;
         });
         await Promise.all(newsTags);
