@@ -227,6 +227,9 @@ type NewsComment {
   """id field for int"""
   id: Int!
 
+  """Reaction of the user to this comment"""
+  like: UserLikesNewsComment
+
   """Replies to this comment"""
   replies: [NewsReply!]!
 
@@ -533,6 +536,14 @@ scalar Upload
 type UserLikesNews {
   """likes for the news"""
   news: News!
+
+  """id field for int"""
+  userId: Int!
+}
+
+type UserLikesNewsComment {
+  """likes for the news comment"""
+  comment: NewsComment!
 
   """id field for int"""
   userId: Int!
