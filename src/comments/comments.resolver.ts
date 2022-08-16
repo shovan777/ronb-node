@@ -11,11 +11,13 @@ import {
   NewsCommentsService,
   NewsRepliesService,
   UserLikesNewsCommentService,
+  UserLikesNewsReplyService,
 } from './comments.service';
 import {
   NewsComment,
   NewsReply,
   UserLikesNewsComment,
+  UserLikesNewsReply,
 } from './entities/comment.entity';
 import {
   CreateNewsCommentInput,
@@ -99,7 +101,10 @@ export class NewsCommentsResolver {
 
 @Resolver(() => NewsReply)
 export class NewsRepliesResolver {
-  constructor(private readonly newsReplyService: NewsRepliesService) {}
+  constructor(
+    private readonly newsReplyService: NewsRepliesService,
+    private readonly newsReplyLikeService: UserLikesNewsReplyService,
+  ) {}
 
   @Mutation(() => NewsReply)
   createNewsReply(
@@ -135,6 +140,21 @@ export class NewsRepliesResolver {
     checkUserAuthenticated(user);
     return this.newsReplyService.remove(id, user);
   }
+
+  @ResolveField(() => UserLikesNewsReply)
+  async like(@Parent() newsReply: NewsReply, @User() user: number) {
+    const { id } = newsReply;
+    if (!user) {
+      return null;
+    }
+    return await this.newsReplyLikeService.findOne(id, user);
+  }
+
+  @ResolveField(() => Int)
+  async likeCount(@Parent() newsReply: NewsReply) {
+    const { id } = newsReply;
+    return await this.newsReplyService.countLikes(id);
+  }
 }
 
 @Resolver(() => UserLikesNewsComment)
@@ -142,11 +162,6 @@ export class UserLikesNewsCommentResolver {
   constructor(
     private readonly userLikesNewsCommentService: UserLikesNewsCommentService,
   ) {}
-  // checkUserAuthenticated(user: number) {
-  //   if (!user) {
-  //     throw new NotFoundException('User not found');
-  //   }
-  // }
 
   @Mutation(() => UserLikesNewsComment)
   async createUserLikesNewsComment(
@@ -165,5 +180,30 @@ export class UserLikesNewsCommentResolver {
   ) {
     checkUserAuthenticated(user);
     return await this.userLikesNewsCommentService.remove(commentId, user);
+  }
+}
+
+@Resolver(() => UserLikesNewsReply)
+export class UserLikesNewsReplyResolver {
+  constructor(
+    private readonly userLikesNewsReplyService: UserLikesNewsReplyService,
+  ) {}
+
+  @Mutation(() => UserLikesNewsReply)
+  async createUserLikesNewsReply(
+    @User() user: number,
+    @Args('replyId', { type: () => Int }) replyId: number,
+  ) {
+    checkUserAuthenticated(user);
+    return await this.userLikesNewsReplyService.create(replyId, user);
+  }
+
+  @Mutation(() => UserLikesNewsReply)
+  async removeUserLikesNewsReply(
+    @User() user: number,
+    @Args('replyId', { type: () => Int }) replyId: number,
+  ) {
+    checkUserAuthenticated(user);
+    return await this.userLikesNewsReplyService.remove(replyId, user);
   }
 }

@@ -24,6 +24,7 @@ import {
   NewsComment,
   NewsReply,
   UserLikesNewsComment,
+  UserLikesNewsReply,
 } from './entities/comment.entity';
 
 @Injectable()
@@ -183,6 +184,17 @@ export class NewsRepliesService {
     await this.newsReplyRepository.delete(reply.id);
     return reply;
   }
+
+  async countLikes(replyId: number) {
+    const reply = await this.newsReplyRepository.findOne({
+      where: { id: replyId },
+      relations: { likes: true },
+    });
+    if (!reply) {
+      throw new NotFoundException(`Reply with id ${replyId} not found`);
+    }
+    return reply.likes.length;
+  }
 }
 
 @Injectable()
@@ -221,5 +233,44 @@ export class UserLikesNewsCommentService {
     const removedUserLikesNewsComment = { ...userLikesNewsComment };
     await this.userLikesNewsCommentRepository.remove(userLikesNewsComment);
     return removedUserLikesNewsComment;
+  }
+}
+
+@Injectable()
+export class UserLikesNewsReplyService {
+  constructor(
+    @InjectRepository(UserLikesNewsReply)
+    private userLikesNewsReplyRepository: Repository<UserLikesNewsReply>,
+    private newsReplyService: NewsRepliesService,
+  ) {}
+  async create(replyId: number, user: number): Promise<UserLikesNewsReply> {
+    const reply = await this.newsReplyService.findOne(replyId);
+    return this.userLikesNewsReplyRepository.save({
+      reply: reply,
+      userId: user,
+    });
+  }
+
+  async findOne(replyId: number, user: number) {
+    const UserLikesNewsReplyService =
+      await this.userLikesNewsReplyRepository.findOne({
+        where: {
+          reply: { id: replyId },
+          userId: user,
+        },
+      });
+    return UserLikesNewsReplyService;
+  }
+
+  async remove(replyId: number, user: number) {
+    const userLikesNewsReply = await this.findOne(replyId, user);
+    if (!userLikesNewsReply) {
+      throw new NotFoundException(
+        `User id ${user} has not liked the reply with id ${replyId}`,
+      );
+    }
+    const removedUserLikesNewsReply = { ...userLikesNewsReply };
+    await this.userLikesNewsReplyRepository.remove(userLikesNewsReply);
+    return removedUserLikesNewsReply;
   }
 }
