@@ -126,10 +126,13 @@ export class NewsService {
 
       const newsTags = tags.map(async (tag) => {
         const tagData = await tag;
-        const newsTaggit: NewsTaggit = await this.newsTaggitService.create({
-          tag: tagData.id,
-          news: newsData.id,
-        }, user);
+        const newsTaggit: NewsTaggit = await this.newsTaggitService.create(
+          {
+            tag: tagData.id,
+            news: newsData.id,
+          },
+          user,
+        );
         return newsTaggit;
       });
 
@@ -251,7 +254,10 @@ export class NewsService {
       if (updateNewsInput.tags) {
         console.log(updateNewsInput.tags);
         const tags = updateNewsInput.tags.map(async (tag) => {
-          const tagData: Tag = await this.tagsService.findOneOrCreate(tag, user);
+          const tagData: Tag = await this.tagsService.findOneOrCreate(
+            tag,
+            user,
+          );
           return tagData;
         });
 
@@ -265,8 +271,8 @@ export class NewsService {
         await Promise.all(newsTags);
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         tags = [],
         images = [],
         ...updatedNews
@@ -274,10 +280,9 @@ export class NewsService {
         ...news,
         ...newsInputData,
         updatedAt: new Date(),
-        updatedBy: user, //TODO: get user from jwt
+        updatedBy: user,
         // images: ['guur'],
       };
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       return this.newsRepository.save(updatedNews);
     }
     throw new NotFoundException(`News with id ${id} not found`);

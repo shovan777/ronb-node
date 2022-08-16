@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -31,4 +32,11 @@ export abstract class CreatorBaseEntity extends BaseIdEntity {
   @Field(() => Int, { description: 'one who updated' })
   @Column()
   updatedBy: number;
+}
+
+@ObjectType({ isAbstract: true })
+export abstract class BaseUserLikesEntity {
+  @Field(() => Int, { description: 'id field for int' })
+  @PrimaryColumn({ type: 'int', nullable: false })
+  userId: number;
 }

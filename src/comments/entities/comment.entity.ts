@@ -1,12 +1,17 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { BaseIdEntity } from 'src/common/entities/base.entity';
+import {
+  BaseIdEntity,
+  BaseUserLikesEntity,
+} from 'src/common/entities/base.entity';
 import { News } from 'src/news/entities/news.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  PrimaryColumn,
   UpdateDateColumn,
   // Tree,
   // TreeChildren,
@@ -53,6 +58,17 @@ export class NewsComment extends BaseComment {
   @Field(() => Int, { description: 'Number of replies' })
   replyCount: number;
 
+  @OneToMany(() => UserLikesNewsComment, (likes) => likes.comment, {
+    nullable: true,
+  })
+  likes?: UserLikesNewsComment[];
+
+  @Field(() => UserLikesNewsComment, {
+    description: 'Reaction of the user to this comment',
+    nullable: true,
+  })
+  like?: UserLikesNewsComment | any;
+
   // @Field(() => [NewsComment], {
   //   description: 'News comment replies',
   //   nullable: true,
@@ -83,4 +99,45 @@ export class NewsReply extends BaseComment {
   @Field(() => Int, { description: 'User who is replied to' })
   @Column()
   repliedTo: number;
+
+  @OneToMany(() => UserLikesNewsReply, (likes) => likes.reply, {
+    nullable: true,
+  })
+  likes?: UserLikesNewsReply[];
+
+  @Field(() => UserLikesNewsReply, {
+    description: 'Reaction of the user to this comment',
+    nullable: true,
+  })
+  like?: UserLikesNewsReply | any;
+}
+
+@Entity()
+@ObjectType()
+export class UserLikesNewsComment extends BaseUserLikesEntity {
+  @PrimaryColumn()
+  commentId: number;
+
+  // @Field(() => NewsComment, { description: 'likes for the news comment' })
+  @JoinColumn({ name: 'commentId' })
+  @ManyToOne(() => NewsComment, (comment) => comment.likes, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  public comment: NewsComment;
+}
+
+@Entity()
+@ObjectType()
+export class UserLikesNewsReply extends BaseUserLikesEntity {
+  @PrimaryColumn()
+  replyId: number;
+
+  // @Field(() => NewsComment, { description: 'likes for the news comment' })
+  @JoinColumn({ name: 'replyId' })
+  @ManyToOne(() => NewsReply, (reply) => reply.likes, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  public reply: NewsReply;
 }

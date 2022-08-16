@@ -119,6 +119,8 @@ type Mutation {
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
   createTag(createTagInput: CreateTagInput!): Tag!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
+  createUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
+  createUserLikesNewsReply(replyId: Int!): UserLikesNewsReply!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
   removeNewsComment(id: Int!): NewsComment!
@@ -126,6 +128,8 @@ type Mutation {
   removeNewsTaggit(id: Int!): NewsTaggit!
   removePublicToilet(id: Int!): PublicToilet!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
+  removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
+  removeUserLikesNewsReply(replyId: Int!): UserLikesNewsReply!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
   updateNewsComment(id: Int!, updateNewsCommentInput: UpdateNewsCommentInput!): NewsComment!
@@ -227,6 +231,10 @@ type NewsComment {
   """id field for int"""
   id: Int!
 
+  """Reaction of the user to this comment"""
+  like: UserLikesNewsComment
+  likeCount: Int!
+
   """Replies to this comment"""
   replies: [NewsReply!]!
 
@@ -287,6 +295,10 @@ type NewsReply {
 
   """id field for int"""
   id: Int!
+
+  """Reaction of the user to this comment"""
+  like: UserLikesNewsReply
+  likeCount: Int!
 
   """User who is replied to"""
   repliedTo: Int!
@@ -534,6 +546,16 @@ type UserLikesNews {
   """likes for the news"""
   news: News!
 
+  """id field for int"""
+  userId: Int!
+}
+
+type UserLikesNewsComment {
+  """id field for int"""
+  userId: Int!
+}
+
+type UserLikesNewsReply {
   """id field for int"""
   userId: Int!
 }

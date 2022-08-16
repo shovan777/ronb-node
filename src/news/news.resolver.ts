@@ -214,7 +214,6 @@ export class UserLikesNewsResolver {
     createUserLikesNewsInput: CreateUserLikesNewsInput,
   ) {
     checkUserAuthenticated(user);
-    console.log(`hello from like ${user}`);
     return await this.userLikesNewsService.create(
       createUserLikesNewsInput,
       user,
