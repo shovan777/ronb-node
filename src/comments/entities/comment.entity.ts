@@ -107,7 +107,7 @@ export class UserLikesNewsComment extends BaseUserLikesEntity {
   @PrimaryColumn()
   commentId: number;
 
-  @Field(() => NewsComment, { description: 'likes for the news comment' })
+  // @Field(() => NewsComment, { description: 'likes for the news comment' })
   @JoinColumn({ name: 'commentId' })
   @ManyToOne(() => NewsComment, (comment) => comment.likes, {
     onDelete: 'CASCADE',

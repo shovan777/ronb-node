@@ -7,8 +7,16 @@ import {
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
-import { NewsCommentsService, NewsRepliesService } from './comments.service';
-import { NewsComment, NewsReply } from './entities/comment.entity';
+import {
+  NewsCommentsService,
+  NewsRepliesService,
+  UserLikesNewsCommentService,
+} from './comments.service';
+import {
+  NewsComment,
+  NewsReply,
+  UserLikesNewsComment,
+} from './entities/comment.entity';
 import {
   CreateNewsCommentInput,
   CreateNewsReplyInput,
@@ -22,7 +30,10 @@ import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication
 
 @Resolver(() => NewsComment)
 export class NewsCommentsResolver {
-  constructor(private readonly newsCommentsService: NewsCommentsService) {}
+  constructor(
+    private readonly newsCommentsService: NewsCommentsService,
+    private readonly newsCommentsLikeService: UserLikesNewsCommentService,
+  ) {}
 
   @Mutation(() => NewsComment)
   createNewsComment(
@@ -30,7 +41,6 @@ export class NewsCommentsResolver {
     createNewsCommentInput: CreateNewsCommentInput,
     @User() user: number,
   ) {
-    console.log(createNewsCommentInput);
     checkUserAuthenticated(user);
     return this.newsCommentsService.create(createNewsCommentInput, user);
   }
@@ -69,6 +79,21 @@ export class NewsCommentsResolver {
   replyCount(@Parent() newsComment: NewsComment) {
     const commentId = newsComment.id;
     return this.newsCommentsService.countReplies(commentId);
+  }
+
+  @ResolveField(() => UserLikesNewsComment)
+  async like(@Parent() newsComment: NewsComment, @User() user: number) {
+    const { id } = newsComment;
+    if (!user) {
+      return null;
+    }
+    return await this.newsCommentsLikeService.findOne(id, user);
+  }
+
+  @ResolveField(() => Int)
+  async likeCount(@Parent() newsComment: NewsComment) {
+    const { id } = newsComment;
+    return await this.newsCommentsService.countLikes(id);
   }
 }
 
@@ -109,5 +134,36 @@ export class NewsRepliesResolver {
   ) {
     checkUserAuthenticated(user);
     return this.newsReplyService.remove(id, user);
+  }
+}
+
+@Resolver(() => UserLikesNewsComment)
+export class UserLikesNewsCommentResolver {
+  constructor(
+    private readonly userLikesNewsCommentService: UserLikesNewsCommentService,
+  ) {}
+  // checkUserAuthenticated(user: number) {
+  //   if (!user) {
+  //     throw new NotFoundException('User not found');
+  //   }
+  // }
+
+  @Mutation(() => UserLikesNewsComment)
+  async createUserLikesNewsComment(
+    @User() user: number,
+    @Args('commentId', { type: () => Int }) commentId: number,
+  ) {
+    checkUserAuthenticated(user);
+    console.log(`hello from like ${user}`);
+    return await this.userLikesNewsCommentService.create(commentId, user);
+  }
+
+  @Mutation(() => UserLikesNewsComment)
+  async removeUserLikesNewsComment(
+    @User() user: number,
+    @Args('commentId', { type: () => Int }) commentId: number,
+  ) {
+    checkUserAuthenticated(user);
+    return await this.userLikesNewsCommentService.remove(commentId, user);
   }
 }

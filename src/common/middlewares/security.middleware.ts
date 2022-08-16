@@ -44,6 +44,8 @@ export class SecurityMiddleware implements NestMiddleware {
       next();
       return;
     }
+    // TODO: GET user for cache if exists
+    // const cached_user = await pub.get(jwt_auth);
     // req.pause();
     await pub.publish('nodeLdjango-node', jwt_auth);
     await sub.subscribe('nodeLdjango-django', (message) => {
@@ -54,6 +56,7 @@ export class SecurityMiddleware implements NestMiddleware {
         req.user = user;
         // req.resume();
         // next();
+        // TODO: cache the user to redis
       } else {
         console.log('Please login first');
         res.status(401).send('Please login first');

@@ -1,6 +1,14 @@
 import { Module } from '@nestjs/common';
-import { NewsCommentsService, NewsRepliesService } from './comments.service';
-import { NewsCommentsResolver, NewsRepliesResolver } from './comments.resolver';
+import {
+  NewsCommentsService,
+  NewsRepliesService,
+  UserLikesNewsCommentService,
+} from './comments.service';
+import {
+  NewsCommentsResolver,
+  NewsRepliesResolver,
+  UserLikesNewsCommentResolver,
+} from './comments.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   NewsComment,
@@ -19,6 +27,8 @@ import { NewsModule } from 'src/news/news.module';
     NewsCommentsService,
     NewsRepliesResolver,
     NewsRepliesService,
+    UserLikesNewsCommentService,
+    UserLikesNewsCommentResolver,
   ],
 })
 export class CommentsModule {}

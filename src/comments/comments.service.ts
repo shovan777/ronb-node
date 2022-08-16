@@ -3,8 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Args } from '@nestjs/graphql';
 import { InjectRepository } from '@nestjs/typeorm';
-import { checkUserIsAuthor } from 'src/common/utils/checkUserAuthentication';
+import { User } from 'src/common/decorators/user.decorator';
+import {
+  checkUserAuthenticated,
+  checkUserIsAuthor,
+} from 'src/common/utils/checkUserAuthentication';
 import { NewsService } from 'src/news/news.service';
 import { Repository } from 'typeorm';
 import {
@@ -15,7 +20,11 @@ import {
   UpdateNewsCommentInput,
   UpdateNewsReplyInput,
 } from './dto/update-comment.input';
-import { NewsComment, NewsReply } from './entities/comment.entity';
+import {
+  NewsComment,
+  NewsReply,
+  UserLikesNewsComment,
+} from './entities/comment.entity';
 
 @Injectable()
 export class NewsCommentsService {
@@ -94,6 +103,21 @@ export class NewsCommentsService {
     }
     return comment.replies.length;
   }
+
+  async countLikes(commentId: number) {
+    const comment = await this.newsCommentRepository.findOne({
+      where: { id: commentId },
+      relations: { likes: true },
+    });
+    if (!comment) {
+      throw new NotFoundException(`Comment with id ${commentId} not found`);
+    }
+    return comment.likes.length;
+  }
+  // async findUserLikesNewsComment(commentId: number, user: number) {
+  //   const comment = await this.newsCommentLikeService.findOne(commentId, user);
+  //   return comment;
+  // }
 }
 
 @Injectable()
@@ -158,5 +182,44 @@ export class NewsRepliesService {
     checkUserIsAuthor(user, reply.author);
     await this.newsReplyRepository.delete(reply.id);
     return reply;
+  }
+}
+
+@Injectable()
+export class UserLikesNewsCommentService {
+  constructor(
+    @InjectRepository(UserLikesNewsComment)
+    private userLikesNewsCommentRepository: Repository<UserLikesNewsComment>,
+    private newsCommentService: NewsCommentsService,
+  ) {}
+  async create(commentId: number, user: number): Promise<UserLikesNewsComment> {
+    const comment = await this.newsCommentService.findOne(commentId);
+    return this.userLikesNewsCommentRepository.save({
+      comment: comment,
+      userId: user,
+    });
+  }
+
+  async findOne(commentId: number, user: number) {
+    const userLikesNewsComment =
+      await this.userLikesNewsCommentRepository.findOne({
+        where: {
+          comment: { id: commentId },
+          userId: user,
+        },
+      });
+    return userLikesNewsComment;
+  }
+
+  async remove(commentId: number, user: number) {
+    const userLikesNewsComment = await this.findOne(commentId, user);
+    if (!userLikesNewsComment) {
+      throw new NotFoundException(
+        `User id ${user} has not liked the comment with id ${commentId}`,
+      );
+    }
+    const removedUserLikesNewsComment = { ...userLikesNewsComment };
+    await this.userLikesNewsCommentRepository.remove(userLikesNewsComment);
+    return removedUserLikesNewsComment;
   }
 }
