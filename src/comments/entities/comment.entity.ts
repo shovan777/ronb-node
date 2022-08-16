@@ -99,6 +99,17 @@ export class NewsReply extends BaseComment {
   @Field(() => Int, { description: 'User who is replied to' })
   @Column()
   repliedTo: number;
+
+  @OneToMany(() => UserLikesNewsReply, (likes) => likes.reply, {
+    nullable: true,
+  })
+  likes?: UserLikesNewsReply[];
+
+  @Field(() => UserLikesNewsReply, {
+    description: 'Reaction of the user to this comment',
+    nullable: true,
+  })
+  like?: UserLikesNewsReply | any;
 }
 
 @Entity()
@@ -114,4 +125,19 @@ export class UserLikesNewsComment extends BaseUserLikesEntity {
     nullable: false,
   })
   public comment: NewsComment;
+}
+
+@Entity()
+@ObjectType()
+export class UserLikesNewsReply extends BaseUserLikesEntity {
+  @PrimaryColumn()
+  replyId: number;
+
+  // @Field(() => NewsComment, { description: 'likes for the news comment' })
+  @JoinColumn({ name: 'replyId' })
+  @ManyToOne(() => NewsReply, (reply) => reply.likes, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  public reply: NewsReply;
 }
