@@ -31,7 +31,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
-import CommentsResponse from './comments.response';
+import CommentsResponse, { RepliesResponse } from './comments.response';
 
 @Resolver(() => NewsComment)
 export class NewsCommentsResolver {
@@ -132,9 +132,22 @@ export class NewsRepliesResolver {
     return this.newsReplyService.create(createNewsReplyInput, user);
   }
 
-  @Query(() => [NewsReply], { name: 'newsReplies' })
-  findAll(@Args('newsCommentId', { type: () => Int }) newsCommentId: number) {
-    return this.newsReplyService.findAll(newsCommentId);
+  @Query(() => RepliesResponse, { name: 'newsReplies' })
+  async findAll(
+    @Args('newsCommentId', { type: () => Int }) newsCommentId: number,
+    @Args() args: ConnectionArgs,
+  ): Promise<RepliesResponse> {
+    const { limit, offset } = args.pagingParams();
+    const [replies, count] = await this.newsReplyService.findAll(
+      newsCommentId,
+      limit,
+      offset,
+    );
+    const page = connectionFromArraySlice(replies, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+    return { page, pageData: { count, limit, offset } };
   }
 
   @Mutation(() => NewsReply)
