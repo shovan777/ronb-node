@@ -53,11 +53,17 @@ export class NewsCommentsService {
     });
   }
 
-  async findAll(newsId: number): Promise<NewsComment[]> {
-    return this.newsCommentRepository.find({
+  async findAll(
+    newsId: number,
+    limit: number,
+    offset: number,
+  ): Promise<[NewsComment[], number]> {
+    return this.newsCommentRepository.findAndCount({
       where: {
         news: { id: newsId },
       },
+      take: limit,
+      skip: offset,
       // relations: { news: true },
     });
   }

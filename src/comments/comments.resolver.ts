@@ -29,6 +29,9 @@ import {
 } from './dto/update-comment.input';
 import { User } from 'src/common/decorators/user.decorator';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
+import ConnectionArgs from 'src/common/pagination/types/connection.args';
+import { connectionFromArraySlice } from 'graphql-relay';
+import CommentsResponse from './comments.response';
 
 @Resolver(() => NewsComment)
 export class NewsCommentsResolver {
@@ -47,9 +50,22 @@ export class NewsCommentsResolver {
     return this.newsCommentsService.create(createNewsCommentInput, user);
   }
 
-  @Query(() => [NewsComment], { name: 'newsComments' })
-  findAll(@Args('newsId', { type: () => Int }) newsId: number) {
-    return this.newsCommentsService.findAll(newsId);
+  @Query(() => CommentsResponse, { name: 'newsComments' })
+  async findAll(
+    @Args('newsId', { type: () => Int }) newsId: number,
+    @Args() args: ConnectionArgs,
+  ): Promise<CommentsResponse> {
+    const { limit, offset } = args.pagingParams();
+    const [comments, count] = await this.newsCommentsService.findAll(
+      newsId,
+      limit,
+      offset,
+    );
+    const page = connectionFromArraySlice(comments, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+    return { page, pageData: { count, limit, offset } };
   }
 
   @Query(() => NewsComment, { name: 'newsComment' })
