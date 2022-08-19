@@ -117,7 +117,7 @@ export class NewsCommentsResolver {
   }
 
   @ResolveField(() => String)
-  async authorName(@Parent() newsComment: NewsComment) {
+  async authorDetail(@Parent() newsComment: NewsComment) {
     const { author } = newsComment;
     return await this.userService.findOne(author).then((user) => user.username);
     // return author.name;
