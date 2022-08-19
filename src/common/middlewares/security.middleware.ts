@@ -57,12 +57,13 @@ export class SecurityMiddleware implements NestMiddleware {
     // req.pause();
     await pub.publish('nodeLdjango-node', jwt_auth);
     await sub.subscribe('nodeLdjango-django', (message) => {
-      const user_id = JSON.parse(message).user_id;
+      const { user_id, ttl = 500 } = JSON.parse(message);
       if (user_id) {
         // console.log(`hello again ${user_id}`);
         const user = user_id;
         req.user = user;
         cache.set(jwt_auth, user);
+        cache.expire(jwt_auth, ttl);
         // req.resume();
         // next();
         // TODO: cache the user to redis

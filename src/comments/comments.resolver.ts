@@ -34,6 +34,13 @@ import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import CommentsResponse, { RepliesResponse } from './comments.response';
 
+const getAuthor = async (service, id: number) => {
+  return service.findOne(id).then((user) => {
+    // console.log(user);
+    return `${user.first_name} ${user.last_name}`;
+  });
+};
+
 @Resolver(() => NewsComment)
 export class NewsCommentsResolver {
   constructor(
@@ -119,7 +126,8 @@ export class NewsCommentsResolver {
   @ResolveField(() => String)
   async authorDetail(@Parent() newsComment: NewsComment) {
     const { author } = newsComment;
-    return await this.userService.findOne(author).then((user) => user.username);
+    return await getAuthor(this.userService, author);
+    // return await this.userService.findOne(author).then((user) => user.username);
     // return author.name;
   }
 }
@@ -198,16 +206,20 @@ export class NewsRepliesResolver {
   @ResolveField(() => String)
   async authorDetail(@Parent() newsReply: NewsReply) {
     const { author } = newsReply;
-    return await this.userService.findOne(author).then((user) => user.username);
+    return await getAuthor(this.userService, author);
+    // return await this.userService
+    //   .findOne(author)
+    //   .then((user) => `${user.firstname} ${user.lastname}`);
     // return author.name;
   }
 
   @ResolveField(() => String)
   async repliedToDetail(@Parent() newsReply: NewsReply) {
     const { repliedTo } = newsReply;
-    return await this.userService
-      .findOne(repliedTo)
-      .then((user) => user.username);
+    return await getAuthor(this.userService, repliedTo);
+    // return await this.userService
+    //   .findOne(repliedTo)
+    //   .then((user) => user.username);
     // return author.name;
   }
 }
