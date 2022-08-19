@@ -12,6 +12,7 @@ import {
   NewsRepliesService,
   UserLikesNewsCommentService,
   UserLikesNewsReplyService,
+  UsersService,
 } from './comments.service';
 import {
   NewsComment,
@@ -38,6 +39,7 @@ export class NewsCommentsResolver {
   constructor(
     private readonly newsCommentsService: NewsCommentsService,
     private readonly newsCommentsLikeService: UserLikesNewsCommentService,
+    private readonly userService: UsersService,
   ) {}
 
   @Mutation(() => NewsComment)
@@ -112,6 +114,13 @@ export class NewsCommentsResolver {
   async likeCount(@Parent() newsComment: NewsComment) {
     const { id } = newsComment;
     return await this.newsCommentsService.countLikes(id);
+  }
+
+  @ResolveField(() => String)
+  async authorName(@Parent() newsComment: NewsComment) {
+    const { author } = newsComment;
+    return await this.userService.findOne(author).then((user) => user.username);
+    // return author.name;
   }
 }
 

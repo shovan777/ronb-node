@@ -226,6 +226,7 @@ type NewsCategory {
 type NewsComment {
   """one wrote the comment"""
   author: Int!
+  authorName: String!
 
   """Comment content"""
   content: String!

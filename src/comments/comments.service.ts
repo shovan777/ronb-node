@@ -4,14 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Args } from '@nestjs/graphql';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/common/decorators/user.decorator';
 import {
   checkUserAuthenticated,
   checkUserIsAuthor,
 } from 'src/common/utils/checkUserAuthentication';
 import { NewsService } from 'src/news/news.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import {
   CreateNewsCommentInput,
   CreateNewsReplyInput,
@@ -284,5 +284,24 @@ export class UserLikesNewsReplyService {
     const removedUserLikesNewsReply = { ...userLikesNewsReply };
     await this.userLikesNewsReplyRepository.remove(userLikesNewsReply);
     return removedUserLikesNewsReply;
+  }
+}
+
+@Injectable()
+export class UsersService {
+  constructor(
+    @InjectDataSource('usersConnection')
+    private userDataSource: DataSource,
+  ) {}
+  async findOne(id: number) {
+    const user = await this.userDataSource
+      .createQueryBuilder()
+      .from('account_user', 'account_user')
+      .where('account_user.id = :id', { id: 2 })
+      .getRawOne();
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return user;
   }
 }
