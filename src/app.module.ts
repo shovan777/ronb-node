@@ -69,6 +69,7 @@ import { CommentsModule } from './comments/comments.module';
             database: process.env.DJANGO_DB_NAME,
             synchronize: false,
             autoLoadEntities: false,
+            name: 'usersConnection',
           };
         }
         return {
