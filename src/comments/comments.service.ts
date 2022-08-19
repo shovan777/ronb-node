@@ -4,14 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Args } from '@nestjs/graphql';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/common/decorators/user.decorator';
 import {
   checkUserAuthenticated,
   checkUserIsAuthor,
 } from 'src/common/utils/checkUserAuthentication';
 import { NewsService } from 'src/news/news.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import {
   CreateNewsCommentInput,
   CreateNewsReplyInput,
@@ -53,11 +53,17 @@ export class NewsCommentsService {
     });
   }
 
-  async findAll(newsId: number): Promise<NewsComment[]> {
-    return this.newsCommentRepository.find({
+  async findAll(
+    newsId: number,
+    limit: number,
+    offset: number,
+  ): Promise<[NewsComment[], number]> {
+    return this.newsCommentRepository.findAndCount({
       where: {
         news: { id: newsId },
       },
+      take: limit,
+      skip: offset,
       // relations: { news: true },
     });
   }
@@ -147,11 +153,17 @@ export class NewsRepliesService {
     });
   }
 
-  async findAll(commentId: number): Promise<NewsReply[]> {
-    return this.newsReplyRepository.find({
+  async findAll(
+    commentId: number,
+    limit: number,
+    offset: number,
+  ): Promise<[NewsReply[], number]> {
+    return this.newsReplyRepository.findAndCount({
       where: {
         comment: { id: commentId },
       },
+      take: limit,
+      skip: offset,
     });
   }
 
@@ -272,5 +284,24 @@ export class UserLikesNewsReplyService {
     const removedUserLikesNewsReply = { ...userLikesNewsReply };
     await this.userLikesNewsReplyRepository.remove(userLikesNewsReply);
     return removedUserLikesNewsReply;
+  }
+}
+
+@Injectable()
+export class UsersService {
+  constructor(
+    @InjectDataSource('usersConnection')
+    private userDataSource: DataSource,
+  ) {}
+  async findOne(id: number) {
+    const user = await this.userDataSource
+      .createQueryBuilder()
+      .from('account_user', 'account_user')
+      .where('account_user.id = :id', { id: id })
+      .getRawOne();
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return user;
   }
 }

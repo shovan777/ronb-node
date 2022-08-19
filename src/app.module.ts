@@ -3,7 +3,7 @@ import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -35,14 +35,17 @@ import { CommentsModule } from './comments/comments.module';
       uploads: false,
       cors: {
         origin: function (origin, callback) {
-          if (!origin || process.env.CORS_WHITELIST.split(',').indexOf(origin) !== -1) {
-            callback(null, true)
+          if (
+            !origin ||
+            process.env.CORS_WHITELIST.split(',').indexOf(origin) !== -1
+          ) {
+            callback(null, true);
           } else {
-            callback(new Error('Not allowed by CORS'))
+            callback(new Error('Not allowed by CORS'));
           }
         },
         credentials: true,
-      }
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -54,6 +57,28 @@ import { CommentsModule } from './comments/comments.module';
       synchronize: process.env.DB_SYNC === 'true',
       autoLoadEntities: true,
     }),
+    TypeOrmModule.forRoot(
+      (() => {
+        if (process.env.DJANGO_DB_TYPE === 'postgres') {
+          return {
+            type: 'postgres',
+            host: process.env.DJANGO_DB_HOST,
+            port: +process.env.DJANGO_DB_PORT,
+            username: process.env.DJANGO_DB_USER,
+            password: process.env.DJANGO_DB_PASSWORD,
+            database: process.env.DJANGO_DB_NAME,
+            synchronize: false,
+            autoLoadEntities: false,
+          };
+        }
+        return {
+          type: 'sqlite',
+          database:
+            '/home/calcgen2/prokura_workspace/ronb_ws/ronb-django/db.sqlite3',
+          name: 'usersConnection',
+        };
+      })(),
+    ),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', process.env.MEDIA_ROOT || 'uploads'),
       serveRoot: `/${process.env.MEDIA_ROOT || 'uploads'}`,

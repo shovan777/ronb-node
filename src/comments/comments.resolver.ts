@@ -12,6 +12,7 @@ import {
   NewsRepliesService,
   UserLikesNewsCommentService,
   UserLikesNewsReplyService,
+  UsersService,
 } from './comments.service';
 import {
   NewsComment,
@@ -29,12 +30,23 @@ import {
 } from './dto/update-comment.input';
 import { User } from 'src/common/decorators/user.decorator';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
+import ConnectionArgs from 'src/common/pagination/types/connection.args';
+import { connectionFromArraySlice } from 'graphql-relay';
+import CommentsResponse, { RepliesResponse } from './comments.response';
+
+const getAuthor = async (service, id: number) => {
+  return service.findOne(id).then((user) => {
+    // console.log(user);
+    return `${user.first_name} ${user.last_name}`;
+  });
+};
 
 @Resolver(() => NewsComment)
 export class NewsCommentsResolver {
   constructor(
     private readonly newsCommentsService: NewsCommentsService,
     private readonly newsCommentsLikeService: UserLikesNewsCommentService,
+    private readonly userService: UsersService,
   ) {}
 
   @Mutation(() => NewsComment)
@@ -47,9 +59,22 @@ export class NewsCommentsResolver {
     return this.newsCommentsService.create(createNewsCommentInput, user);
   }
 
-  @Query(() => [NewsComment], { name: 'newsComments' })
-  findAll(@Args('newsId', { type: () => Int }) newsId: number) {
-    return this.newsCommentsService.findAll(newsId);
+  @Query(() => CommentsResponse, { name: 'newsComments' })
+  async findAll(
+    @Args('newsId', { type: () => Int }) newsId: number,
+    @Args() args: ConnectionArgs,
+  ): Promise<CommentsResponse> {
+    const { limit, offset } = args.pagingParams();
+    const [comments, count] = await this.newsCommentsService.findAll(
+      newsId,
+      limit,
+      offset,
+    );
+    const page = connectionFromArraySlice(comments, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+    return { page, pageData: { count, limit, offset } };
   }
 
   @Query(() => NewsComment, { name: 'newsComment' })
@@ -97,6 +122,14 @@ export class NewsCommentsResolver {
     const { id } = newsComment;
     return await this.newsCommentsService.countLikes(id);
   }
+
+  @ResolveField(() => String)
+  async authorDetail(@Parent() newsComment: NewsComment) {
+    const { author } = newsComment;
+    return await getAuthor(this.userService, author);
+    // return await this.userService.findOne(author).then((user) => user.username);
+    // return author.name;
+  }
 }
 
 @Resolver(() => NewsReply)
@@ -104,6 +137,7 @@ export class NewsRepliesResolver {
   constructor(
     private readonly newsReplyService: NewsRepliesService,
     private readonly newsReplyLikeService: UserLikesNewsReplyService,
+    private readonly userService: UsersService,
   ) {}
 
   @Mutation(() => NewsReply)
@@ -116,9 +150,22 @@ export class NewsRepliesResolver {
     return this.newsReplyService.create(createNewsReplyInput, user);
   }
 
-  @Query(() => [NewsReply], { name: 'newsReplies' })
-  findAll(@Args('newsCommentId', { type: () => Int }) newsCommentId: number) {
-    return this.newsReplyService.findAll(newsCommentId);
+  @Query(() => RepliesResponse, { name: 'newsReplies' })
+  async findAll(
+    @Args('newsCommentId', { type: () => Int }) newsCommentId: number,
+    @Args() args: ConnectionArgs,
+  ): Promise<RepliesResponse> {
+    const { limit, offset } = args.pagingParams();
+    const [replies, count] = await this.newsReplyService.findAll(
+      newsCommentId,
+      limit,
+      offset,
+    );
+    const page = connectionFromArraySlice(replies, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+    return { page, pageData: { count, limit, offset } };
   }
 
   @Mutation(() => NewsReply)
@@ -154,6 +201,26 @@ export class NewsRepliesResolver {
   async likeCount(@Parent() newsReply: NewsReply) {
     const { id } = newsReply;
     return await this.newsReplyService.countLikes(id);
+  }
+
+  @ResolveField(() => String)
+  async authorDetail(@Parent() newsReply: NewsReply) {
+    const { author } = newsReply;
+    return await getAuthor(this.userService, author);
+    // return await this.userService
+    //   .findOne(author)
+    //   .then((user) => `${user.firstname} ${user.lastname}`);
+    // return author.name;
+  }
+
+  @ResolveField(() => String)
+  async repliedToDetail(@Parent() newsReply: NewsReply) {
+    const { repliedTo } = newsReply;
+    return await getAuthor(this.userService, repliedTo);
+    // return await this.userService
+    //   .findOne(repliedTo)
+    //   .then((user) => user.username);
+    // return author.name;
   }
 }
 

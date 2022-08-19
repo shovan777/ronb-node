@@ -7,12 +7,14 @@ const sub = createClient({
   url: `${process.env.REDIS_URL}/2`,
 });
 const pub = sub.duplicate();
+const cache = sub.duplicate();
 
-(async (sub, pub) => {
+(async (sub, pub, cache) => {
   await pub.connect();
   await sub.connect();
-})(sub, pub);
-Promise.all([sub, pub])
+  await cache.connect();
+})(sub, pub, cache);
+Promise.all([sub, pub, cache])
   .then(() => {
     console.log('**********redis connected');
   })
@@ -45,15 +47,23 @@ export class SecurityMiddleware implements NestMiddleware {
       return;
     }
     // TODO: GET user for cache if exists
-    // const cached_user = await pub.get(jwt_auth);
+    const cached_user = await cache.get(jwt_auth);
+    if (cached_user) {
+      req.user = cached_user;
+      req.resume();
+      next();
+      return;
+    }
     // req.pause();
     await pub.publish('nodeLdjango-node', jwt_auth);
     await sub.subscribe('nodeLdjango-django', (message) => {
-      const user_id = JSON.parse(message).user_id;
+      const { user_id, ttl = 500 } = JSON.parse(message);
       if (user_id) {
         // console.log(`hello again ${user_id}`);
         const user = user_id;
         req.user = user;
+        cache.set(jwt_auth, user);
+        cache.expire(jwt_auth, ttl);
         // req.resume();
         // next();
         // TODO: cache the user to redis

@@ -4,6 +4,7 @@ import {
   NewsRepliesService,
   UserLikesNewsCommentService,
   UserLikesNewsReplyService,
+  UsersService,
 } from './comments.service';
 import {
   NewsCommentsResolver,
@@ -28,6 +29,7 @@ import { NewsModule } from 'src/news/news.module';
       UserLikesNewsComment,
       UserLikesNewsReply,
     ]),
+    // TypeOrmModule.forFeature('usersConnection'),
     NewsModule,
   ],
   providers: [
@@ -39,6 +41,7 @@ import { NewsModule } from 'src/news/news.module';
     UserLikesNewsCommentResolver,
     UserLikesNewsReplyResolver,
     UserLikesNewsReplyService,
+    UsersService,
   ],
 })
 export class CommentsModule {}
