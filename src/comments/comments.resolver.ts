@@ -129,6 +129,7 @@ export class NewsRepliesResolver {
   constructor(
     private readonly newsReplyService: NewsRepliesService,
     private readonly newsReplyLikeService: UserLikesNewsReplyService,
+    private readonly userService: UsersService,
   ) {}
 
   @Mutation(() => NewsReply)
@@ -192,6 +193,22 @@ export class NewsRepliesResolver {
   async likeCount(@Parent() newsReply: NewsReply) {
     const { id } = newsReply;
     return await this.newsReplyService.countLikes(id);
+  }
+
+  @ResolveField(() => String)
+  async authorDetail(@Parent() newsReply: NewsReply) {
+    const { author } = newsReply;
+    return await this.userService.findOne(author).then((user) => user.username);
+    // return author.name;
+  }
+
+  @ResolveField(() => String)
+  async repliedToDetail(@Parent() newsReply: NewsReply) {
+    const { repliedTo } = newsReply;
+    return await this.userService
+      .findOne(repliedTo)
+      .then((user) => user.username);
+    // return author.name;
   }
 }
 

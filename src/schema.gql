@@ -309,6 +309,7 @@ type NewsPageInfo {
 type NewsReply {
   """one wrote the comment"""
   author: Int!
+  authorDetail: String!
 
   """Comment content"""
   content: String!
@@ -325,6 +326,7 @@ type NewsReply {
 
   """User who is replied to"""
   repliedTo: Int!
+  repliedToDetail: String!
 
   """date of update"""
   updatedAt: DateTime!

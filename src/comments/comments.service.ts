@@ -297,7 +297,7 @@ export class UsersService {
     const user = await this.userDataSource
       .createQueryBuilder()
       .from('account_user', 'account_user')
-      .where('account_user.id = :id', { id: 2 })
+      .where('account_user.id = :id', { id: id })
       .getRawOne();
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
