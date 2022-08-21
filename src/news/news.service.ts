@@ -163,7 +163,9 @@ export class NewsService {
       },
       take: limit,
       skip: offset,
-    });
+      order: {
+        createdAt: 'DESC',
+    }});
   }
 
   async findOne(id: number, withRelations = true) {
