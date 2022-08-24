@@ -21,6 +21,7 @@ import {
 import { uploadFileStream } from 'src/common/utils/upload';
 import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
 import { NewsTaggitService, TagsService } from 'src/tags/tags.service';
+import { join } from 'path';
 
 @Injectable()
 export class NewsService {
@@ -88,10 +89,14 @@ export class NewsService {
     });
 
     if (newsInput.images) {
-      const imagePaths = newsInput.images.map(async (image) => {
+      const imagePaths = newsInput.images.map(async (image, index) => {
         const imageFile: any = await image;
-        const fileName = imageFile.filename;
-        const uploadDir = this.uploadDir;
+        const fileName = `${Date.now()}_${index}_${imageFile.filename}`;
+        const uploadDir = join(
+          this.uploadDir,
+          newsData.id.toString(),
+          'images',
+        );
         const filePath = await uploadFileStream(
           imageFile.createReadStream,
           uploadDir,
@@ -228,10 +233,12 @@ export class NewsService {
       }
 
       if (updateNewsInput.images) {
-        const imagePaths = updateNewsInput.images.map(async (image) => {
+        const imagePaths = updateNewsInput.images.map(async (image, index) => {
           const imageFile: any = await image;
-          const fileName = imageFile.filename;
-          const uploadDir = this.uploadDir;
+          // const fileName = imageFile.filename;
+          // const uploadDir = this.uploadDir;
+          const fileName = `${Date.now()}_${index}_${imageFile.filename}`;
+          const uploadDir = join(this.uploadDir, news.id.toString(), 'images');
           const filePath = await uploadFileStream(
             imageFile.createReadStream,
             uploadDir,
