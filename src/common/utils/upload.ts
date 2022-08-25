@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { createWriteStream, mkdir } from 'fs';
+import { createWriteStream, mkdir, mkdirSync } from 'fs';
 import { join } from 'path';
 import { finished } from 'stream/promises';
 // import { PutObjectCommand } from '@aws-sdk/client-s3';
@@ -17,11 +17,11 @@ const s3 = new S3({ ...s3_params });
 
 export const uploadFileStream = async (readStream, uploadDir, filename) => {
   const fileName = filename;
-  // const uploadDir = './uploadssssss';
   const filePath = join(uploadDir, fileName);
-  await mkdir(uploadDir, { recursive: true }, (err) => {
-    if (err) throw err;
-  });
+  // await mkdir(uploadDir, { recursive: true }, (err) => {
+  //   if (err) throw err;
+  // });
+  mkdirSync(uploadDir, { recursive: true });
   const inStream = readStream();
   if (!use_s3) {
     const outStream = createWriteStream(filePath);

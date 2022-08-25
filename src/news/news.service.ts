@@ -92,11 +92,10 @@ export class NewsService {
       const imagePaths = newsInput.images.map(async (image, index) => {
         const imageFile: any = await image;
         const fileName = `${Date.now()}_${index}_${imageFile.filename}`;
-        const uploadDir = join(
-          this.uploadDir,
-          newsData.id.toString(),
-          'images',
-        );
+        // const fileName = imageFile.filename;
+        // const uploadDir = join(this.uploadDir, `${newsData.id}`, 'images');
+        // console.log(uploadDir);
+        const uploadDir = join(this.uploadDir, `news_${newsData.id}`, 'images');
         const filePath = await uploadFileStream(
           imageFile.createReadStream,
           uploadDir,
