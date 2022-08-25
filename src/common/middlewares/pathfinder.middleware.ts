@@ -12,5 +12,5 @@ export const pathFinderMiddleware: FieldMiddleware = async (
     filePath = `https://${bucket_name}.s3.${region}.amazonaws.com/${filePath}`;
     return filePath;
   }
-  return `http://localhost:${process.env.PORT}/${filePath}`;
+  return `http://${process.env.HOSTNAME}:${process.env.PORT}/${filePath}`;
 };

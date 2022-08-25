@@ -237,7 +237,8 @@ export class NewsService {
           // const fileName = imageFile.filename;
           // const uploadDir = this.uploadDir;
           const fileName = `${Date.now()}_${index}_${imageFile.filename}`;
-          const uploadDir = join(this.uploadDir, news.id.toString(), 'images');
+          // const uploadDir = join(this.uploadDir, news.id.toString(), 'images');
+          const uploadDir = join(this.uploadDir, `news_${news.id}`, 'images');
           const filePath = await uploadFileStream(
             imageFile.createReadStream,
             uploadDir,
