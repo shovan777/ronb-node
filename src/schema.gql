@@ -39,18 +39,21 @@ input CreateNewsInput {
   """News link"""
   link: String
 
-  """News name"""
-  name: String!
+  """Is news pinned?"""
+  pinned: Boolean
   singleImage: Upload
 
   """News source"""
   source: String
 
+  """News Status"""
+  state: String
+
   """News tags"""
   tags: [String!]
 
   """News title"""
-  title: String
+  title: String!
 }
 
 input CreateNewsReplyInput {
@@ -172,8 +175,8 @@ type News {
   """News link"""
   link: String
 
-  """News name"""
-  name: String!
+  """Is news pinned?"""
+  pinned: Boolean!
 
   """News publishedAt"""
   publishedAt: DateTime
@@ -184,11 +187,14 @@ type News {
   """News source"""
   source: String
 
+  """News state"""
+  state: NewsState!
+
   """News tags"""
   tags: [NewsTaggit!]
 
   """News title"""
-  title: String
+  title: String!
 
   """News updatedAt"""
   updatedAt: DateTime!
@@ -352,6 +358,12 @@ type NewsReplyPageInfo {
 type NewsResponse {
   page: NewsConnection!
   pageData: PageData
+}
+
+enum NewsState {
+  DRAFT
+  PUBLISHED
+  REVIWED
 }
 
 type NewsTaggit {
@@ -573,12 +585,15 @@ input UpdateNewsInput {
   """News link"""
   link: String
 
-  """News name"""
-  name: String
+  """Is news pinned?"""
+  pinned: Boolean
   singleImage: Upload
 
   """News source"""
   source: String
+
+  """News Status"""
+  state: String
 
   """News tags"""
   tags: [String!]
