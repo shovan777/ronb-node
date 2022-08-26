@@ -162,6 +162,7 @@ export class NewsService {
         category: true,
       },
       where: {
+        state: NewsState.PUBLISHED,
         category: {
           id: filterNewsInput.category,
         },
