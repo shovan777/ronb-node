@@ -9,7 +9,7 @@ export class CreateNewsInput {
   // exampleField: number;
   // @Field({ description: 'News name' })
   // name: string;
-  @Field({ description: 'News title', nullable: true })
+  @Field({ description: 'News title' })
   title: string;
   // @Field({ description: 'News publish date' })
   @Field({ description: 'News content' })
