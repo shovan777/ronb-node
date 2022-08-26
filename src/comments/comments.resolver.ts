@@ -10,6 +10,7 @@ import {
 import {
   NewsCommentsService,
   NewsRepliesService,
+  PermissionService,
   UserLikesNewsCommentService,
   UserLikesNewsReplyService,
   UsersService,
@@ -47,6 +48,7 @@ export class NewsCommentsResolver {
     private readonly newsCommentsService: NewsCommentsService,
     private readonly newsCommentsLikeService: UserLikesNewsCommentService,
     private readonly userService: UsersService,
+    private readonly permissionService: PermissionService,
   ) {}
 
   @Mutation(() => NewsComment)
@@ -56,6 +58,9 @@ export class NewsCommentsResolver {
     @User() user: number,
   ) {
     checkUserAuthenticated(user);
+    // TODO: check if user has permission to create comment
+    // console.log(user);
+    // console.log(await this.permissionService.hasPermission(user,"can_review_news"));
     return this.newsCommentsService.create(createNewsCommentInput, user);
   }
 

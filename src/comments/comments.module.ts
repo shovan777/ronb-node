@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import {
   NewsCommentsService,
   NewsRepliesService,
+  PermissionService,
   UserLikesNewsCommentService,
   UserLikesNewsReplyService,
   UsersService,
@@ -42,6 +43,7 @@ import { NewsModule } from 'src/news/news.module';
     UserLikesNewsReplyResolver,
     UserLikesNewsReplyService,
     UsersService,
+    PermissionService,
   ],
 })
 export class CommentsModule {}
