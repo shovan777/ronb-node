@@ -16,6 +16,7 @@ import {
   News,
   NewsCategory,
   NewsImage,
+  NewsState,
   UserLikesNews,
 } from './entities/news.entity';
 import { uploadFileStream } from 'src/common/utils/upload';
@@ -81,7 +82,7 @@ export class NewsService {
 
     const newsData: News = await this.newsRepository.save({
       ...newsInputData,
-      publishedAt: new Date(),
+      publishedAt: newsInput.state === NewsState.PUBLISHED ? new Date() : null,
       createdAt: new Date(),
       updatedAt: new Date(),
       createdBy: user, //TODO: get user from jwt
@@ -290,6 +291,9 @@ export class NewsService {
       } = {
         ...news,
         ...newsInputData,
+        publishedAt:
+          news.publishedAt ||
+          (updateNewsInput.state === NewsState.PUBLISHED ? new Date() : null),
         updatedAt: new Date(),
         updatedBy: user,
         // images: ['guur'],
