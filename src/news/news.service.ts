@@ -168,6 +168,7 @@ export class NewsService {
       take: limit,
       skip: offset,
       order: {
+        pinned: 'DESC',
         createdAt: 'DESC',
       },
     });
