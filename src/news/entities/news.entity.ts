@@ -1,4 +1,4 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql';
 import { NewsComment } from 'src/comments/entities/comment.entity';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
 import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
@@ -31,6 +31,16 @@ export class NewsCategory extends CreatorBaseEntity {
   news: News[];
 }
 
+export enum NewsState {
+  DRAFT = 'draft',
+  PUBLISHED = 'published',
+  REVIWED = 'reviewed',
+}
+
+registerEnumType(NewsState, {
+  name: 'NewsState',
+});
+
 @ObjectType()
 @Entity()
 export class News {
@@ -38,13 +48,13 @@ export class News {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field({ description: 'News name' })
-  @Column()
-  name: string;
+  // @Field({ description: 'News name' })
+  // @Column()
+  // name: string;
 
-  @Field({ description: 'News title', nullable: true })
-  @Column({ nullable: true })
-  title?: string;
+  @Field({ description: 'News title' })
+  @Column()
+  title: string;
 
   @Field({ description: 'News publishedAt', nullable: true })
   @Column({ nullable: true })
@@ -104,6 +114,13 @@ export class News {
   @Column({ nullable: true })
   imgSource?: string;
 
+  @Field({ description: 'Is news pinned?' })
+  @Column({ default: false })
+  pinned: boolean;
+
+  @Field(() => NewsState, { description: 'News state' })
+  @Column({ type: 'enum', enum: NewsState, default: NewsState.DRAFT })
+  state: NewsState;
   // @Field(() => [UserLikesNews], { description: 'News likes', nullable: true })
   @OneToMany(() => UserLikesNews, (likes) => likes.news, {
     nullable: true,
