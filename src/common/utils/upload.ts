@@ -8,12 +8,16 @@ import { S3 } from 'aws-sdk';
 require('dotenv').config();
 
 const use_s3 = process.env.USE_S3 === 'true';
-const s3_params = {
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_ACCESS_KEY,
-  region: process.env.AWS_REGION,
-};
-const s3 = new S3({ ...s3_params });
+let s3;
+if (use_s3) {
+  const s3_params = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_ACCESS_KEY,
+    region: process.env.AWS_REGION,
+  };
+  s3 = new S3({ ...s3_params });
+}
+  
 
 export const uploadFileStream = async (readStream, uploadDir, filename) => {
   const fileName = filename;
