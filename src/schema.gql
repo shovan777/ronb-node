@@ -132,6 +132,7 @@ type Mutation {
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
   removeNewsComment(id: Int!): NewsComment!
+  removeNewsImage(id: Int!): NewsImage!
   removeNewsReply(id: Int!): NewsReply!
   removeNewsTaggit(id: Int!): NewsTaggit!
   removePublicToilet(id: Int!): PublicToilet!

@@ -1,3 +1,4 @@
+import { FilesService } from './common/services/files.service';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -91,7 +92,7 @@ import { CommentsModule } from './comments/comments.module';
     CommentsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [FilesService, AppService],
 })
 export class AppModule {
   // configure(consumer: MiddlewareConsumer) {

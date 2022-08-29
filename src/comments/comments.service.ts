@@ -307,12 +307,12 @@ export class UsersService {
 }
 
 @Injectable()
-export class PermissionService{
+export class PermissionService {
   constructor(
     @InjectDataSource('usersConnection')
     private permissionDataSource: DataSource,
   ) {}
-  
+
   async findOne(id: number) {
     const permission = await this.permissionDataSource
       .createQueryBuilder()
@@ -329,7 +329,9 @@ export class PermissionService{
     const permissions = await this.permissionDataSource
       .createQueryBuilder()
       .from('account_user_user_permissions', 'account_user_user_permissions')
-      .where('account_user_user_permissions.user_id = :userId', { userId: userId })
+      .where('account_user_user_permissions.user_id = :userId', {
+        userId: userId,
+      })
       .getRawMany();
     return permissions;
   }
@@ -360,14 +362,16 @@ export class PermissionService{
       .where('auth_permission.codename = :codename', { codename: codename })
       .getRawOne();
     if (!permission) {
-      throw new NotFoundException(`Permission with codename ${codename} not found`);
+      throw new NotFoundException(
+        `Permission with codename ${codename} not found`,
+      );
     }
     return permission;
   }
 
   async findAllPermissions(userId: number) {
     const userGroup = await this.findAllGroupsUser(userId);
-    const groupId = userGroup.map(group => group.group_id);
+    const groupId = userGroup.map((group) => group.group_id);
     const groupPermission = await this.findAllPermissionsGroup(groupId);
     const userPermission = await this.findAllPermissionsUser(userId);
     const permissions = [...groupPermission, ...userPermission];
@@ -377,7 +381,9 @@ export class PermissionService{
   async hasPermission(userId: number, codename: string) {
     const permissionObject = await this.findOnePermissionCodename(codename);
     const permissionsUser = await this.findAllPermissions(userId);
-    const permissionUser = permissionsUser.find(permission => permission.permission_id === permissionObject.id);
+    const permissionUser = permissionsUser.find(
+      (permission) => permission.permission_id === permissionObject.id,
+    );
     return permissionUser !== undefined;
   }
 }
