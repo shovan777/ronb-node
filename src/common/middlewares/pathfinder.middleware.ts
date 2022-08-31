@@ -6,6 +6,9 @@ export const pathFinderMiddleware: FieldMiddleware = async (
 ) => {
   let filePath: string = await next();
   const use_s3 = process.env.USE_S3 === 'true';
+  if (!filePath) {
+    return filePath;
+  }
   if (use_s3) {
     const bucket_name = process.env.BUCKET_NAME;
     const region = process.env.AWS_REGION;

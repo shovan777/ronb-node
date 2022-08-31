@@ -16,6 +16,7 @@ import {
   UsersService,
 } from './comments.service';
 import {
+  Author,
   NewsComment,
   NewsReply,
   UserLikesNewsComment,
@@ -35,10 +36,20 @@ import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import CommentsResponse, { RepliesResponse } from './comments.response';
 
-const getAuthor = async (service, id: number) => {
+const getAuthor = async (service, id: number): Promise<Author> => {
   return service.findOne(id).then((user) => {
-    // console.log(user);
-    return `${user.first_name} ${user.last_name}`;
+    // return `${user.first_name} ${user.last_name}`;
+    const author: Author = {
+      id: user.id,
+      name: `${user.first_name} ${user.last_name}`,
+      profile: {
+        id: user.profile.id,
+        bloodGroup: user.profile.bloodGroup,
+        image: user.profile.image,
+      },
+    };
+    // console.log(author);
+    return author;
   });
 };
 
@@ -128,10 +139,11 @@ export class NewsCommentsResolver {
     return await this.newsCommentsService.countLikes(id);
   }
 
-  @ResolveField(() => String)
-  async authorDetail(@Parent() newsComment: NewsComment) {
+  @ResolveField(() => Author)
+  async authorDetail(@Parent() newsComment: NewsComment): Promise<Author> {
     const { author } = newsComment;
-    return await getAuthor(this.userService, author);
+    const authDetail = getAuthor(this.userService, author);
+    return authDetail;
     // return await this.userService.findOne(author).then((user) => user.username);
     // return author.name;
   }
@@ -208,20 +220,20 @@ export class NewsRepliesResolver {
     return await this.newsReplyService.countLikes(id);
   }
 
-  @ResolveField(() => String)
-  async authorDetail(@Parent() newsReply: NewsReply) {
+  @ResolveField(() => Author)
+  async authorDetail(@Parent() newsReply: NewsReply): Promise<Author> {
     const { author } = newsReply;
-    return await getAuthor(this.userService, author);
+    return getAuthor(this.userService, author);
     // return await this.userService
     //   .findOne(author)
     //   .then((user) => `${user.firstname} ${user.lastname}`);
     // return author.name;
   }
 
-  @ResolveField(() => String)
+  @ResolveField(() => Author)
   async repliedToDetail(@Parent() newsReply: NewsReply) {
     const { repliedTo } = newsReply;
-    return await getAuthor(this.userService, repliedTo);
+    return getAuthor(this.userService, repliedTo);
     // return await this.userService
     //   .findOne(repliedTo)
     //   .then((user) => user.username);

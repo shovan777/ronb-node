@@ -299,6 +299,12 @@ export class UsersService {
       .from('account_user', 'account_user')
       .where('account_user.id = :id', { id: id })
       .getRawOne();
+    user.profile = await this.userDataSource
+      .createQueryBuilder()
+      .from('account_profile', 'account_profile')
+      .where('account_profile.user_id = :id', { id: id })
+      .getRawOne();
+    // console.log(user);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }

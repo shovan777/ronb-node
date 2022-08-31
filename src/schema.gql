@@ -2,6 +2,18 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""Comment Author"""
+type Author {
+  """User id"""
+  id: Int!
+
+  """User name"""
+  name: String!
+
+  """User profile information"""
+  profile: Profile!
+}
+
 type CommentsResponse {
   page: NewsCommentConnection!
   pageData: PageData
@@ -233,7 +245,7 @@ type NewsCategory {
 type NewsComment {
   """one wrote the comment"""
   author: Int!
-  authorDetail: String!
+  authorDetail: Author!
 
   """Comment content"""
   content: String!
@@ -316,7 +328,7 @@ type NewsPageInfo {
 type NewsReply {
   """one wrote the comment"""
   author: Int!
-  authorDetail: String!
+  authorDetail: Author!
 
   """Comment content"""
   content: String!
@@ -333,7 +345,7 @@ type NewsReply {
 
   """User who is replied to"""
   repliedTo: Int!
-  repliedToDetail: String!
+  repliedToDetail: Author!
 
   """date of update"""
   updatedAt: DateTime!
@@ -382,6 +394,18 @@ type PageData {
   count: Float!
   limit: Float!
   offset: Float!
+}
+
+"""Profile of the user"""
+type Profile {
+  """User Blood Group"""
+  bloodGroup: String
+
+  """Profile id"""
+  id: Int!
+
+  """Url of the profile picture"""
+  image: String
 }
 
 type PublicToilet {
