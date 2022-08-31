@@ -145,6 +145,15 @@ export class NewsResolver {
     checkUserAuthenticated(user);
     return this.newsService.remove(id);
   }
+
+  @Mutation(() => NewsImage)
+  removeNewsImage(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<NotFoundException | any> {
+    checkUserAuthenticated(user);
+    return this.newsService.removeImage(id);
+  }
 }
 
 @Resolver(() => NewsCategory)

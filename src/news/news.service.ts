@@ -23,6 +23,7 @@ import { uploadFileStream } from 'src/common/utils/upload';
 import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
 import { NewsTaggitService, TagsService } from 'src/tags/tags.service';
 import { join } from 'path';
+import { FilesService } from 'src/common/services/files.service';
 
 @Injectable()
 export class NewsService {
@@ -37,6 +38,7 @@ export class NewsService {
     private userLikesNewsRepository: Repository<UserLikesNews>,
     private tagsService: TagsService,
     private newsTaggitService: NewsTaggitService,
+    private fileService: FilesService,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
@@ -327,6 +329,18 @@ export class NewsService {
     }
 
     return new NotFoundException(`News with id ${id} not found`);
+  }
+
+  async removeImage(id: number) {
+    const image = await this.newsImageRepository.findOne({
+      where: { id: id },
+    });
+    if (image) {
+      await this.newsImageRepository.delete(image.id);
+      this.fileService.removeFile(image.imageURL);
+      return image;
+    }
+    return new NotFoundException(`Image with id ${id} not found`);
   }
 
   async findImagesofNews(newsId: number) {

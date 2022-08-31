@@ -18,6 +18,7 @@ import {
   UserLikesNews,
 } from './entities/news.entity';
 import { TagsModule } from 'src/tags/tags.module';
+import { FilesService } from 'src/common/services/files.service';
 
 @Module({
   providers: [
@@ -28,6 +29,7 @@ import { TagsModule } from 'src/tags/tags.module';
     NewsCategoryService,
     UserLikesNewsResolver,
     UserLikesNewsService,
+    FilesService,
   ],
   imports: [
     forwardRef(() => TagsModule),
