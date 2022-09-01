@@ -64,6 +64,9 @@ export class NewsCommentsService {
       },
       take: limit,
       skip: offset,
+      order: {
+        createdAt: 'DESC',
+      },
       // relations: { news: true },
     });
   }
@@ -164,6 +167,9 @@ export class NewsRepliesService {
       },
       take: limit,
       skip: offset,
+      order: {
+        createdAt: 'DESC',
+      },
     });
   }
 
