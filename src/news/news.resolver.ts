@@ -68,6 +68,28 @@ export class NewsResolver {
       limit,
       offset,
       filterNewsInput,
+      true,
+    );
+    // return this.newsService.findAll();
+    const page = connectionFromArraySlice(news, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+
+    return { page, pageData: { count, limit, offset } };
+  }
+
+  @Query(() => NewsResponse, { name: 'newsAdmin' })
+  async findAllAdmin(
+    @Args() args: ConnectionArgs,
+    @Args('filterNewsInput', { nullable: true })
+    filterNewsInput?: FilterNewsInput,
+  ): Promise<NewsResponse> {
+    const { limit, offset } = args.pagingParams();
+    const [news, count] = await this.newsService.findAll(
+      limit,
+      offset,
+      filterNewsInput,
     );
     // return this.newsService.findAll();
     const page = connectionFromArraySlice(news, args, {

@@ -157,14 +157,20 @@ export class NewsService {
     limit: number,
     offset: number,
     filterNewsInput: FilterNewsInput,
+    publishedOnly = false,
   ): Promise<[News[], number]> {
     // return `This action returns all news`;
+    const whereOptions: any = {};
+    if (publishedOnly) {
+      whereOptions.state = NewsState.PUBLISHED;
+    }
     return this.newsRepository.findAndCount({
       relations: {
         category: true,
       },
       where: {
         // state: NewsState.PUBLISHED,
+        ...whereOptions,
         category: {
           id: filterNewsInput.category,
         },
