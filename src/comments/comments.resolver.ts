@@ -90,7 +90,7 @@ export class NewsCommentsResolver {
       arrayLength: count,
       sliceStart: offset || 0,
     });
-    return { page, pageData: { count, limit, offset } };
+    return { page, pageData: { count, limit, offset, curTime: new Date() } };
   }
 
   @Query(() => NewsComment, { name: 'newsComment' })
@@ -182,7 +182,7 @@ export class NewsRepliesResolver {
       arrayLength: count,
       sliceStart: offset || 0,
     });
-    return { page, pageData: { count, limit, offset } };
+    return { page, pageData: { count, limit, offset, curTime: new Date() } };
   }
 
   @Mutation(() => NewsReply)

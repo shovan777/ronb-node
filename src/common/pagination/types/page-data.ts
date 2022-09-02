@@ -11,6 +11,6 @@ export default class PageData {
   @Field()
   public offset: number;
 
-  @Field({ description: 'current date time', defaultValue: new Date() })
+  @Field({ description: 'current date time' })
   public curTime: Date;
 }
