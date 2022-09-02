@@ -391,7 +391,11 @@ type NewsTaggit {
 }
 
 type PageData {
+  """total number of objects"""
   count: Float!
+
+  """current date time"""
+  curTime: DateTime!
   limit: Float!
   offset: Float!
 }
