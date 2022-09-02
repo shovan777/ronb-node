@@ -76,7 +76,7 @@ export class NewsResolver {
       sliceStart: offset || 0,
     });
 
-    return { page, pageData: { count, limit, offset } };
+    return { page, pageData: { count, limit, offset, curTime: new Date() } };
   }
 
   @Query(() => NewsResponse, { name: 'newsAdmin' })
@@ -97,7 +97,7 @@ export class NewsResolver {
       sliceStart: offset || 0,
     });
 
-    return { page, pageData: { count, limit, offset } };
+    return { page, pageData: { count, limit, offset, curTime: new Date() } };
   }
 
   @Query(() => News, { name: 'newsById' })
