@@ -59,7 +59,7 @@ input CreateNewsInput {
   source: String
 
   """News Status"""
-  state: String
+  state: NewsState
 
   """News tags"""
   tags: [String!]
@@ -636,7 +636,7 @@ input UpdateNewsInput {
   source: String
 
   """News Status"""
-  state: String
+  state: NewsState
 
   """News tags"""
   tags: [String!]

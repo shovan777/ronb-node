@@ -3,6 +3,10 @@ import { Upload } from 'src/common/scalars/upload.scalar';
 import { NewsState } from '../entities/news.entity';
 // import GraphQLUpload from 'graphql-upload';
 
+// registerEnumType(NewsState, {
+//   name: 'NewsState',
+// });
+
 @InputType()
 export class CreateNewsInput {
   // @Field(() => Int, { description: 'Example field (placeholder)' })
@@ -30,7 +34,7 @@ export class CreateNewsInput {
   imgSource?: string;
   @Field({ description: 'Is news pinned?', nullable: true })
   pinned?: boolean;
-  @Field({ description: 'News Status', nullable: true })
+  @Field(() => NewsState, { description: 'News Status', nullable: true })
   state?: NewsState;
 }
 
