@@ -16,7 +16,7 @@ COPY  package*.json ./
 
 # Install app dependencies using the `npm ci` command instead of `npm install`
 # use npm ci whenever u want to make sure u'r doing clean install of dependencies
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 # RUN npm install
 
 # Bundle app source
@@ -53,7 +53,7 @@ ENV NODE_ENV production
 # Running `npm ci` removes the existing node_modules directory and 
 # passing in --only=production ensures that only the production dependencies are installed. 
 # This ensures that the node_modules directory is as optimized as possible
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --only=production --legacy-peer-deps && npm cache clean --force
 
 # Use the node user from the image (instead of the root user)
 USER node
