@@ -87,6 +87,14 @@ input CreateNewsTaggitInput {
   tag: Int!
 }
 
+input CreateNotificationDeviceInput {
+  """Notification device platform"""
+  platform: String!
+
+  """Notification device token"""
+  token: String!
+}
+
 input CreatePublicToiletInput {
   """Public Toilet address"""
   address: String!
@@ -136,6 +144,7 @@ type Mutation {
   createNewsComment(createNewsCommentInput: CreateNewsCommentInput!): NewsComment!
   createNewsReply(createNewsReplyInput: CreateNewsReplyInput!): NewsReply!
   createNewsTaggit(createNewsTaggitInput: CreateNewsTaggitInput!): NewsTaggit!
+  createNotificationDevice(CreateNotificationDeviceInput: CreateNotificationDeviceInput!): NotificationDevice!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
   createTag(createTagInput: CreateTagInput!): Tag!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
@@ -151,6 +160,8 @@ type Mutation {
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
   removeUserLikesNewsReply(replyId: Int!): UserLikesNewsReply!
+  sendNotification(notificationInput: NotificationInput!): Notification!
+  sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
   updateNewsComment(id: Int!, updateNewsCommentInput: UpdateNewsCommentInput!): NewsComment!
@@ -388,6 +399,59 @@ type NewsTaggit {
 
   """Tag name"""
   tag: Tag!
+}
+
+type Notification {
+  """Notification body"""
+  body: String!
+
+  """Created at"""
+  createdAt: DateTime!
+
+  """Notification data"""
+  data: String
+
+  """id field for int"""
+  id: Int!
+
+  """Notification image"""
+  image: String
+
+  """Notification title"""
+  title: String!
+}
+
+type NotificationDevice {
+  """Created at"""
+  createdAt: DateTime!
+
+  """id field for int"""
+  id: Int!
+
+  """Notification device platform"""
+  platform: String!
+
+  """Notification device token"""
+  token: String!
+}
+
+input NotificationInput {
+  """Notification body"""
+  body: String!
+
+  """Notification data"""
+  data: String
+
+  """Notification image"""
+  image: String
+
+  """Notification title"""
+  title: String!
+}
+
+input NotificationNewsInput {
+  """News Id"""
+  newsId: Float!
 }
 
 type PageData {
