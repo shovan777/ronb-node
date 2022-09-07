@@ -24,7 +24,7 @@ export interface ISendFirebaseMessages {
 @Injectable()
 export class NotificationsSendService {
     constructor() {
-        const firebaseCredentials = join(process.cwd(),"firebase.json");
+        const firebaseCredentials = join(process.cwd(), process.env.FIREBASE_PATH, "firebase.json");
         firebase.initializeApp({
             credential: firebase.credential.cert(firebaseCredentials),
             databaseURL: "https://ronb-354910-default-rtdb.firebaseio.com"
@@ -164,7 +164,6 @@ export class NotificationsService {
             data: dataObject
         }));
         const send_response = await this.notificationsSendService.sendFirebaseMessages(firebaseMessages);
-        console.log(send_response);
         return messageObject;
     }
 }
