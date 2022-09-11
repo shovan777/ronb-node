@@ -18,6 +18,7 @@ export interface ISendFirebaseMessages {
     message: string;
     image?: string;
     data?: any;
+    android?: any;
 }
 
 
@@ -33,13 +34,12 @@ export class NotificationsSendService {
 
     public async sendFirebaseMessages(firebaseMessages: ISendFirebaseMessages[], dryRun?: boolean): Promise<BatchResponse> {
         const batchedFirebaseMessages = chunk(firebaseMessages, 500);
-
         const batchResponses = await mapLimit<ISendFirebaseMessages[], BatchResponse> (
             batchedFirebaseMessages,
             process.env.FIREBASE_PARALLEL_LIMIT || 1,
             async (groupedFirebaseMessages: ISendFirebaseMessages[]): Promise<BatchResponse> => {
                 try {
-                    const tokenMessages: firebase.messaging.TokenMessage[] = groupedFirebaseMessages.map(({ message, title, token, image, data }) => ({
+                    const tokenMessages: firebase.messaging.TokenMessage[] = groupedFirebaseMessages.map(({ message, title, token, image, data, android }) => ({
                         notification: { 
                             body: message, 
                             title,
@@ -57,6 +57,7 @@ export class NotificationsSendService {
                                 'apns-priority': '5',
                             }
                         },
+                        android:android,
                     }));
                     return await this.sendAll(tokenMessages, dryRun);
                 } catch (error) {
@@ -139,7 +140,7 @@ export class NotificationsService {
     async sendNotificationNews(notificationNewsInput: NotificationNewsInput): Promise<Notification> {
         const newsObject = await this.newsService.findOne(notificationNewsInput.newsId);
         const title = newsObject.title;
-        const body = striptags(newsObject.content);
+        const body = striptags(newsObject.content).substring(0, 150);
         const image = newsObject.images[0]?.imageURL;
         let imageURL = "";
         if (image) {
@@ -155,15 +156,25 @@ export class NotificationsService {
             image: imageURL,
             data: JSON.stringify(dataObject),
         });
+        
+        const androidSpecific = {
+            notification: {
+                eventTimestamp: new Date(),
+            }
+        };
+
         const devices = await this.findAll();
         const firebaseMessages = devices.map(device => ({
             token: device.token,
             title: title,
             message: body,
             image: imageURL,
-            data: dataObject
+            data: dataObject,
+            android: androidSpecific,
         }));
-        const send_response = await this.notificationsSendService.sendFirebaseMessages(firebaseMessages);
+
+        this.notificationsSendService.sendFirebaseMessages(firebaseMessages);
+        // console.log(sendRespone)
         return messageObject;
     }
 }
