@@ -49,7 +49,7 @@ export class SecurityMiddleware implements NestMiddleware {
     // TODO: GET user for cache if exists
     const cached_user = await cache.get(jwt_auth);
     if (cached_user) {
-      req.user = cached_user;
+      req.user = parseInt(cached_user);
       req.resume();
       next();
       return;
@@ -61,7 +61,7 @@ export class SecurityMiddleware implements NestMiddleware {
       if (user_id) {
         // console.log(`hello again ${user_id}`);
         const user = user_id;
-        req.user = user;
+        req.user = parseInt(user);
         cache.set(jwt_auth, user);
         cache.expire(jwt_auth, ttl);
         // req.resume();
