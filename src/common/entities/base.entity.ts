@@ -1,4 +1,4 @@
-import { Field, ObjectType, Int } from '@nestjs/graphql';
+import { Field, ObjectType, Int, registerEnumType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -34,9 +34,24 @@ export abstract class CreatorBaseEntity extends BaseIdEntity {
   updatedBy: number;
 }
 
+export enum UserReacts {
+  LOVE = 'love',
+  HAHA = 'haha',
+  SAD = 'sad',
+  ANGRY = 'angry',
+}
+
+registerEnumType(UserReacts, {
+  name: 'UserReacts',
+});
+
 @ObjectType({ isAbstract: true })
 export abstract class BaseUserLikesEntity {
   @Field(() => Int, { description: 'id field for int' })
   @PrimaryColumn({ type: 'int', nullable: false })
   userId: number;
+
+  @Field(() => UserReacts, { description: 'User reacts' })
+  @Column({ type: 'enum', enum: UserReacts, default: UserReacts.LOVE })
+  react: UserReacts;
 }
