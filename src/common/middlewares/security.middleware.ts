@@ -69,7 +69,8 @@ export class SecurityMiddleware implements NestMiddleware {
         // TODO: cache the user to redis
       } else {
         console.log('Please login first');
-        res.status(401).send('Please login first');
+        req.user = null;
+        // res.status(401).send('Please login first');
       }
       // next();
       sub.unsubscribe('nodeLdjango-django').then(() => {
