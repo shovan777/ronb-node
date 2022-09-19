@@ -123,6 +123,9 @@ input CreateTagInput {
 input CreateUserLikesNewsInput {
   """News liked by the user"""
   newsId: Int!
+
+  """User reaction"""
+  react: UserReacts
 }
 
 """
@@ -746,11 +749,24 @@ type UserLikesNews {
 }
 
 type UserLikesNewsComment {
+  """User reacts"""
+  react: UserReacts!
+
   """id field for int"""
   userId: Int!
 }
 
 type UserLikesNewsReply {
+  """User reacts"""
+  react: UserReacts!
+
   """id field for int"""
   userId: Int!
+}
+
+enum UserReacts {
+  ANGRY
+  HAHA
+  LOVE
+  SAD
 }
