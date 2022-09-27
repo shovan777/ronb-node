@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { CreateNotificationDeviceInput, NotificationInput, NotificationNewsInput } from './dto/create-notification.input';
 import { NewsService } from 'src/news/news.service';
 import { generateFileUrl } from 'src/common/utils/fileurl';
-const striptags = require('striptags');
+const stripHtml = require("string-strip-html");
 
 export interface ISendFirebaseMessages {
     token: string;
@@ -140,7 +140,7 @@ export class NotificationsService {
     async sendNotificationNews(notificationNewsInput: NotificationNewsInput): Promise<Notification> {
         const newsObject = await this.newsService.findOne(notificationNewsInput.newsId);
         const title = newsObject.title;
-        const body = striptags(newsObject.content).substring(0, 150);
+        const body = stripHtml(newsObject.content).substring(0, 200);
         const image = newsObject.images[0]?.imageURL;
         let imageURL = "";
         if (image) {
