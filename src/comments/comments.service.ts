@@ -6,6 +6,7 @@ import {
 import { Args } from '@nestjs/graphql';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/common/decorators/user.decorator';
+import { UserReacts } from 'src/common/entities/base.entity';
 import {
   checkUserAuthenticated,
   checkUserIsAuthor,
@@ -15,10 +16,14 @@ import { DataSource, Repository } from 'typeorm';
 import {
   CreateNewsCommentInput,
   CreateNewsReplyInput,
+  CreateUserLikesNewsCommentInput,
+  CreateUserLikesNewsReplyInput,
 } from './dto/create-comment.input';
 import {
   UpdateNewsCommentInput,
   UpdateNewsReplyInput,
+  UpdateUserLikesNewsCommentInput,
+  UpdateUserLikesNewsReplyInput,
 } from './dto/update-comment.input';
 import {
   NewsComment,
@@ -128,6 +133,25 @@ export class NewsCommentsService {
   //   const comment = await this.newsCommentLikeService.findOne(commentId, user);
   //   return comment;
   // }
+
+  async countReacts(commentId: number) {
+    const comment = await this.newsCommentRepository.findOne({
+      where: { id: commentId },
+      relations: { likes: true },
+    });
+    if (!comment) {
+      throw new NotFoundException(`Comment with id ${commentId} not found`);
+    }
+    const reactCounts = {};
+    Object.values(UserReacts).forEach((react) => {
+      reactCounts[react] = 0;
+    });
+    comment.likes.forEach((like) => {
+      reactCounts[like.react] += 1;
+    });
+    // reactCounts['total'] = comment.likes.length;
+    return reactCounts;
+  }
 }
 
 @Injectable()
@@ -213,6 +237,25 @@ export class NewsRepliesService {
     }
     return reply.likes.length;
   }
+
+  async countReacts(replyId: number) {
+    const reply = await this.newsReplyRepository.findOne({
+      where: { id: replyId },
+      relations: { likes: true },
+    });
+    if (!reply) {
+      throw new NotFoundException(`Reply with id ${replyId} not found`);
+    }
+    const reactCounts = {};
+    Object.values(UserReacts).forEach((react) => {
+      reactCounts[react] = 0;
+    });
+    reply.likes.forEach((like) => {
+      reactCounts[like.react] += 1;
+    });
+    // reactCounts['total'] = reply.likes.length;
+    return reactCounts;
+  }
 }
 
 @Injectable()
@@ -222,11 +265,19 @@ export class UserLikesNewsCommentService {
     private userLikesNewsCommentRepository: Repository<UserLikesNewsComment>,
     private newsCommentService: NewsCommentsService,
   ) {}
-  async create(commentId: number, user: number): Promise<UserLikesNewsComment> {
+  async create(
+    createUserLikesNewsCommentInput: CreateUserLikesNewsCommentInput,
+    user: number,
+  ): Promise<UserLikesNewsComment> {
+    const commentId = createUserLikesNewsCommentInput.commentId;
     const comment = await this.newsCommentService.findOne(commentId);
+    if (!comment) {
+      throw new NotFoundException(`Comment with id ${commentId} not found`);
+    }
     return this.userLikesNewsCommentRepository.save({
       comment: comment,
       userId: user,
+      react: createUserLikesNewsCommentInput.react,
     });
   }
 
@@ -239,6 +290,22 @@ export class UserLikesNewsCommentService {
         },
       });
     return userLikesNewsComment;
+  }
+
+  async update(
+    commentId: number,
+    updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput,
+    user: number,
+  ): Promise<UserLikesNewsComment> {
+    const commentLike: UserLikesNewsComment = await this.findOne(
+      commentId,
+      user,
+    );
+    checkUserIsAuthor(user, commentLike.userId);
+    return this.userLikesNewsCommentRepository.save({
+      ...commentLike,
+      ...updateUserLikesNewsCommentInput,
+    });
   }
 
   async remove(commentId: number, user: number) {
@@ -261,11 +328,19 @@ export class UserLikesNewsReplyService {
     private userLikesNewsReplyRepository: Repository<UserLikesNewsReply>,
     private newsReplyService: NewsRepliesService,
   ) {}
-  async create(replyId: number, user: number): Promise<UserLikesNewsReply> {
+  async create(
+    userLikesNewsReplyInput: CreateUserLikesNewsReplyInput,
+    user: number,
+  ): Promise<UserLikesNewsReply | NotFoundException> {
+    const replyId = userLikesNewsReplyInput.replyId;
     const reply = await this.newsReplyService.findOne(replyId);
+    if (!reply) {
+      return new NotFoundException(`Reply with id ${replyId} not found`);
+    }
     return this.userLikesNewsReplyRepository.save({
       reply: reply,
       userId: user,
+      react: userLikesNewsReplyInput.react,
     });
   }
 
@@ -278,6 +353,19 @@ export class UserLikesNewsReplyService {
         },
       });
     return UserLikesNewsReplyService;
+  }
+
+  async update(
+    replyId: number,
+    updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput,
+    user: number,
+  ): Promise<UserLikesNewsReply> {
+    const replyLike: UserLikesNewsReply = await this.findOne(replyId, user);
+    checkUserIsAuthor(user, replyLike.userId);
+    return this.userLikesNewsReplyRepository.save({
+      ...replyLike,
+      ...updateUserLikesNewsReplyInput,
+    });
   }
 
   async remove(replyId: number, user: number) {
