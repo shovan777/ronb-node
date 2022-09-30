@@ -52,6 +52,9 @@ export class CreateUserLikesNewsInput {
   @Field(() => Int, { description: 'News liked by the user' })
   newsId: number;
 
-  @Field(() => UserReacts, { description: 'User reaction', nullable: true })
+  @Field(() => UserReacts, {
+    description: 'User reaction to news',
+    nullable: true,
+  })
   react?: UserReacts;
 }

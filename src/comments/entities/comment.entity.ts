@@ -2,6 +2,7 @@ import { ObjectType, Field, Int } from '@nestjs/graphql';
 import {
   BaseIdEntity,
   BaseUserLikesEntity,
+  ReactCount,
 } from 'src/common/entities/base.entity';
 import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
 import { News } from 'src/news/entities/news.entity';
@@ -38,6 +39,9 @@ export abstract class BaseComment extends BaseIdEntity {
   @Field(() => Int, { description: 'one wrote the comment' })
   @Column()
   author: number;
+
+  // @Field(() => ReactCount, { description: 'react counts' })
+  // reactCount;
 }
 
 @Entity()
