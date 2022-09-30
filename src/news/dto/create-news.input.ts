@@ -1,4 +1,5 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
+import { UserReacts } from 'src/common/entities/base.entity';
 import { Upload } from 'src/common/scalars/upload.scalar';
 import { NewsState } from '../entities/news.entity';
 // import GraphQLUpload from 'graphql-upload';
@@ -50,4 +51,10 @@ export class CreateNewsCategoryInput {
 export class CreateUserLikesNewsInput {
   @Field(() => Int, { description: 'News liked by the user' })
   newsId: number;
+
+  @Field(() => UserReacts, {
+    description: 'User reaction to news',
+    nullable: true,
+  })
+  react?: UserReacts;
 }

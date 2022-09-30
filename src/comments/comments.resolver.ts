@@ -25,16 +25,21 @@ import {
 import {
   CreateNewsCommentInput,
   CreateNewsReplyInput,
+  CreateUserLikesNewsCommentInput,
+  CreateUserLikesNewsReplyInput,
 } from './dto/create-comment.input';
 import {
   UpdateNewsCommentInput,
   UpdateNewsReplyInput,
+  UpdateUserLikesNewsCommentInput,
+  UpdateUserLikesNewsReplyInput,
 } from './dto/update-comment.input';
 import { User } from 'src/common/decorators/user.decorator';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import CommentsResponse, { RepliesResponse } from './comments.response';
+import { ReactCount } from 'src/common/entities/base.entity';
 
 const getAuthor = async (service, id: number): Promise<Author> => {
   return service.findOne(id).then((user) => {
@@ -139,6 +144,13 @@ export class NewsCommentsResolver {
     return await this.newsCommentsService.countLikes(id);
   }
 
+  @ResolveField(() => ReactCount)
+  async reactCounts(@Parent() newsComment: NewsComment) {
+    const { id } = newsComment;
+    const reactCount = await this.newsCommentsService.countReacts(id);
+    return reactCount;
+  }
+
   @ResolveField(() => Author)
   async authorDetail(@Parent() newsComment: NewsComment): Promise<Author> {
     const { author } = newsComment;
@@ -220,6 +232,13 @@ export class NewsRepliesResolver {
     return await this.newsReplyService.countLikes(id);
   }
 
+  @ResolveField(() => ReactCount)
+  async reactCounts(@Parent() newsReply: NewsReply) {
+    const { id } = newsReply;
+    const reactCount = await this.newsReplyService.countReacts(id);
+    return reactCount;
+  }
+
   @ResolveField(() => Author)
   async authorDetail(@Parent() newsReply: NewsReply): Promise<Author> {
     const { author } = newsReply;
@@ -250,11 +269,31 @@ export class UserLikesNewsCommentResolver {
   @Mutation(() => UserLikesNewsComment)
   async createUserLikesNewsComment(
     @User() user: number,
-    @Args('commentId', { type: () => Int }) commentId: number,
+    @Args('createUserLikesNewsCommentInput')
+    createUserLikesNewsCommentInput: CreateUserLikesNewsCommentInput,
   ) {
     checkUserAuthenticated(user);
     console.log(`hello from like ${user}`);
-    return await this.userLikesNewsCommentService.create(commentId, user);
+    return await this.userLikesNewsCommentService.create(
+      createUserLikesNewsCommentInput,
+      user,
+    );
+  }
+
+  @Mutation(() => UserLikesNewsComment)
+  async updateUserLikesNewsComment(
+    @Args('commentId', { type: () => Int }) commentId: number,
+    @Args('updateUserLikesNewsCommentInput')
+    updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput,
+    @User() user: number,
+  ) {
+    console.log(`hello from update like ${user}`);
+    checkUserAuthenticated(user);
+    return await this.userLikesNewsCommentService.update(
+      commentId,
+      updateUserLikesNewsCommentInput,
+      user,
+    );
   }
 
   @Mutation(() => UserLikesNewsComment)
@@ -276,10 +315,29 @@ export class UserLikesNewsReplyResolver {
   @Mutation(() => UserLikesNewsReply)
   async createUserLikesNewsReply(
     @User() user: number,
-    @Args('replyId', { type: () => Int }) replyId: number,
+    @Args('createUserLikesNewsReplyInput')
+    createUserLikesNewsReplyInput: CreateUserLikesNewsReplyInput,
   ) {
     checkUserAuthenticated(user);
-    return await this.userLikesNewsReplyService.create(replyId, user);
+    return await this.userLikesNewsReplyService.create(
+      createUserLikesNewsReplyInput,
+      user,
+    );
+  }
+
+  @Mutation(() => UserLikesNewsReply)
+  async updateUserLikesNewsReply(
+    @Args('replyId', { type: () => Int }) replyId: number,
+    @Args('updateUserLikesNewsReplyInput')
+    updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return await this.userLikesNewsReplyService.update(
+      replyId,
+      updateUserLikesNewsReplyInput,
+      user,
+    );
   }
 
   @Mutation(() => UserLikesNewsReply)

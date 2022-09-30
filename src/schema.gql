@@ -120,9 +120,28 @@ input CreateTagInput {
   name: String!
 }
 
+input CreateUserLikesNewsCommentInput {
+  """News comment liked by the user"""
+  commentId: Int!
+
+  """User reaction to comment"""
+  react: UserReacts
+}
+
 input CreateUserLikesNewsInput {
   """News liked by the user"""
   newsId: Int!
+
+  """User reaction to news"""
+  react: UserReacts
+}
+
+input CreateUserLikesNewsReplyInput {
+  """User reaction to reply"""
+  react: UserReacts
+
+  """News reply liked by the user"""
+  replyId: Int!
 }
 
 """
@@ -148,8 +167,8 @@ type Mutation {
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
   createTag(createTagInput: CreateTagInput!): Tag!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
-  createUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
-  createUserLikesNewsReply(replyId: Int!): UserLikesNewsReply!
+  createUserLikesNewsComment(createUserLikesNewsCommentInput: CreateUserLikesNewsCommentInput!): UserLikesNewsComment!
+  createUserLikesNewsReply(createUserLikesNewsReplyInput: CreateUserLikesNewsReplyInput!): UserLikesNewsReply!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
   removeNewsComment(id: Int!): NewsComment!
@@ -167,6 +186,8 @@ type Mutation {
   updateNewsComment(id: Int!, updateNewsCommentInput: UpdateNewsCommentInput!): NewsComment!
   updateNewsReply(id: Int!, updateNewsReplyInput: UpdateNewsReplyInput!): NewsReply!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
+  updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
+  updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
 }
 
 type News {
@@ -270,6 +291,7 @@ type NewsComment {
   """Reaction of the user to this comment"""
   like: UserLikesNewsComment
   likeCount: Int!
+  reactCounts: ReactCount!
 
   """Replies to this comment"""
   replies: [NewsReply!]!
@@ -353,6 +375,7 @@ type NewsReply {
   """Reaction of the user to this comment"""
   like: UserLikesNewsReply
   likeCount: Int!
+  reactCounts: ReactCount!
 
   """User who is replied to"""
   repliedTo: Int!
@@ -650,6 +673,23 @@ type Query {
   tags: [Tag!]!
 }
 
+type ReactCount {
+  """Number of angry reacts"""
+  angry: Int!
+
+  """Number of hahas reacts"""
+  haha: Int!
+
+  """Number of love reacts"""
+  love: Int!
+
+  """Number of sad reacts"""
+  sad: Int!
+
+  """Number of wow reacts"""
+  wow: Int!
+}
+
 type RepliesResponse {
   page: NewsReplyConnection!
   pageData: PageData
@@ -734,6 +774,16 @@ input UpdatePublicToiletInput {
   singleImage: Upload
 }
 
+input UpdateUserLikesNewsCommentInput {
+  """User reaction to comment"""
+  react: UserReacts
+}
+
+input UpdateUserLikesNewsReplyInput {
+  """User reaction to reply"""
+  react: UserReacts
+}
+
 """Upload files"""
 scalar Upload
 
@@ -746,11 +796,25 @@ type UserLikesNews {
 }
 
 type UserLikesNewsComment {
+  """User reacts"""
+  react: UserReacts!
+
   """id field for int"""
   userId: Int!
 }
 
 type UserLikesNewsReply {
+  """User reacts"""
+  react: UserReacts!
+
   """id field for int"""
   userId: Int!
+}
+
+enum UserReacts {
+  ANGRY
+  HAHA
+  LOVE
+  SAD
+  WOW
 }

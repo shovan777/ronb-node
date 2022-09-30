@@ -1,4 +1,5 @@
-import { Field, ObjectType, Int } from '@nestjs/graphql';
+import { Field, ObjectType, Int, registerEnumType } from '@nestjs/graphql';
+import { GraphQLObjectType } from 'graphql';
 import {
   Column,
   CreateDateColumn,
@@ -34,9 +35,61 @@ export abstract class CreatorBaseEntity extends BaseIdEntity {
   updatedBy: number;
 }
 
+export enum UserReacts {
+  LOVE = 'love',
+  HAHA = 'haha',
+  SAD = 'sad',
+  ANGRY = 'angry',
+  WOW = 'wow',
+}
+
+registerEnumType(UserReacts, {
+  name: 'UserReacts',
+});
+
 @ObjectType({ isAbstract: true })
 export abstract class BaseUserLikesEntity {
   @Field(() => Int, { description: 'id field for int' })
   @PrimaryColumn({ type: 'int', nullable: false })
   userId: number;
+
+  @Field(() => UserReacts, { description: 'User reacts' })
+  @Column({ type: 'enum', enum: UserReacts, default: UserReacts.LOVE })
+  react: UserReacts;
 }
+
+@ObjectType()
+export class ReactCount {
+  @Field(() => Int, { description: 'Number of love reacts', defaultValue: 0 })
+  love: number;
+
+  @Field(() => Int, { description: 'Number of hahas reacts', defaultValue: 0 })
+  haha: number;
+
+  @Field(() => Int, { description: 'Number of sad reacts', defaultValue: 0 })
+  sad: number;
+
+  @Field(() => Int, { description: 'Number of angry reacts', defaultValue: 0 })
+  angry: number;
+
+  @Field(() => Int, { description: 'Number of wow reacts', defaultValue: 0 })
+  wow: number;
+
+  // @Field(() => Int, { description: 'Total number of reacts', defaultValue: 0 })
+  // total: number;
+}
+
+// export const ReactCountsObj = new GraphQLObjectType({
+//   name: 'Counts',
+//   fields: () => {
+//     const field_obj = {};
+//     Object.keys(UserReacts).forEach((react) => {
+//       field_obj[react] = { type: Int, description: `Number of ${react}s` };
+//     });
+//     return field_obj;
+//   },
+//   description: 'Count of different reacts',
+// });
+
+// @ObjectType()
+// export class ReactCountsAgain extends ReactCountsObj {}

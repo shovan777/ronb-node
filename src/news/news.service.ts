@@ -483,7 +483,7 @@ export class UserLikesNewsService {
     if (!news) return new NotFoundException(`News with id ${newsId} not found`);
     return this.userLikesNewsRepository.save({
       news: news,
-      userId: user, //TODO: get user from jwt
+      userId: user,
     });
   }
 
