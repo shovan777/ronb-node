@@ -7,8 +7,8 @@ jobs:
     name: Post contributor guidelines to PRs
     runs-on: ubuntu-latest
     steps:
-      - run: gh pr comment ${{ github.event.pull_request.number }} -b "Thanks for your contribution! Please make sure you have read the [contributor guidelines](https://github.com/atharvatechnology/ronb-node)"
+      - run: gh pr comment $PR_URL -b "Thanks for your contribution! Please make sure you have read the [contributor guidelines](https://github.com/atharvatechnology/ronb-node)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
           PR_URL: ${{ github.event.pull_request.url }}
-          
+
