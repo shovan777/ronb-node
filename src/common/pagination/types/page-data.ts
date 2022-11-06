@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export default class PageData {
-  @Field()
+  @Field({ description: 'total number of objects' })
   public count: number;
 
   @Field()
@@ -10,4 +10,7 @@ export default class PageData {
 
   @Field()
   public offset: number;
+
+  @Field({ description: 'current date time' })
+  public curTime: Date;
 }
