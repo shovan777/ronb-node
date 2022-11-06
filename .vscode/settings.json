@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": "file:///home/calcgen2/prokura_workspace/ronb_ws/ronb-node/.github/workflows/deploy.yml"
+    }
+}
