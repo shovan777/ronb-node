@@ -21,12 +21,13 @@ jobs:
   build_and_push:
     name: Build and push Docker image
     runs-on: ubuntu-latest
+    environment: digital_ocean
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
       
-      # - name: Build container image
-      #   run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
+      - name: Build container image
+        run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
 
       - shell: bash
         env:
