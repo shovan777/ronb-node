@@ -36,7 +36,7 @@ jobs:
           echo "hello world!!!!!"
           echo $token
           echo $SSH_HOST
-          ehco $USERNAME          
+          echo $USERNAME          
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
