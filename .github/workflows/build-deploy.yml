@@ -32,7 +32,7 @@ jobs:
         env:
           token: ${{ secrets.DOCKER_TOKEN }}
         run: |
-          echo "Hello DO $token"
+          echo "Hello again DO $token"
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
