@@ -25,12 +25,12 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
       
-      - name: Build container image
-        run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
+      # - name: Build container image
+      #   run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
 
       - shell: bash
         env:
-          token: ${{ secrets.DOCKER_TOKEN }}
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         run: |
           echo "Hello again DO $token"
 
