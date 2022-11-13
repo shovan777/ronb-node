@@ -30,11 +30,11 @@ jobs:
       #   run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
 
       - shell: bash
-        with:
+        env:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         run: |
           echo "hello world!!!!!"
-          echo $token
+          echo ${{env.token}}
           echo $SSH_HOST
           echo $USERNAME          
 
