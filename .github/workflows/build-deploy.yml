@@ -21,7 +21,7 @@ jobs:
   build_and_push:
     name: Build and push Docker image
     runs-on: ubuntu-latest
-    environment: digital_ocean
+    environment: do
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
