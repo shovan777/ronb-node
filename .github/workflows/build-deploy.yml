@@ -32,11 +32,15 @@ jobs:
       - shell: bash
         env:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          ssh: ${{ secrets.SSH_HOST}}
+          username: ${{ secrets.USERNAME}}
         run: |
           echo "hello world!!!!!"
           echo ${{env.token}}
-          echo $SSH_HOST
-          echo $USERNAME          
+          echo $token
+          echo $ssh
+          echo $username
+          echo ${{env.username}}          
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
