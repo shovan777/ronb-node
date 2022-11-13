@@ -26,21 +26,21 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
       
-      # - name: Build container image
-      #   run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
+      - name: Build container image
+        run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
 
-      - shell: bash
-        env:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          sshs: ${{ secrets.SSH_HOST}}
-          username: ${{ secrets.USERNAME}}
-        run: |
-          echo "hello world!!!!!"
-          echo ${{env.token}}
-          echo $token
-          echo $sshs
-          echo $username
-          echo ${{env.username}}          
+      # - shell: bash
+      #   env:
+      #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      #     sshs: ${{ secrets.SSH_HOST}}
+      #     username: ${{ secrets.USERNAME}}
+      #   run: |
+      #     echo "hello world!!!!!"
+      #     echo ${{env.token}}
+      #     echo $token
+      #     echo $sshs
+      #     echo $username
+      #     echo ${{env.username}}          
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
