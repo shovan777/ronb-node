@@ -16,6 +16,7 @@ import {
   NewsCategory,
   NewsImage,
   UserLikesNews,
+  UserNewsEngagement,
 } from './entities/news.entity';
 import { TagsModule } from 'src/tags/tags.module';
 import { FilesService } from 'src/common/services/files.service';
@@ -33,7 +34,13 @@ import { FilesService } from 'src/common/services/files.service';
   ],
   imports: [
     forwardRef(() => TagsModule),
-    TypeOrmModule.forFeature([News, NewsImage, NewsCategory, UserLikesNews]),
+    TypeOrmModule.forFeature([
+      News,
+      NewsImage,
+      NewsCategory,
+      UserLikesNews,
+      UserNewsEngagement,
+    ]),
   ],
   exports: [NewsService],
 })

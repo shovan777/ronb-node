@@ -138,6 +138,11 @@ export class News {
     nullable: true,
   })
   like?: UserLikesNews | any;
+
+  @OneToMany(() => UserNewsEngagement, (engagements) => engagements.news, {
+    nullable: true,
+  })
+  engagements?: UserNewsEngagement | any;
 }
 
 @ObjectType()
@@ -196,6 +201,27 @@ export class UserLikesNews {
   public news: News;
 }
 
+@ObjectType()
+@Entity()
+export class UserNewsEngagement {
+  @Field(() => Int, { description: 'id field for user' })
+  @PrimaryColumn({ type: 'int', nullable: false })
+  userId: number;
+
+  @PrimaryColumn()
+  newsId: number;
+
+  @JoinColumn({ name: 'newsId' })
+  @ManyToOne(() => News, (news) => news.engagements, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  public news: News;
+
+  @Field(() => Boolean, { description: 'Is news read?' })
+  @Column({ default: false })
+  hasRead: boolean;
+}
 // @Entity()
 // export class NewsTag {
 //   @Field(() => Int, { description: 'id field for int' })
