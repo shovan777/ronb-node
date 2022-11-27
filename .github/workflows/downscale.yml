@@ -1,7 +1,7 @@
 name: Schedule server decrease
 on:
   schedule:
-    - cron: "34 17 * * 05"
+    - cron: "24 09 * * 00"
   workflow_dispatch:
     inputs:
       version:
