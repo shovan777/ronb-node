@@ -21,6 +21,7 @@ import { NotificationsSendService, NotificationsService } from './notifications.
     ],
     exports: [
         NotificationsSendService,
+        NotificationsService,
     ],
 })
 export class NotificationsModule {}

@@ -93,6 +93,9 @@ input CreateNotificationDeviceInput {
 
   """Notification device token"""
   token: String!
+
+  """Notification device user"""
+  userId: Float
 }
 
 input CreatePublicToiletInput {
@@ -434,6 +437,9 @@ type Notification {
   """Notification data"""
   data: String
 
+  """Notification from User"""
+  fromUserId: Int
+
   """id field for int"""
   id: Int!
 
@@ -442,6 +448,14 @@ type Notification {
 
   """Notification title"""
   title: String!
+
+  """Notification to User"""
+  toUserId: Int
+}
+
+type NotificationConnection {
+  edges: [NotificationEdge!]!
+  pageInfo: NotificationPageInfo!
 }
 
 type NotificationDevice {
@@ -456,6 +470,17 @@ type NotificationDevice {
 
   """Notification device token"""
   token: String!
+
+  """Updated at"""
+  updatedAt: DateTime!
+
+  """Notification device User"""
+  userId: Int
+}
+
+type NotificationEdge {
+  cursor: String
+  node: Notification
 }
 
 input NotificationInput {
@@ -475,6 +500,18 @@ input NotificationInput {
 input NotificationNewsInput {
   """News Id"""
   newsId: Float!
+}
+
+type NotificationPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type NotificationResponse {
+  page: NotificationConnection!
+  pageData: PageData
 }
 
 type PageData {
@@ -642,6 +679,19 @@ type Query {
     newsCommentId: Int!
   ): RepliesResponse!
   newsTaggit: [NewsTaggit!]!
+  notificationUser(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): NotificationResponse!
   publicToiletById(id: Int!): PublicToilet!
   publicToiletNearMe(
     """Paginate after cursor"""
