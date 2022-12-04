@@ -5,6 +5,9 @@ export class CreateNotificationDeviceInput {
     @Field({ description: 'Notification device token' })
     token: string;
 
+    @Field({ description: 'Notification device user', nullable: true })
+    userId?: number;
+
     @Field({ description: 'Notification device platform' })
     platform: string;
 }
