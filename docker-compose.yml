@@ -14,7 +14,7 @@ services:
     # Run a command against the development stage of the image
     command: npm run start:prod
     ports:
-      - 3000:3000
+      - 3001:3001
     depends_on:
       - db
     networks:
@@ -23,15 +23,59 @@ services:
     image: postgres
     restart: always
     ports:
-      - 5432:5432
+      - 5439:5439
     volumes:
       - docker-nest-postgres:/var/lib/postgresql/data
     networks:
       - ronb-network
     env_file:
       - .env.db
+  prometheus:
+    image: prom/prometheus:v2.21.0
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
+    networks:
+      - ronb-network  
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - '9100:9100'
+    networks:
+      - ronb-network
+  cadvisor:
+    image: google/cadvisor:latest
+    ports:
+      - '8080:8080'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - ronb-network
+    depends_on:
+      - db
+  grafana:
+    image: grafana/grafana
+    user: "1000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=shrestha
+    volumes:
+      - ./grafana_db:/var/lib/grafana
+    depends_on:
+      - prometheus
+    ports:
+      - '3000:3000'
+    networks:
+      - ronb-network
+
 volumes:
   docker-nest-postgres:
+  prometheus-data:
 
 networks:
   ronb-network:
