@@ -1,14 +1,14 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export default class PageData {
-  @Field({ description: 'total number of objects' })
+  @Field(() => Int, { description: 'total number of objects' })
   public count: number;
 
-  @Field()
+  @Field(() => Int, { description: 'limit of pages' })
   public limit: number;
 
-  @Field()
+  @Field(() => Int, { description: 'offset of pages' })
   public offset: number;
 
   @Field({ description: 'current date time' })

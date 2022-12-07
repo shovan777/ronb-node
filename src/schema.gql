@@ -95,7 +95,7 @@ input CreateNotificationDeviceInput {
   token: String!
 
   """Notification device user"""
-  userId: Float
+  userId: Int
 }
 
 input CreatePublicToiletInput {
@@ -499,7 +499,7 @@ input NotificationInput {
 
 input NotificationNewsInput {
   """News Id"""
-  newsId: Float!
+  newsId: Int!
 }
 
 type NotificationPageInfo {
@@ -516,12 +516,16 @@ type NotificationResponse {
 
 type PageData {
   """total number of objects"""
-  count: Float!
+  count: Int!
 
   """current date time"""
   curTime: DateTime!
-  limit: Float!
-  offset: Float!
+
+  """limit of pages"""
+  limit: Int!
+
+  """offset of pages"""
+  offset: Int!
 }
 
 """Profile of the user"""
