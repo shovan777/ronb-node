@@ -1,4 +1,10 @@
-import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql';
+import {
+  ObjectType,
+  Field,
+  Int,
+  registerEnumType,
+  Float,
+} from '@nestjs/graphql';
 import { NewsComment } from 'src/comments/entities/comment.entity';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
 import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
@@ -221,6 +227,15 @@ export class UserNewsEngagement {
   @Field(() => Boolean, { description: 'Is news read?' })
   @Column({ default: false })
   hasRead: boolean;
+
+  @Field(() => Float, {
+    description: 'Engagement duration in seconds',
+    nullable: true,
+  })
+  @Column({
+    nullable: true,
+  })
+  engagementDuration?: number;
 }
 // @Entity()
 // export class NewsTag {
