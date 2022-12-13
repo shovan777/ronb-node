@@ -1,11 +1,10 @@
 name: Post contributor guidelines to PRs
 on:
-  pull_request:
-    types: [opened]
-  push:
-    branches:
-      - deployment-actions
-      - dev
+  # pull_request:
+  #   types: [opened]
+  # push:
+  #   branches:
+  #     - deployment-actions
 
   # allows to manually run the workflow in actions tab
   workflow_dispatch:
