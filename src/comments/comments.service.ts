@@ -88,6 +88,19 @@ export class NewsCommentsService {
     return newsComment;
   }
 
+  async findOneWithNews(id: number) {
+    const newsComment = await this.newsCommentRepository.findOne({
+      where: {
+        id,
+      },
+      relations: { news: true },
+    }); 
+    if (!newsComment) {
+      throw new NotFoundException(`Comment with id ${id} not found`);
+    }
+    return newsComment;
+  }
+  
   async update(
     id: number,
     updateCommentInput: UpdateNewsCommentInput,
@@ -200,6 +213,7 @@ export class NewsRepliesService {
   async findOne(id: number): Promise<NewsReply> {
     const newsReply: NewsReply = await this.newsReplyRepository.findOne({
       where: { id },
+      relations: { comment: true },
     });
     if (!newsReply) {
       throw new NotFoundException(`Reply with id ${id} not found`);

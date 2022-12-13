@@ -22,12 +22,12 @@ jobs:
       - name: Decrease server capacity
         run: doctl compute droplet-action resize 325763499 --size s-1vcpu-512mb-10gb 
       - name: Wait for server to be ready
-        run: sleep 10
+        run: sleep 60
         # run: sleep until $(doctl compute droplet get 325763499 --template "{{.Status}}") = "active"
       - name: Restart server
         run: doctl compute droplet-action power-on 325763499 
       - name: wait for server to turn on
-        run: sleep 20
+        run: sleep 60
 
   deploy:
     name: Deploy to DigitalOcean

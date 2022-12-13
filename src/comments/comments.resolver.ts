@@ -41,7 +41,7 @@ import { connectionFromArraySlice } from 'graphql-relay';
 import CommentsResponse, { RepliesResponse } from './comments.response';
 import { ReactCount } from 'src/common/entities/base.entity';
 
-const getAuthor = async (service, id: number): Promise<Author> => {
+export const getAuthor = async (service, id: number): Promise<Author> => {
   return service.findOne(id).then((user) => {
     // return `${user.first_name} ${user.last_name}`;
     const author: Author = {

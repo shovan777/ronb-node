@@ -89,12 +89,25 @@ export class NotificationsSendService {
     }
 
     public async sendAll(messages: firebase.messaging.TokenMessage[], dryRun?: boolean): Promise<BatchResponse> {
+
         if (process.env.NODE_ENV === 'local') {
             for (const {notification, token} of messages) {
                 console.log(`Sending notification to ${token} with title ${notification.title} and body ${notification.body}`);
             }
         }
-        return await firebase.messaging().sendAll(messages, dryRun);
+
+
+        const responessAll =  await firebase.messaging().sendAll(messages, dryRun);
+        
+        // Add token for error messages
+        // TODO: Might take much time need to check it.
+        for(const [index, response] of responessAll.responses.entries()) {
+            if (!response.success) {
+                response['token'] = messages[index].token;
+            }
+        }
+
+        return responessAll;
     }
 
 }
@@ -111,11 +124,38 @@ export class NotificationsService {
         private newsService: NewsService,
     ) {}
 
-    async create(deviceInput:CreateNotificationDeviceInput): Promise<NotificationDevice> {
-        return await this.notificationDeviceRepository.save({
-            ...deviceInput,
-            createdAt: new Date(),
+    async create(deviceInput:CreateNotificationDeviceInput, user:number): Promise<NotificationDevice> {
+
+        const deviceWithToken = await this.notificationDeviceRepository.findOneBy({
+            token:deviceInput.token,
         });
+        if (user) {
+            const deviceWithUser = await this.notificationDeviceRepository.findOneBy({
+                userId:user,
+            });
+        }
+
+        if (deviceWithToken) {
+            return await this.notificationDeviceRepository.save({
+                ...deviceWithToken,
+                ...deviceInput,
+                userId:user,
+                updatedAt: new Date(),
+            });
+        } else {
+            return await this.notificationDeviceRepository.save({
+                ...deviceInput,
+                userId:user,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+        }
+
+        // old
+        // return await this.notificationDeviceRepository.save({
+        //     ...deviceInput,
+        //     createdAt: new Date(),
+        // });
     }
 
     async findAll(): Promise<NotificationDevice[]> {
@@ -148,6 +188,7 @@ export class NotificationsService {
         }
         const dataObject = {
             "newId": newsObject.id.toString(),
+            "category": "news",
         }
         
         const messageObject = await this.notificationRepository.save({
@@ -173,8 +214,103 @@ export class NotificationsService {
             android: androidSpecific,
         }));
 
-        this.notificationsSendService.sendFirebaseMessages(firebaseMessages);
-        // console.log(sendRespone)
+        const sendResponse = await this.notificationsSendService.sendFirebaseMessages(firebaseMessages);
+
+        // this code is kept for deleting the inactivate tokens. 
+        // TODO: need to check if this is working in actual factor.
+        for (const response of sendResponse.responses) {
+            if (!response.success && response.error.code === 'messaging/registration-token-not-registered') {
+                const devices = await this.notificationDeviceRepository.findOneBy({
+                    token: response['token'],
+                });
+                if (devices) {
+                    await this.notificationDeviceRepository.remove(devices);
+                }
+            }
+        }
+
         return messageObject;
+    }
+
+    async createUpdate(deviceInput:CreateNotificationDeviceInput): Promise<NotificationDevice> {
+        
+        const deviceWithToken = await this.notificationDeviceRepository.findOneBy({
+            token:deviceInput.token,
+        });
+        if (deviceInput.userId) {
+            const deviceWithUser = await this.notificationDeviceRepository.findOneBy({
+                userId:deviceInput.userId,
+            });
+        }
+
+        if (deviceWithToken) {
+            return await this.notificationDeviceRepository.save({
+                ...deviceWithToken,
+                ...deviceInput,
+                updatedAt: new Date(),
+            });
+        } else {
+            return await this.notificationDeviceRepository.save({
+                ...deviceInput,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+        }
+        
+        // return await this.notificationDeviceRepository.findOneBy({
+        //     token:deviceInput.token,
+        // })
+
+        // return await this.notificationDeviceRepository.save({
+        //     ...deviceInput,
+        //     createdAt: new Date(),
+        // })
+    }
+
+    async sendNotificationUser(input:NotificationInput, toUserId:number, fromUserId:number, data:object): Promise<Notification> {
+        const devices = await this.notificationDeviceRepository.find({
+            where: {userId:toUserId},
+        });
+
+        const androidSpecific = {
+            notification: {
+                eventTimestamp: new Date(),
+            }
+        };
+        
+        const messageObject = await this.notificationRepository.save({
+            ...input,
+            createdAt: new Date(),
+            fromUserId: fromUserId,
+            toUserId: toUserId,
+            data: JSON.stringify(data),
+        });
+
+        const firebaseMessages = devices.map(device => ({
+            token: device.token,
+            title: input.title,
+            image: input.image,
+            message: input.body,
+            data: data,
+            android: androidSpecific,
+        }));
+
+        const send_response = await this.notificationsSendService.sendFirebaseMessages(firebaseMessages);
+        return messageObject;
+    }
+
+    async findNotificationsUser(
+        limit: number,
+        offset: number,
+        userId: number,
+    ): Promise<[Notification[], number]> {
+        return await this.notificationRepository.findAndCount({
+            where: {toUserId:userId},
+            order: {
+                createdAt: "DESC",
+            },
+            take: limit,
+            skip: offset,
+        });
     }
 }
