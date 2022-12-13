@@ -4,7 +4,7 @@ on:
   #   types: [opened]
   push:
     branches:
-      - deployment-actions
+      - dev
 
   # allows to manually run the workflow in actions tab
   workflow_dispatch:
@@ -35,7 +35,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Extract metadata for docker
         id: meta
         uses: docker/metadata-action@v3
