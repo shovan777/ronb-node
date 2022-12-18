@@ -41,7 +41,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}_${{ workflow_dispatch.inputs.version }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
@@ -62,11 +62,14 @@ jobs:
     steps:
       - name: Deploy to aws EC2 instance via SSH action
         uses: appleboy/ssh-action@v0.1.3
+        env: 
+            TAG: ${{ github.sha }}_${{ workflow_dispatch.inputs.version }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA
+          envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG
           script: |
             cd ronb-platform
+            export NEST_TAG=$(echo $TAG)
             docker compose up -d api-nest
