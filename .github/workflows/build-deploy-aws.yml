@@ -75,4 +75,5 @@ jobs:
           script: |
             cd ronb-platform
             export NEST_TAG=$(echo $TAG)
+            echo $NEST_TAG
             docker compose up -d api-nest
