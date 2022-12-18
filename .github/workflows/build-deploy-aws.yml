@@ -41,8 +41,10 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}_${{ github.event.inputs.version }}
-
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # minimal (short sha)
+            type=sha
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
@@ -63,7 +65,8 @@ jobs:
       - name: Deploy to aws EC2 instance via SSH action
         uses: appleboy/ssh-action@v0.1.3
         env: 
-            TAG: ${{ github.sha }}_${{ github.event.inputs.version }}
+            TAG: steps.meta.outputs.tags.sha
+            #${{ github.sha }}_${{ github.event.inputs.version }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.USERNAME }}
