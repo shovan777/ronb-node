@@ -65,7 +65,7 @@ jobs:
       - name: Deploy to aws EC2 instance via SSH action
         uses: appleboy/ssh-action@v0.1.3
         env: 
-            TAG: ${{build_and_push.steps.meta.outputs.tags}}
+            TAG: ${{needs.build_and_push.steps.meta.outputs.tags}}
             #${{ github.sha }}_${{ github.event.inputs.version }}
         with:
           host: ${{ secrets.SSH_HOST }}
