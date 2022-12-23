@@ -1,6 +1,6 @@
 import { FilesService } from './common/services/files.service';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { CacheModule, MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -25,6 +25,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     PublicToiletModule,
     TagsModule,
     NotificationsModule,
+    CommentsModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     GraphQLModule.forRoot({
       driver: ApolloDriver,
@@ -91,7 +92,10 @@ import { NotificationsModule } from './notifications/notifications.module';
         index: false,
       },
     }),
-    CommentsModule,
+    CacheModule.register({
+      isGlobal: true,
+      // ttl: 5, // seconds
+    }),
   ],
   controllers: [AppController],
   providers: [FilesService, AppService],

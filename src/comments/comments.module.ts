@@ -21,7 +21,11 @@ import {
   UserLikesNewsReply,
 } from './entities/comment.entity';
 import { NewsModule } from 'src/news/news.module';
-import { NewsReplySubscriber, UserLikesNewsCommentSubscriber, UserLikesNewsReplySubscriber } from './comments.subscriber';
+import {
+  NewsReplySubscriber,
+  UserLikesNewsCommentSubscriber,
+  UserLikesNewsReplySubscriber,
+} from './comments.subscriber';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({

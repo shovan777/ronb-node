@@ -27,7 +27,8 @@ import {
   UpdateNewsCategoryInput,
   UpdateNewsInput,
 } from './dto/update-news.input';
-import { NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, NotFoundException } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import NewsResponse from './news.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
@@ -46,6 +47,7 @@ export class NewsResolver {
   constructor(
     private readonly newsService: NewsService,
     private readonly newsTaggitService: NewsTaggitService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @Mutation(() => News)
@@ -59,6 +61,7 @@ export class NewsResolver {
 
   @Query(() => NewsResponse, { name: 'news' })
   async findAll(
+    @User() user: number,
     @Args() args: ConnectionArgs,
     @Args('filterNewsInput', { nullable: true })
     filterNewsInput?: FilterNewsInput,
@@ -70,6 +73,11 @@ export class NewsResolver {
       filterNewsInput,
       true,
     );
+
+    // instead from db get the data from cache
+    // const news = await this.cacheManager.get('user');
+    // construct a fifo queue
+    // get data from queue
     // return this.newsService.findAll();
     const page = connectionFromArraySlice(news, args, {
       arrayLength: count,
