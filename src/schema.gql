@@ -147,10 +147,117 @@ input CreateUserLikesNewsReplyInput {
   replyId: Int!
 }
 
+input CreateYellowPagesAddressInput {
+  """District Type"""
+  district: District!
+
+  """Province Type"""
+  province: Province!
+
+  """Yellow pages id"""
+  yellowpages: Int!
+}
+
+input CreateYellowPagesCategoryInput {
+  """Yellow Pages name"""
+  name: String!
+}
+
+input CreateYellowPagesInput {
+  """Yellow Pages address(s)"""
+  address: Int
+
+  """Yellow Pages category"""
+  category: Int
+
+  """Yellow Pages name"""
+  name: String!
+
+  """Yellow Pages phone number(s)"""
+  phone_number: Int
+}
+
+input CreateYellowPagesPhoneNumberInput {
+  """"""
+  is_emergency: Boolean!
+
+  """Phone number"""
+  phone_number: Float!
+
+  """Yellow pages id"""
+  yellowpages: Int!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+enum District {
+  Achham
+  Arghakhanchi
+  Baglung
+  Baitadi
+  Bajhang
+  Bajura
+  Banke
+  Bara
+  Bardiya
+  Bhaktapur
+  Bhojpur
+  Chitawan
+  Dadeldhura
+  Dailekh
+  Dang
+  Darchula
+  Dhading
+  Dhankuta
+  Dhanusa
+  Dolakha
+  Dolpa
+  Doti
+  Galkot
+  Gandaki
+  Ghorahi
+  Gulmi
+  Humla
+  Ilam
+  Jajarkot
+  Jhapa
+  Jumla
+  Kailali
+  Kalikot
+  Kanchanpur
+  Kapilvastu
+  Kaski
+  Kathmandu
+  Kavrepalanchok
+  Khotang
+  Lalitpur
+  Lamjung
+  Mahottari
+  Makwanpur
+  Manang
+  Morang
+  Mugu
+  Mustang
+  Myagdi
+  Nawalparasi
+  Nuwakot
+  Okhaldhunga
+  Palpa
+  Panchthar
+  Parbat
+  Parsa
+  Pyuthan
+  Ramechhap
+  Rasuwa
+  Rautahat
+  Rolpa
+  Rukum
+  Rupandehi
+  Salyan
+}
 
 input FilterNewsInput {
   """News category"""
@@ -172,6 +279,10 @@ type Mutation {
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
   createUserLikesNewsComment(createUserLikesNewsCommentInput: CreateUserLikesNewsCommentInput!): UserLikesNewsComment!
   createUserLikesNewsReply(createUserLikesNewsReplyInput: CreateUserLikesNewsReplyInput!): UserLikesNewsReply!
+  createYellowPages(createYellowPagesInput: CreateYellowPagesInput!): YellowPages!
+  createYellowPagesAddress(createYellowPagesAddressInput: CreateYellowPagesAddressInput!): YellowPagesAddress!
+  createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
+  createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
   removeNewsComment(id: Int!): NewsComment!
@@ -182,6 +293,10 @@ type Mutation {
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
   removeUserLikesNewsReply(replyId: Int!): UserLikesNewsReply!
+  removeYellowPages(id: Int!): YellowPages!
+  removeYellowPagesAddress(id: Int!): YellowPagesAddress!
+  removeYellowPagesCategory(id: Int!): YellowPagesCatgory!
+  removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
@@ -191,6 +306,9 @@ type Mutation {
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
   updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
   updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
+  updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
+  updateYellowPagesCategory(id: Int!, updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput!): YellowPagesCatgory!
+  updateYellowPagesPhoneNumber(id: Int!, updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
 }
 
 type News {
@@ -536,6 +654,16 @@ type Profile {
   image: String
 }
 
+enum Province {
+  Bagmati
+  Gandaki
+  Janakpur
+  Koshi
+  Mechi
+  Narayani
+  Sagarmatha
+}
+
 type PublicToilet {
   """Public Toilet Address"""
   address: String!
@@ -721,6 +849,14 @@ type Query {
     last: Float
   ): PublicToiletResponse!
   tags: [Tag!]!
+  yellowPages: [YellowPages!]!
+  yellowPagesAddress: [YellowPagesAddress!]!
+  yellowPagesAddressById(id: Int!): YellowPagesAddress!
+  yellowPagesById(id: Int!): YellowPages!
+  yellowPagesCategories: [YellowPagesCatgory!]!
+  yellowPagesCategoryById(id: Int!): [YellowPagesCatgory!]!
+  yellowPagesPhoneNumber: [YellowPagesPhoneNumber!]!
+  yellowPagesPhoneNumberById(id: Int!): YellowPagesPhoneNumber!
 }
 
 type ReactCount {
@@ -834,6 +970,36 @@ input UpdateUserLikesNewsReplyInput {
   react: UserReacts
 }
 
+input UpdateYellowPagesCategoryInput {
+  """Yellow Pages name"""
+  name: String!
+}
+
+input UpdateYellowPagesInput {
+  """Yellow Pages address(s)"""
+  address: Int
+
+  """Yellow Pages category"""
+  category: Int
+
+  """Yellow Pages name"""
+  name: String!
+
+  """Yellow Pages phone number(s)"""
+  phone_number: Int
+}
+
+input UpdateYellowPagesPhoneNumberInput {
+  """"""
+  is_emergency: Boolean
+
+  """Phone number"""
+  phone_number: Float
+
+  """Yellow pages id"""
+  yellowpages: Int
+}
+
 """Upload files"""
 scalar Upload
 
@@ -867,4 +1033,72 @@ enum UserReacts {
   LOVE
   SAD
   WOW
+}
+
+type YellowPages {
+  """Yellow Pages address(s)"""
+  address: [YellowPagesAddress!]
+
+  """Yellow Pages category"""
+  category: YellowPagesCatgory
+
+  """id field for int"""
+  id: Int!
+
+  """Yellow Pages name"""
+  name: String!
+
+  """Yellow Pages phone number(s)"""
+  phone_number: [YellowPagesPhoneNumber!]!
+}
+
+type YellowPagesAddress {
+  """District Type"""
+  district: District!
+
+  """id field for int"""
+  id: Int!
+
+  """Province Type"""
+  province: Province!
+
+  """"""
+  yellowpages: YellowPages!
+}
+
+type YellowPagesCatgory {
+  """date of creation"""
+  createdAt: DateTime!
+
+  """one who created"""
+  createdBy: Int!
+
+  """id field for int"""
+  id: Int!
+
+  """Yellow Pages name"""
+  name: String!
+
+  """date of update"""
+  updatedAt: DateTime!
+
+  """one who updated"""
+  updatedBy: Int!
+
+  """Yellow Pages in this category"""
+  yellowpages: [YellowPages!]!
+}
+
+type YellowPagesPhoneNumber {
+  """id field for int"""
+  id: Int!
+
+  """"""
+  is_emergency: Boolean!
+
+  """Phone number"""
+  phone_number: Int!
+
+  """"""
+  yellowpages: YellowPages!
 }

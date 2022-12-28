@@ -14,6 +14,7 @@ import { PublicToiletModule } from './public-toilet/public-toilet.module';
 import { TagsModule } from './tags/tags.module';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { YellowPagesModule } from './yellow-pages/yellow-pages.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     PublicToiletModule,
     TagsModule,
     NotificationsModule,
+    YellowPagesModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     GraphQLModule.forRoot({
       driver: ApolloDriver,
