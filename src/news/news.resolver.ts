@@ -10,17 +10,20 @@ import {
 import {
   NewsCategoryService,
   NewsService,
+  UserInterestsService,
   UserLikesNewsService,
 } from './news.service';
 import {
   News,
   NewsCategory,
   NewsImage,
+  UserInterests,
   UserLikesNews,
 } from './entities/news.entity';
 import {
   CreateNewsCategoryInput,
   CreateNewsInput,
+  CreateUserInterestsInput,
   CreateUserLikesNewsInput,
 } from './dto/create-news.input';
 import {
@@ -34,8 +37,8 @@ import { connectionFromArraySlice } from 'graphql-relay';
 import { FilterNewsInput } from './dto/filter-news.input';
 import { User } from 'src/common/decorators/user.decorator';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
-import { NewsTaggit } from 'src/tags/entities/tag.entity';
-import { NewsTaggitService } from 'src/tags/tags.service';
+import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
+import { NewsTaggitService, TagsService } from 'src/tags/tags.service';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -259,4 +262,40 @@ export class UserLikesNewsResolver {
     checkUserAuthenticated(user);
     return await this.userLikesNewsService.remove(newsId, user);
   }
+}
+
+@Resolver(() => UserInterests)
+export class UserInterestsResolver {
+  constructor(
+    private readonly userInterestsService: UserInterestsService,
+    private readonly tagService: TagsService,
+  ) {}
+
+  @Mutation(() => UserInterests)
+  async createUserInterests(
+    @User() user: number,
+    @Args('createUserInterestsInput')
+    createUserInterestsInput: CreateUserInterestsInput,
+  ) {
+    checkUserAuthenticated(user);
+    return await this.userInterestsService.create(
+      createUserInterestsInput,
+      user,
+    );
+  }
+
+  @Query(() => [Tag], { name: 'instrestingTags' })
+  async findInsterestingTags(@User() user: number) {
+    checkUserAuthenticated(user);
+    return await this.tagService.findInsterestingTags(user);
+  }
+
+  // @Mutation(() => UserInterests)
+  // async removeUserInterests(
+  //   @User() user: number,
+  //   @Args('newsCategoryId', { type: () => Int }) newsCategoryId: number,
+  // ) {
+  //   checkUserAuthenticated(user);
+  //   return await this.userInterestsService.remove(newsCategoryId, user);
+  // }
 }

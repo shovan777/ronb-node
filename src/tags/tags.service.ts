@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { slugify } from 'src/common/utils/slugify';
 import { News } from 'src/news/entities/news.entity';
 import { NewsService } from 'src/news/news.service';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { CreateTagInput, CreateNewsTaggitInput } from './dto/create-tag.input';
 import { NewsTaggit, Tag } from './entities/tag.entity';
 
@@ -17,16 +17,13 @@ export class TagsService {
   constructor(
     @InjectRepository(Tag)
     private tagRepository: Repository<Tag>,
-   ) {}
-  
-  async create(
-    createTagInput: CreateTagInput,
-    user: number  
-  ): Promise<Tag> {
+  ) {}
+
+  async create(createTagInput: CreateTagInput, user: number): Promise<Tag> {
     return this.tagRepository.save({
       ...createTagInput,
-      createdBy:user,
-      updatedBy:user,
+      createdBy: user,
+      updatedBy: user,
     });
   }
 
@@ -56,7 +53,16 @@ export class TagsService {
     if (tag) {
       return tag;
     }
-    return await this.create({name}, user);
+    return await this.create({ name }, user);
+  }
+  async findInsterestingTags(user: number): Promise<Tag[]> {
+    // randomnly find 10 tags
+    return this.tagRepository
+      .createQueryBuilder('news_taggit')
+      .select()
+      .orderBy('RANDOM()')
+      .take(10)
+      .getMany();
   }
 }
 
@@ -68,11 +74,11 @@ export class NewsTaggitService {
     private tagService: TagsService,
     @Inject(forwardRef(() => NewsService))
     private newsService: NewsService,
-   ) {}
-  
+  ) {}
+
   async create(
     createNewsTaggitInput: CreateNewsTaggitInput,
-    user: number
+    user: number,
   ): Promise<NewsTaggit> {
     let newInputData: any = {
       ...createNewsTaggitInput,
@@ -168,10 +174,13 @@ export class NewsTaggitService {
     if (newsTaggit) {
       return newsTaggit;
     }
-    return this.create({
-      tag: tag.id,
-      news: news.id,
-    }, user);
+    return this.create(
+      {
+        tag: tag.id,
+        news: news.id,
+      },
+      user,
+    );
   }
 
   async remove(id: number) {

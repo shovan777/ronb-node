@@ -94,13 +94,13 @@ export class NewsCommentsService {
         id,
       },
       relations: { news: true },
-    }); 
+    });
     if (!newsComment) {
       throw new NotFoundException(`Comment with id ${id} not found`);
     }
     return newsComment;
   }
-  
+
   async update(
     id: number,
     updateCommentInput: UpdateNewsCommentInput,

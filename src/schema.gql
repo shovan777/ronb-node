@@ -123,6 +123,14 @@ input CreateTagInput {
   name: String!
 }
 
+input CreateUserInterestsInput {
+  """News categories interesting to the user"""
+  newsCategories: [Int!]
+
+  """News tags interesting to the user"""
+  newsTags: [Int!]
+}
+
 input CreateUserLikesNewsCommentInput {
   """News comment liked by the user"""
   commentId: Int!
@@ -169,6 +177,7 @@ type Mutation {
   createNotificationDevice(CreateNotificationDeviceInput: CreateNotificationDeviceInput!): NotificationDevice!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
   createTag(createTagInput: CreateTagInput!): Tag!
+  createUserInterests(createUserInterestsInput: CreateUserInterestsInput!): UserInterests!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
   createUserLikesNewsComment(createUserLikesNewsCommentInput: CreateUserLikesNewsCommentInput!): UserLikesNewsComment!
   createUserLikesNewsReply(createUserLikesNewsReplyInput: CreateUserLikesNewsReplyInput!): UserLikesNewsReply!
@@ -618,6 +627,7 @@ type PublicToiletResponse {
 }
 
 type Query {
+  instrestingTags: [Tag!]!
   news(
     """Paginate after cursor"""
     after: String
@@ -836,6 +846,17 @@ input UpdateUserLikesNewsReplyInput {
 
 """Upload files"""
 scalar Upload
+
+type UserInterests {
+  """News categories of interest to user"""
+  newsCategories: [NewsCategory!]
+
+  """News tags of interest to user"""
+  newsTags: [Tag!]
+
+  """id field for user"""
+  userId: Int!
+}
 
 type UserLikesNews {
   """likes for the news"""
