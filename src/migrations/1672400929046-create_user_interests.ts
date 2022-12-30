@@ -25,9 +25,9 @@ export class createUserInterests1672400929046 implements MigrationInterface {
     await queryRunner.query(
       `CREATE INDEX "IDX_dc629862465ce4d8af01af96b6" ON "user_interests_news_categories_news_category" ("newsCategoryId") `,
     );
-    await queryRunner.query(
-      `ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`,
-    );
+    // await queryRunner.query(
+    //   `ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`,
+    // );
     await queryRunner.query(
       `ALTER TABLE "user_interests_news_tags_tag" ADD CONSTRAINT "FK_8c31761d878724a2ca346db58aa" FOREIGN KEY ("userInterestsUserId") REFERENCES "user_interests"("userId") ON DELETE CASCADE ON UPDATE CASCADE`,
     );
@@ -55,9 +55,9 @@ export class createUserInterests1672400929046 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "user_interests_news_tags_tag" DROP CONSTRAINT "FK_8c31761d878724a2ca346db58aa"`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "user_news_engagement" ADD "engagementDuration" integer`,
-    );
+    // await queryRunner.query(
+    //   `ALTER TABLE "user_news_engagement" ADD "engagementDuration" integer`,
+    // );
     await queryRunner.query(
       `DROP INDEX "public"."IDX_dc629862465ce4d8af01af96b6"`,
     );
