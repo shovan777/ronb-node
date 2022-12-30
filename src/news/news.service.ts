@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import {
   CreateNewsCategoryInput,
   CreateNewsInput,
+  CreateUserInterestsInput,
   CreateUserLikesNewsInput,
 } from './dto/create-news.input';
 import { FilterNewsInput } from './dto/filter-news.input';
@@ -17,6 +18,7 @@ import {
   NewsCategory,
   NewsImage,
   NewsState,
+  UserInterests,
   UserLikesNews,
 } from './entities/news.entity';
 import { uploadFileStream } from 'src/common/utils/upload';
@@ -502,5 +504,24 @@ export class UserLikesNewsService {
     const removedUserLikesNews = { ...userLikesNews };
     await this.userLikesNewsRepository.remove(userLikesNews);
     return removedUserLikesNews;
+  }
+}
+
+@Injectable()
+export class UserInterestsService {
+  // create user interests based on category
+  constructor(
+    @InjectRepository(UserInterests)
+    private userInterestsRepository: Repository<UserInterests>,
+  ) {}
+
+  async create(
+    userInterestsInput: CreateUserInterestsInput,
+    user: number,
+  ): Promise<UserInterests> {
+    return this.userInterestsRepository.save({
+      ...userInterestsInput,
+      userId: user,
+    });
   }
 }
