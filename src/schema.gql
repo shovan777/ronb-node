@@ -307,6 +307,7 @@ type Mutation {
   updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
   updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
   updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
+  updateYellowPagesAddress(id: Int!, updateYellowPagesAddressInput: UpdateYellowPagesAddressInput!): YellowPagesAddress!
   updateYellowPagesCategory(id: Int!, updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput!): YellowPagesCatgory!
   updateYellowPagesPhoneNumber(id: Int!, updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
 }
@@ -657,11 +658,11 @@ type Profile {
 enum Province {
   Bagmati
   Gandaki
-  Janakpur
-  Koshi
-  Mechi
-  Narayani
-  Sagarmatha
+  Karnali
+  Lumbini
+  Madhesh
+  Province_No_1
+  Sudurpashchim
 }
 
 type PublicToilet {
@@ -854,7 +855,7 @@ type Query {
   yellowPagesAddressById(id: Int!): YellowPagesAddress!
   yellowPagesById(id: Int!): YellowPages!
   yellowPagesCategories: [YellowPagesCatgory!]!
-  yellowPagesCategoryById(id: Int!): [YellowPagesCatgory!]!
+  yellowPagesCategoryById(id: Int!): YellowPagesCatgory!
   yellowPagesPhoneNumber: [YellowPagesPhoneNumber!]!
   yellowPagesPhoneNumberById(id: Int!): YellowPagesPhoneNumber!
 }
@@ -970,6 +971,17 @@ input UpdateUserLikesNewsReplyInput {
   react: UserReacts
 }
 
+input UpdateYellowPagesAddressInput {
+  """District Type"""
+  district: District
+
+  """Province Type"""
+  province: Province
+
+  """Yellow pages id"""
+  yellowpages: Int
+}
+
 input UpdateYellowPagesCategoryInput {
   """Yellow Pages name"""
   name: String!
@@ -983,7 +995,7 @@ input UpdateYellowPagesInput {
   category: Int
 
   """Yellow Pages name"""
-  name: String!
+  name: String
 
   """Yellow Pages phone number(s)"""
   phone_number: Int

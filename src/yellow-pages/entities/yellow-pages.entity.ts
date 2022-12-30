@@ -20,7 +20,9 @@ export class YellowPagesCatgory extends CreatorBaseEntity {
   name: string;
 
   @Field(() => [YellowPages], { description: 'Yellow Pages in this category' })
-  @OneToMany(() => YellowPages, (yellowpages) => yellowpages.category)
+  @OneToMany(() => YellowPages, (yellowpages) => yellowpages.category, {
+    eager: true,
+  })
   yellowpages: YellowPages[];
 }
 
@@ -132,13 +134,13 @@ export enum District {
 }
 
 export enum Province {
-  Mechi = 'Mechi',
-  Koshi = 'Koshi',
-  Sagarmatha = 'Sagarmatha',
-  Janakpur = 'Janakpur',
+  Province_No_1 = 'Province_No_1',
+  Madhesh = 'Madhesh',
   Bagmati = 'Bagmati',
-  Narayani = 'Narayani',
   Gandaki = 'Gandaki',
+  Lumbini = 'Lumbini',
+  Karnali = 'Karnali',
+  Sudurpashchim = 'Sudurpashchim',
 }
 
 registerEnumType(District, {
@@ -167,6 +169,7 @@ export class YellowPagesAddress {
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.address, {
     onDelete: 'CASCADE',
+    eager: true,
   })
   yellowpages?: YellowPages;
 }
@@ -189,6 +192,7 @@ export class YellowPagesPhoneNumber {
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.phone_number, {
     onDelete: 'CASCADE',
+    eager: true,
   })
   yellowpages?: YellowPages;
 }

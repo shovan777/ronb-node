@@ -89,7 +89,7 @@ export class YellowPagesCategoryResolver {
     return this.yellowPagesCategoryService.findAll();
   }
 
-  @Query(() => [YellowPagesCatgory], { name: 'yellowPagesCategoryById' })
+  @Query(() => YellowPagesCatgory, { name: 'yellowPagesCategoryById' })
   async findOne(
     @Args('id', { type: () => Int }) id: number,
   ): Promise<YellowPagesCatgory> {
@@ -142,17 +142,17 @@ export class YellowPagesAddressResolver {
     return this.yellowPagesAddressService.findOne(id);
   }
 
-  // @Mutation(() => YellowPagesAddress)
-  // async updateYellowPagesAddress(
-  //   @Args('id', { type: () => Int }) id: number,
-  //   @Args('updateYellowPagesAddressInput')
-  //   updateYellowPagesAddress: UpdateYellowPagesAddressInput,
-  // ) {
-  //   return await this.yellowPagesAddressService.update(
-  //     id,
-  //     updateYellowPagesAddress,
-  //   );
-  // }
+  @Mutation(() => YellowPagesAddress)
+  async updateYellowPagesAddress(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('updateYellowPagesAddressInput')
+    updateYellowPagesAddress: UpdateYellowPagesAddressInput,
+  ) {
+    return await this.yellowPagesAddressService.update(
+      id,
+      updateYellowPagesAddress,
+    );
+  }
 
   @Mutation(() => YellowPagesAddress)
   async removeYellowPagesAddress(

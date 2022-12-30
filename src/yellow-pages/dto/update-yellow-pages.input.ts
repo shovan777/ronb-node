@@ -11,7 +11,7 @@ import { CreateYellowPagesInput } from './create-yellow-pages.input';
 
 @InputType()
 export class UpdateYellowPagesInput {
-  @Field({ description: 'Yellow Pages name' })
+  @Field({ description: 'Yellow Pages name' , nullable:true})
   name?: string;
 
   @Field(() => Int, {

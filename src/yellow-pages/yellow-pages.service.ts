@@ -79,15 +79,36 @@ export class YellowPagesService {
     id: number,
     updateYellowPagesInput: UpdateYellowPagesInput,
   ): Promise<YellowPages> {
+    let yellowPagesInputData: any = {
+      ...updateYellowPagesInput,
+    };
     const yellowpages: YellowPages = await this.findOne(id);
     if (!yellowpages) {
       throw new NotFoundException(`Yellow Pages with id ${id} not found`);
     }
-    console.log('yellowpages', yellowpages);
-    return await this.yellowPagesRepository.save({
-      ...yellowpages,
-      updateYellowPagesInput,
+    const category_id = updateYellowPagesInput.category;
+
+    if (category_id) {
+      const category = await this.yellowPagesCategoryeRepository.findOneOrFail({
+        where: { id: category_id },
+      });
+
+      if (!category) {
+        throw new NotFoundException(
+          `Yellow Pages category with id ${category_id} not found`,
+        );
+      }
+
+      yellowPagesInputData = {
+        ...yellowPagesInputData,
+        category: category,
+      };
+    }
+
+    await this.yellowPagesRepository.update(id, {
+      ...yellowPagesInputData,
     });
+    return await this.findOne(id);
   }
 
   async remove(id: number) {
@@ -127,16 +148,13 @@ export class YellowPagesCategoryService {
   }
 
   async findAll(): Promise<YellowPagesCatgory[]> {
-    return this.yellowPagesCategoryRepository.find({
-      relations: ['yellowpages'],
-    });
+    return this.yellowPagesCategoryRepository.find({});
   }
 
   async findOne(id: number): Promise<YellowPagesCatgory> {
     const yellowpagesCategory: YellowPagesCatgory =
       await this.yellowPagesCategoryRepository.findOne({
         where: { id: id },
-        relations: ['yellowpages'],
       });
     if (!yellowpagesCategory) {
       throw new NotFoundException(
@@ -221,15 +239,12 @@ export class YellowPagesAddressService {
   }
 
   async findAll(): Promise<YellowPagesAddress[]> {
-    return this.addressRepository.find({ relations: ['yellowpages'] });
+    return this.addressRepository.find({});
   }
 
   async findOne(id: number): Promise<YellowPagesAddress> {
     const yellowpagesAddress: YellowPagesAddress =
-      await this.addressRepository.findOne({
-        where: { id: id },
-        relations: ['yellowpages'],
-      });
+      await this.addressRepository.findOne({ where: { id: id } });
     if (!yellowpagesAddress) {
       throw new NotFoundException(
         `Yellow Pages address with id ${id} not found`,
@@ -238,23 +253,40 @@ export class YellowPagesAddressService {
     return yellowpagesAddress;
   }
 
-  // async update(
-  //   id: number,
-  //   updateYellowPagesAddressInput: UpdateYellowPagesAddressInput,
-  // ): Promise<YellowPagesAddress> {
-  //   const yellowpagesAddress: YellowPagesAddress = await this.findOne(id);
-  //   if (!yellowpagesAddress) {
-  //     throw new NotFoundException(
-  //       `Yellow Pages address with id ${id} not found`,
-  //     );
-  //   }
-  //   console.log('yellowpagesAddress', yellowpagesAddress);
-  //   console.log('yellowpagesAddress', updateYellowPagesAddressInput);
-  //   return await this.addressRepository.save({
-  //     ...yellowpagesAddress,
-  //     ...updateYellowPagesAddressInput,
-  //   });
-  // }
+  async update(
+    id: number,
+    updateYellowPagesAddressInput: UpdateYellowPagesAddressInput,
+  ): Promise<YellowPagesAddress> {
+    let addressInputData: any = {
+      ...updateYellowPagesAddressInput,
+    };
+    const yellowpagesAddress: YellowPagesAddress = await this.findOne(id);
+
+    if (!yellowpagesAddress) {
+      throw new NotFoundException(
+        `Yellow Pages address with id ${id} not found`,
+      );
+    }
+    if (updateYellowPagesAddressInput.yellowpages) {
+      const yellowPages: YellowPages =
+        await this.yellowPagesRepository.findOneBy({
+          id: updateYellowPagesAddressInput.yellowpages,
+        });
+
+      if (!yellowPages) {
+        throw new NotFoundException(
+          `Yellow pages with id ${updateYellowPagesAddressInput.yellowpages} not found`,
+        );
+      }
+
+      addressInputData = {
+        ...addressInputData,
+        yellowpages: yellowPages,
+      };
+    }
+    await this.addressRepository.update(id, { ...addressInputData });
+    return this.addressRepository.findOneOrFail({ where: { id: id } });
+  }
 
   async remove(id: number): Promise<YellowPagesAddress> {
     const yellowpagesAddress: YellowPagesAddress =
@@ -307,24 +339,19 @@ export class YellowPagesPhoneNumberService {
       };
     }
 
-    console.log('phoneNumberInputData', phoneNumberInputData);
-
     return await this.phoneNumberRepository.save({
       ...phoneNumberInputData,
     });
   }
 
   async findAll(): Promise<YellowPagesPhoneNumber[]> {
-    return await this.phoneNumberRepository.find({
-      relations: ['yellowpages'],
-    });
+    return await this.phoneNumberRepository.find({});
   }
 
   async findOne(id: number) {
     const yellowPagesPhoneNumber: YellowPagesPhoneNumber =
       await this.phoneNumberRepository.findOne({
         where: { id: id },
-        relations: ['yellowpages'],
       });
     if (!yellowPagesPhoneNumber) {
       throw new NotFoundException(
@@ -350,7 +377,6 @@ export class YellowPagesPhoneNumberService {
         `Yellow Pages phone number with id ${id} not found`,
       );
     }
-
     if (updateYellowPagesPhoneNumberInput.yellowpages) {
       const yellowPages: YellowPages =
         await this.yellowPagesRepository.findOneBy({
@@ -366,7 +392,9 @@ export class YellowPagesPhoneNumberService {
         yellowpages: yellowPages,
       };
     }
-    return await this.yellowPagesRepository.save(phoneNumberInputData);
+    this.phoneNumberRepository.update(id, { ...phoneNumberInputData });
+
+    return this.phoneNumberRepository.findOneOrFail({ where: { id: id } });
   }
 
   async remove(id: number) {
