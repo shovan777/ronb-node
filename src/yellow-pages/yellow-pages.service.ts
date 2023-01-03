@@ -205,9 +205,9 @@ export class YellowPagesCategoryService {
 export class YellowPagesAddressService {
   constructor(
     @InjectRepository(YellowPagesAddress)
-    private addressRepository: Repository<YellowPagesAddress>,
-    @InjectRepository(YellowPagesAddress)
-    private yellowPagesRepository: Repository<YellowPages>,
+    private readonly addressRepository: Repository<YellowPagesAddress>,
+    @InjectRepository(YellowPages)
+    private readonly yellowPagesRepository: Repository<YellowPages>,
   ) {}
 
   async create(

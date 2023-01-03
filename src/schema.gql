@@ -164,17 +164,11 @@ input CreateYellowPagesCategoryInput {
 }
 
 input CreateYellowPagesInput {
-  """Yellow Pages address(s)"""
-  address: Int
-
   """Yellow Pages category"""
   category: Int
 
   """Yellow Pages name"""
   name: String!
-
-  """Yellow Pages phone number(s)"""
-  phone_number: Int
 }
 
 input CreateYellowPagesPhoneNumberInput {
@@ -988,17 +982,11 @@ input UpdateYellowPagesCategoryInput {
 }
 
 input UpdateYellowPagesInput {
-  """Yellow Pages address(s)"""
-  address: Int
-
   """Yellow Pages category"""
   category: Int
 
   """Yellow Pages name"""
   name: String
-
-  """Yellow Pages phone number(s)"""
-  phone_number: Int
 }
 
 input UpdateYellowPagesPhoneNumberInput {

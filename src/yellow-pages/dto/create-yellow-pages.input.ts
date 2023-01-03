@@ -20,18 +20,6 @@ export class CreateYellowPagesInput {
   name: string;
 
   @Field(() => Int, {
-    description: 'Yellow Pages address(s)',
-    nullable: true,
-  })
-  address?: YellowPagesAddress[];
-
-  @Field(() => Int, {
-    description: 'Yellow Pages phone number(s)',
-    nullable: true,
-  })
-  phone_number?: YellowPagesPhoneNumber[];
-
-  @Field(() => Int, {
     description: 'Yellow Pages category',
     nullable: true,
   })
