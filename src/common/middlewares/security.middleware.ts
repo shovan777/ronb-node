@@ -4,7 +4,7 @@ import { join, resolve } from 'path';
 import { createClient } from 'redis';
 
 const sub = createClient({
-  url: `${process.env.REDIS_URL}/2`,
+  url: `${process.env.REDIS_URL}/0`,
 });
 const pub = sub.duplicate();
 const cache = sub.duplicate();

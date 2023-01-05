@@ -2,11 +2,13 @@ import { forwardRef, Module } from '@nestjs/common';
 import {
   NewsCategoryService,
   NewsService,
+  UserInterestsService,
   UserLikesNewsService,
 } from './news.service';
 import {
   NewsCategoryResolver,
   NewsResolver,
+  UserInterestsResolver,
   UserLikesNewsResolver,
 } from './news.resolver';
 import { Upload } from 'src/common/scalars/upload.scalar';
@@ -15,6 +17,7 @@ import {
   News,
   NewsCategory,
   NewsImage,
+  UserInterests,
   UserLikesNews,
   UserNewsEngagement,
 } from './entities/news.entity';
@@ -31,6 +34,8 @@ import { FilesService } from 'src/common/services/files.service';
     UserLikesNewsResolver,
     UserLikesNewsService,
     FilesService,
+    UserInterestsResolver,
+    UserInterestsService,
   ],
   imports: [
     forwardRef(() => TagsModule),
@@ -40,6 +45,7 @@ import { FilesService } from 'src/common/services/files.service';
       NewsCategory,
       UserLikesNews,
       UserNewsEngagement,
+      UserInterests,
     ]),
   ],
   exports: [NewsService],

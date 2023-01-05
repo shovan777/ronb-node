@@ -1,7 +1,8 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
 import { UserReacts } from 'src/common/entities/base.entity';
 import { Upload } from 'src/common/scalars/upload.scalar';
-import { NewsState } from '../entities/news.entity';
+import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
+import { NewsCategory, NewsState } from '../entities/news.entity';
 // import GraphQLUpload from 'graphql-upload';
 
 // registerEnumType(NewsState, {
@@ -57,4 +58,19 @@ export class CreateUserLikesNewsInput {
     nullable: true,
   })
   react?: UserReacts;
+}
+
+@InputType()
+export class CreateUserInterestsInput {
+  @Field(() => [Int], {
+    description: 'News tags interesting to the user',
+    nullable: true,
+  })
+  newsTags: Tag[];
+
+  @Field(() => [Int], {
+    description: 'News categories interesting to the user',
+    nullable: true,
+  })
+  newsCategories: NewsCategory[];
 }
