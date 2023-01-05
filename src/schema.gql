@@ -309,7 +309,7 @@ type Mutation {
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
   updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
   updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
-  updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
+  updateYellowPages(id: Int!, updateYellowPagesInput: Float!): YellowPages!
   updateYellowPagesAddress(id: Int!, updateYellowPagesAddressInput: UpdateYellowPagesAddressInput!): YellowPagesAddress!
   updateYellowPagesCategory(id: Int!, updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput!): YellowPagesCatgory!
   updateYellowPagesPhoneNumber(id: Int!, updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
@@ -854,11 +854,35 @@ type Query {
     last: Float
   ): PublicToiletResponse!
   tags: [Tag!]!
-  yellowPages: [YellowPages!]!
+  yellowPages(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): YellowPagesResponse!
   yellowPagesAddress: [YellowPagesAddress!]!
   yellowPagesAddressById(id: Int!): YellowPagesAddress!
   yellowPagesById(id: Int!): YellowPages!
-  yellowPagesCategories: [YellowPagesCatgory!]!
+  yellowPagesCategories(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): YellowPagesCategoryResponse!
   yellowPagesCategoryById(id: Int!): YellowPagesCatgory!
   yellowPagesPhoneNumber: [YellowPagesPhoneNumber!]!
   yellowPagesPhoneNumberById(id: Int!): YellowPagesPhoneNumber!
@@ -991,14 +1015,6 @@ input UpdateYellowPagesCategoryInput {
   name: String!
 }
 
-input UpdateYellowPagesInput {
-  """Yellow Pages category"""
-  category: Int
-
-  """Yellow Pages name"""
-  name: String
-}
-
 input UpdateYellowPagesPhoneNumberInput {
   """"""
   is_emergency: Boolean
@@ -1087,6 +1103,11 @@ type YellowPagesAddress {
   yellowpages: YellowPages!
 }
 
+type YellowPagesCategoryResponse {
+  page: YellowPagesCatgoryConnection!
+  pageData: PageData
+}
+
 type YellowPagesCatgory {
   """date of creation"""
   createdAt: DateTime!
@@ -1110,6 +1131,40 @@ type YellowPagesCatgory {
   yellowpages: [YellowPages!]!
 }
 
+type YellowPagesCatgoryConnection {
+  edges: [YellowPagesCatgoryEdge!]!
+  pageInfo: YellowPagesCatgoryPageInfo!
+}
+
+type YellowPagesCatgoryEdge {
+  cursor: String
+  node: YellowPagesCatgory
+}
+
+type YellowPagesCatgoryPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type YellowPagesConnection {
+  edges: [YellowPagesEdge!]!
+  pageInfo: YellowPagesPageInfo!
+}
+
+type YellowPagesEdge {
+  cursor: String
+  node: YellowPages
+}
+
+type YellowPagesPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
 type YellowPagesPhoneNumber {
   """id field for int"""
   id: Int!
@@ -1122,4 +1177,9 @@ type YellowPagesPhoneNumber {
 
   """"""
   yellowpages: YellowPages!
+}
+
+type YellowPagesResponse {
+  page: YellowPagesConnection!
+  pageData: PageData
 }

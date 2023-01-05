@@ -29,9 +29,11 @@ export class YellowPagesService {
     private yellowPagesCategoryeRepository: Repository<YellowPagesCatgory>,
   ) {}
 
-  async findAll(): Promise<YellowPages[]> {
-    return this.yellowPagesRepository.find({
+  async findAll(limit:number, offset:number): Promise<[YellowPages[], number]> {
+    return this.yellowPagesRepository.findAndCount({
       relations: ['address', 'phone_number', 'category'],
+      take: limit,
+      skip: offset,
     });
   }
 
@@ -147,8 +149,11 @@ export class YellowPagesCategoryService {
     });
   }
 
-  async findAll(): Promise<YellowPagesCatgory[]> {
-    return this.yellowPagesCategoryRepository.find({});
+  async findAll(limit:number, offset:number): Promise<[YellowPagesCatgory[], number]> {
+    return this.yellowPagesCategoryRepository.findAndCount({
+      take: limit,
+      skip: offset,
+    });
   }
 
   async findOne(id: number): Promise<YellowPagesCatgory> {
