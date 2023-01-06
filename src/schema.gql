@@ -163,6 +163,9 @@ scalar DateTime
 input FilterNewsInput {
   """News category"""
   category: Int
+
+  """News title"""
+  title: String
 }
 
 """GeoJSON Point"""
