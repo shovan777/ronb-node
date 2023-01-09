@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import {
   CreateNewsCategoryInput,
   CreateNewsInput,
@@ -165,6 +165,9 @@ export class NewsService {
     const whereOptions: any = {};
     if (publishedOnly) {
       whereOptions.state = NewsState.PUBLISHED;
+    }
+    if (filterNewsInput?.title){
+      whereOptions.title = Like(`%${filterNewsInput.title}%`)
     }
     return this.newsRepository.findAndCount({
       relations: {
