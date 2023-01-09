@@ -9,6 +9,7 @@ import {
   CreateYellowPagesInput,
   CreateYellowPagesPhoneNumberInput,
 } from './dto/create-yellow-pages.input';
+import { FetchPaginationArgs } from '../common/pagination/fetch-pagination-input';
 import {
   UpdateYellowPagesAddressInput,
   UpdateYellowPagesCategoryInput,
@@ -61,7 +62,14 @@ export class YellowPagesResolver {
       sliceStart: offset || 0,
     });
 
-    return { page, pageData: { count, limit, offset, curTime: new Date() } };
+    return { page, pageData: { count, limit, offset } };
+  }
+
+  @Query(() => [YellowPages], { name: 'yellowPagesAdmin' })
+  async getAllYellowPagesAdmin(
+    @Args() args: FetchPaginationArgs,
+  ): Promise<any> {
+    return this.yellowPagesService.adminFindAll(args);
   }
 
   @Query(() => YellowPages, { name: 'yellowPagesById' })
@@ -123,7 +131,14 @@ export class YellowPagesCategoryResolver {
       sliceStart: offset || 0,
     });
 
-    return { page, pageData: { count, limit, offset, curTime: new Date() } };
+    return { page, pageData: { count, limit, offset } };
+  }
+
+  @Query(() => [YellowPagesCatgory], { name: 'yellowPagesCategoryAdmin' })
+  async getAllYellowPagesCategoryAdmin(
+    @Args() args: FetchPaginationArgs,
+  ): Promise<any> {
+    return this.yellowPagesCategoryService.adminFindAll(args);
   }
 
   @Query(() => YellowPagesCatgory, { name: 'yellowPagesCategoryById' })

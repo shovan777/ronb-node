@@ -872,6 +872,7 @@ type Query {
   ): YellowPagesResponse!
   yellowPagesAddress: [YellowPagesAddress!]!
   yellowPagesAddressById(id: Int!): YellowPagesAddress!
+  yellowPagesAdmin(skip: Int = 0, take: Int = 25): [YellowPages!]!
   yellowPagesById(id: Int!): YellowPages!
   yellowPagesCategories(
     """Paginate after cursor"""
@@ -886,6 +887,7 @@ type Query {
     """Paginate last"""
     last: Float
   ): YellowPagesCategoryResponse!
+  yellowPagesCategoryAdmin(skip: Int = 0, take: Int = 25): [YellowPagesCatgory!]!
   yellowPagesCategoryById(id: Int!): YellowPagesCatgory!
   yellowPagesPhoneNumber: [YellowPagesPhoneNumber!]!
   yellowPagesPhoneNumberById(id: Int!): YellowPagesPhoneNumber!
