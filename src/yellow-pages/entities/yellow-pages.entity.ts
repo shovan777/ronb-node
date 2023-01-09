@@ -62,7 +62,6 @@ export class YellowPages {
   })
   @ManyToOne(() => YellowPagesCatgory, (category) => category.yellowpages, {
     nullable: true,
-    onDelete: 'SET NULL',
   })
   category?: YellowPagesCatgory;
 }
@@ -131,6 +130,20 @@ export enum District {
   Rukum = 'Rukum',
   Rupandehi = 'Rupandehi',
   Salyan = 'Salyan',
+  Sankhuwasabha = "Sankhuwasabha",
+  Saptari = "Saptari",
+  Sarlahi = "Sarlahi",
+  Sindhuli = "Sindhuli",
+  Sindhupalchok = "Sindhupalchok",
+  Siraha = "Siraha",
+  Solukhumbu = "Solukhumbu",
+  Sunsari = "Sunsari",
+  Surkhet = "Surkhet",
+  Syangja = "Syangja",
+  Tanahu = "Tanahu",
+  Taplejung = "Taplejung",
+  Terhathum = "Terhathum",
+  Udayapur = "Udayapur"
 }
 
 export enum Province {
