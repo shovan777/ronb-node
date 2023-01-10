@@ -32,8 +32,11 @@ import {
   YellowPagesPhoneNumberService,
   YellowPagesCategoryService,
 } from './yellow-pages.service';
+import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
+import { UseInterceptors } from '@nestjs/common';
 
 @Resolver()
+@UseInterceptors(ErrorLoggerInterceptor)
 export class YellowPagesResolver {
   constructor(private readonly yellowPagesService: YellowPagesService) {}
 
