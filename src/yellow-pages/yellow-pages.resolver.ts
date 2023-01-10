@@ -33,7 +33,8 @@ import {
   YellowPagesCategoryService,
 } from './yellow-pages.service';
 import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
-import { UseInterceptors } from '@nestjs/common';
+import { UseGuards, UseInterceptors } from '@nestjs/common';
+import { AdminGuard } from 'src/common/guards/admin.guard';
 
 @Resolver()
 @UseInterceptors(ErrorLoggerInterceptor)
@@ -69,6 +70,7 @@ export class YellowPagesResolver {
   }
 
   @Query(() => [YellowPages], { name: 'yellowPagesAdmin' })
+  @UseGuards(AdminGuard)
   async getAllYellowPagesAdmin(
     @Args() args: FetchPaginationArgs,
   ): Promise<any> {
