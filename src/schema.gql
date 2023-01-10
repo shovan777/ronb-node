@@ -326,7 +326,7 @@ type Mutation {
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
   updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
   updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
-  updateYellowPages(id: Int!, updateYellowPagesInput: Float!): YellowPages!
+  updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
   updateYellowPagesAddress(id: Int!, updateYellowPagesAddressInput: UpdateYellowPagesAddressInput!): YellowPagesAddress!
   updateYellowPagesCategory(id: Int!, updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput!): YellowPagesCatgory!
   updateYellowPagesPhoneNumber(id: Int!, updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
@@ -1030,6 +1030,14 @@ input UpdateYellowPagesAddressInput {
 input UpdateYellowPagesCategoryInput {
   """Yellow Pages name"""
   name: String!
+}
+
+input UpdateYellowPagesInput {
+  """Yellow Pages category"""
+  category: Int
+
+  """Yellow Pages name"""
+  name: String
 }
 
 input UpdateYellowPagesPhoneNumberInput {

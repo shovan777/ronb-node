@@ -73,9 +73,9 @@ export class YellowPagesResolver {
   async updateYellowPages(
     @Args('id', { type: () => Int }) id: number,
     @Args('updateYellowPagesInput')
+    updateYellowPagesInput: UpdateYellowPagesInput,
     @User()
     user: number,
-    updateYellowPagesInput: UpdateYellowPagesInput,
   ) {
     checkUserAuthenticated(user);
     return await this.yellowPagesService.update(id, updateYellowPagesInput);
