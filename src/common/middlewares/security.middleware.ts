@@ -48,8 +48,10 @@ export class SecurityMiddleware implements NestMiddleware {
     }
     // TODO: GET user for cache if exists
     const cached_user = await cache.get(jwt_auth);
+    const cachedUser = JSON.parse(cached_user);
     if (cached_user) {
-      req.user = parseInt(cached_user);
+      req.user = parseInt(cachedUser.user);
+      req.isAdmin = cachedUser.is_admin;
       req.resume();
       next();
       return;
@@ -57,12 +59,17 @@ export class SecurityMiddleware implements NestMiddleware {
     // req.pause();
     await pub.publish('nodeLdjango-node', jwt_auth);
     await sub.subscribe('nodeLdjango-django', (message) => {
-      const { user_id, ttl = 500 } = JSON.parse(message);
+      const { user_id, is_admin, ttl = 500 } = JSON.parse(message);
       if (user_id) {
         // console.log(`hello again ${user_id}`);
         const user = user_id;
         req.user = parseInt(user);
-        cache.set(jwt_auth, user);
+        req.isAdmin = is_admin;
+        const userProps = { user, is_admin };
+        const userPropsJson = JSON.stringify(userProps);
+        cache.set(jwt_auth, userPropsJson);
+        // console.log(userPropsJson);
+        // cache.set(jwt_auth, user);
         cache.expire(jwt_auth, ttl);
         // req.resume();
         // next();
