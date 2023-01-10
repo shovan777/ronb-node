@@ -7,6 +7,7 @@ import {
   CreateYellowPagesInput,
   CreateYellowPagesPhoneNumberInput,
 } from './dto/create-yellow-pages.input';
+import { FetchPaginationArgs } from '../common/pagination/fetch-pagination-input';
 import {
   UpdateYellowPagesAddressInput,
   UpdateYellowPagesCategoryInput,
@@ -29,11 +30,21 @@ export class YellowPagesService {
     private yellowPagesCategoryeRepository: Repository<YellowPagesCatgory>,
   ) {}
 
-  async findAll(limit:number, offset:number): Promise<[YellowPages[], number]> {
+  async findAll(
+    limit: number,
+    offset: number,
+  ): Promise<[YellowPages[], number]> {
     return this.yellowPagesRepository.findAndCount({
       relations: ['address', 'phone_number', 'category'],
       take: limit,
       skip: offset,
+    });
+  }
+
+  async adminFindAll(args: FetchPaginationArgs): Promise<YellowPages[]> {
+    return await this.yellowPagesRepository.find({
+      take: args.take,
+      skip: args.skip,
     });
   }
 
@@ -149,11 +160,21 @@ export class YellowPagesCategoryService {
     });
   }
 
-  async findAll(limit:number, offset:number): Promise<[YellowPagesCatgory[], number]> {
+  async findAll(
+    limit: number,
+    offset: number,
+  ): Promise<[YellowPagesCatgory[], number]> {
     return this.yellowPagesCategoryRepository.findAndCount({
       take: limit,
       skip: offset,
     });
+  }
+
+  async adminFindAll(args: FetchPaginationArgs): Promise<YellowPagesCatgory[]> {
+    return await this.yellowPagesCategoryRepository.find({
+      take: args.take,
+      skip: args.skip
+    })
   }
 
   async findOne(id: number): Promise<YellowPagesCatgory> {
