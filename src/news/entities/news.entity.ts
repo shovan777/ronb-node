@@ -8,12 +8,14 @@ import {
 import { NewsComment } from 'src/comments/entities/comment.entity';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
 import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
-import { NewsTaggit } from 'src/tags/entities/tag.entity';
+import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
@@ -35,6 +37,13 @@ export class NewsCategory extends CreatorBaseEntity {
   @Field(() => [News], { description: 'News in this category' })
   @OneToMany(() => News, (news) => news.category)
   news: News[];
+
+  // @Field(() => [UserInterests], { description: 'User interests' })
+  @ManyToMany(
+    () => UserInterests,
+    (userInterests) => userInterests.newsCategories,
+  )
+  userInterests: UserInterests[];
 }
 
 export enum NewsState {
@@ -51,7 +60,7 @@ registerEnumType(NewsState, {
 @Entity()
 export class News {
   @Field(() => Int, { description: 'id field for int' })
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn()  
   id: number;
 
   // @Field({ description: 'News name' })
@@ -236,6 +245,37 @@ export class UserNewsEngagement {
     nullable: true,
   })
   engagementDuration?: number;
+}
+
+@ObjectType()
+@Entity()
+export class UserInterests {
+  // stores the news tags that are of interest to the user
+  @Field(() => Int, { description: 'id field for user' })
+  @PrimaryColumn({ type: 'int', nullable: false })
+  userId: number;
+
+  // relation to tags
+  @Field(() => [Tag], {
+    description: 'News tags of interest to user',
+    nullable: true,
+  })
+  @ManyToMany(() => Tag, (tag) => tag.userInterests, {
+    nullable: true,
+  })
+  @JoinTable()
+  newsTags?: Tag[];
+
+  // relation to categories
+  @Field(() => [NewsCategory], {
+    description: 'News categories of interest to user',
+    nullable: true,
+  })
+  @ManyToMany(() => NewsCategory, (category) => category.userInterests, {
+    nullable: true,
+  })
+  @JoinTable()
+  newsCategories?: NewsCategory[];
 }
 // @Entity()
 // export class NewsTag {

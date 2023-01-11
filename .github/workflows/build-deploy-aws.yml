@@ -1,0 +1,81 @@
+name: CI/CD to AWS
+on:
+  # pull_request:
+  #   types: [opened]
+  push:
+    branches:
+      - dev
+
+  # allows to manually run the workflow in actions tab
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version"
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build_and_push:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    outputs:
+      img_tag: ${{steps.meta.outputs.tags}}      
+    environment: aws
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for docker
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # minimal (short sha)
+            type=sha
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          target: production
+          push: true
+          # push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    name: Deploy to Amazon EC2 instance
+    runs-on: ubuntu-latest
+    environment: aws
+    needs: build_and_push
+
+    steps:
+      - name: Deploy to aws EC2 instance via SSH action
+        uses: appleboy/ssh-action@v0.1.3
+        env: 
+            TAG: ${{needs.build_and_push.outputs.img_tag}}
+            #${{ github.sha }}_${{ github.event.inputs.version }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG
+          script: |
+            cd ronb-platform
+            export NEST_TAG=$(echo $TAG)
+            echo NEST_IMAGE=$NEST_TAG > .env.nestimg
+            docker compose up -d api-nest
