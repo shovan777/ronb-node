@@ -34,14 +34,20 @@ import {
 } from './yellow-pages.service';
 import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
-import { AdminGuard } from 'src/common/guards/admin.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enum/role.enum';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { MakePublic } from 'src/common/decorators/public.decorator';
 
 @Resolver()
 @UseInterceptors(ErrorLoggerInterceptor)
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
 export class YellowPagesResolver {
   constructor(private readonly yellowPagesService: YellowPagesService) {}
 
   @Mutation(() => YellowPages)
+  @Roles(Role.Writer)
   async createYellowPages(
     @Args('createYellowPagesInput')
     createYellowPagesInput: CreateYellowPagesInput,
@@ -52,6 +58,7 @@ export class YellowPagesResolver {
   }
 
   @Query(() => YellowPagesResponse, { name: 'yellowPages' })
+  @MakePublic()
   async getAllYellowPages(
     @Args() args: ConnectionArgs,
   ): Promise<YellowPagesResponse> {
@@ -70,7 +77,8 @@ export class YellowPagesResolver {
   }
 
   @Query(() => [YellowPages], { name: 'yellowPagesAdmin' })
-  @UseGuards(AdminGuard)
+  // @UseGuards(AdminGuard)
+  @Roles(Role.Writer)
   async getAllYellowPagesAdmin(
     @Args() args: FetchPaginationArgs,
   ): Promise<any> {
@@ -78,6 +86,7 @@ export class YellowPagesResolver {
   }
 
   @Query(() => YellowPages, { name: 'yellowPagesById' })
+  @MakePublic()
   async findOne(@Args('id', { type: () => Int }) id: number) {
     return this.yellowPagesService.findOne(id);
   }
