@@ -54,7 +54,7 @@ registerEnumType(NewsState, {
 @Entity()
 export class News {
   @Field(() => Int, { description: 'id field for int' })
-  @PrimaryGeneratedColumn()  
+  @PrimaryGeneratedColumn()
   id: number;
 
   // @Field({ description: 'News name' })
