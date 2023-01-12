@@ -6,6 +6,7 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
+import { PUBLIC_KEY } from '../decorators/public.decorator';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { Role } from '../enum/role.enum';
 
@@ -20,12 +21,13 @@ export class RolesGuard implements CanActivate {
       ctx.getHandler(),
       ctx.getClass(),
     ]);
-    if (!requiredRoles) {
+    const isPublic = this.reflector.get<boolean>(PUBLIC_KEY, ctx.getHandler());
+    if (!requiredRoles || isPublic) {
       return true;
     }
 
     const { user } = ctx.getContext().req;
-    console.log(user, requiredRoles);
+    // console.log(user, requiredRoles);
 
     return requiredRoles.some((role) => user.role === role);
   }

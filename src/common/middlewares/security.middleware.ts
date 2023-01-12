@@ -49,7 +49,6 @@ export class SecurityMiddleware implements NestMiddleware {
     // TODO: GET user for cache if exists
     const cached_user = await cache.get(jwt_auth);
     const cachedUser = JSON.parse(cached_user);
-    console.log('Hi cachedUser', cachedUser);
     if (cached_user) {
       // req.user.id = parseInt(cachedUser.user);
       // req.user.isAdmin = cachedUser.is_admin;
@@ -71,7 +70,6 @@ export class SecurityMiddleware implements NestMiddleware {
           isAdmin: is_admin,
           role: role,
         };
-        console.log(req.user);
         // const userProps = { user, is_admin };
         // const userPropsJson = JSON.stringify(userProps);
         // cache.set(jwt_auth, userPropsJson);
