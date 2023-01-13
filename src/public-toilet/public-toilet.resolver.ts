@@ -16,16 +16,14 @@ import PublicToiletResponse from './public-toilet.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
-import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
 import { Role } from 'src/common/enum/role.enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { MakePublic } from 'src/common/decorators/public.decorator';
 
-@UseInterceptors(ErrorLoggerInterceptor)
+@Resolver(() => PublicToilet)
 @Roles(Role.Admin, Role.SuperAdmin)
 @UseGuards(RolesGuard)
-@Resolver(() => PublicToilet)
 export class PublicToiletResolver {
     constructor(private readonly publicToiletService: PublicToiletService) {}
 

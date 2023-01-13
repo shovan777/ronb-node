@@ -39,7 +39,6 @@ import { User } from 'src/common/decorators/user.decorator';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
 import { NewsTaggitService, TagsService } from 'src/tags/tags.service';
-import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -50,7 +49,6 @@ import { MakePublic } from 'src/common/decorators/public.decorator';
 // };
 
 @Resolver(() => News)
-@UseInterceptors(ErrorLoggerInterceptor)
 @Roles(Role.Admin, Role.SuperAdmin)
 @UseGuards(RolesGuard)
 export class NewsResolver {
@@ -200,7 +198,6 @@ export class NewsResolver {
 }
 
 @Resolver(() => NewsCategory)
-@UseInterceptors(ErrorLoggerInterceptor)
 @Roles(Role.Admin, Role.SuperAdmin)
 @UseGuards(RolesGuard)
 export class NewsCategoryResolver {
@@ -257,7 +254,6 @@ export class NewsCategoryResolver {
 }
 
 @Resolver(() => UserLikesNews)
-@UseInterceptors(ErrorLoggerInterceptor)
 export class UserLikesNewsResolver {
   constructor(private readonly userLikesNewsService: UserLikesNewsService) {}
   // checkUserAuthenticated(user: number) {
@@ -290,7 +286,6 @@ export class UserLikesNewsResolver {
 }
 
 @Resolver(() => UserInterests)
-@UseInterceptors(ErrorLoggerInterceptor)
 export class UserInterestsResolver {
   constructor(
     private readonly userInterestsService: UserInterestsService,

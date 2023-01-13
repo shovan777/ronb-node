@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { AppModule } from './app.module';
+import { ErrorLoggerInterceptor } from './common/interceptors/errorlogger.interceptor';
 import { SecurityMiddleware } from './common/middlewares/security.middleware';
 
 async function bootstrap() {
@@ -21,6 +22,7 @@ async function bootstrap() {
       },
     }),
   );
+  app.useGlobalInterceptors(new ErrorLoggerInterceptor())
   const PORT = configService.get('PORT') || 3000;
   await app.listen(PORT);
   console.log(`Server running on port ${PORT}`);
