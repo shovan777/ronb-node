@@ -50,30 +50,35 @@ export class SecurityMiddleware implements NestMiddleware {
     const cached_user = await cache.get(jwt_auth);
     const cachedUser = JSON.parse(cached_user);
     if (cached_user) {
-      req.user = parseInt(cachedUser.user);
-      req.isAdmin = cachedUser.is_admin;
+      // req.user.id = parseInt(cachedUser.user);
+      // req.user.isAdmin = cachedUser.is_admin;
+      // req.user.role = cachedUser.role;
+      req.user = cachedUser;
       req.resume();
       next();
       return;
     }
+    // not needed
     // req.pause();
     await pub.publish('nodeLdjango-node', jwt_auth);
     await sub.subscribe('nodeLdjango-django', (message) => {
-      const { user_id, is_admin, ttl = 500 } = JSON.parse(message);
+      const { user_id, is_admin, role, ttl = 500 } = JSON.parse(message);
       if (user_id) {
-        // console.log(`hello again ${user_id}`);
-        const user = user_id;
-        req.user = parseInt(user);
-        req.isAdmin = is_admin;
-        const userProps = { user, is_admin };
-        const userPropsJson = JSON.stringify(userProps);
-        cache.set(jwt_auth, userPropsJson);
+        console.log(`hello again ${user_id}`);
+        req.user = {
+          id: parseInt(user_id),
+          isAdmin: is_admin,
+          role: role,
+        };
+        // const userProps = { user, is_admin };
+        // const userPropsJson = JSON.stringify(userProps);
+        // cache.set(jwt_auth, userPropsJson);
+        cache.set(jwt_auth, JSON.stringify(req.user));
         // console.log(userPropsJson);
         // cache.set(jwt_auth, user);
         cache.expire(jwt_auth, ttl);
         // req.resume();
         // next();
-        // TODO: cache the user to redis
       } else {
         console.log('Please login first');
         req.user = null;
