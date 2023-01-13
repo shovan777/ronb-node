@@ -11,23 +11,32 @@ import { PublicToiletService } from './public-toilet.service';
 import { PublicToilet, PublicToiletImage } from './entities/public-toilet.entity';
 import { CreatePublicToiletInput } from './dto/create-public-toilet.input';
 import { UpdatePublicToiletInput } from './dto/update-public-toilet.input';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, UseGuards, UseInterceptors } from '@nestjs/common';
 import PublicToiletResponse from './public-toilet.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
+import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
+import { Role } from 'src/common/enum/role.enum';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { MakePublic } from 'src/common/decorators/public.decorator';
 
-
+@UseInterceptors(ErrorLoggerInterceptor)
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
 @Resolver(() => PublicToilet)
 export class PublicToiletResolver {
     constructor(private readonly publicToiletService: PublicToiletService) {}
 
     @Mutation(() => PublicToilet)
+    @Roles(Role.Writer)
     async createPublicToilet(@Args('createPublicToiletInput') createPublicToiletInput: CreatePublicToiletInput) {
         return await this.publicToiletService.create(createPublicToiletInput);
     }
 
     @Query(() => PublicToiletResponse, { name: 'publicToilets' })
+    @MakePublic()
     async findAll(@Args() args: ConnectionArgs): Promise<PublicToiletResponse> {
         const { limit, offset } = args.pagingParams();
         const [publicToilets, count] = await this.publicToiletService.findAll(limit, offset);
@@ -39,6 +48,7 @@ export class PublicToiletResolver {
     }
 
     @Query(() => PublicToilet, { name: 'publicToiletById' })
+    @MakePublic()
     findOne(
         @Args('id', { type: () => Int }) id: number,
     ): Promise<PublicToilet | NotFoundException> {
@@ -46,6 +56,7 @@ export class PublicToiletResolver {
     }
 
     @Query(() => PublicToiletResponse, { name: 'publicToiletNearMe' })
+    @MakePublic()
     async findPublicToiletNearMe(@Args() args: ConnectionArgs, @Args('origin') origin: GeoJSONPointScalar): Promise<PublicToiletResponse> {
         const { limit, offset } = args.pagingParams();
         const [publicToilets, count] = await this.publicToiletService.findPublicToiletNearMe(
@@ -60,6 +71,7 @@ export class PublicToiletResolver {
     }
 
     @ResolveField(() => [PublicToiletImage])
+    @MakePublic()
     async images(@Parent() publicToilet: PublicToilet) {
         const {id}  = publicToilet;
         if (publicToilet.images) {
