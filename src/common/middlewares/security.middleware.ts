@@ -60,9 +60,25 @@ export class SecurityMiddleware implements NestMiddleware {
     }
     // not needed
     // req.pause();
+    const node_msg_key = jwt_auth.slice(-3);
+    let msg_key = '';
+    // Send message to django for authentication
     await pub.publish('nodeLdjango-node', jwt_auth);
+
+    // Listen for message from django containing user info
     await sub.subscribe('nodeLdjango-django', (message) => {
-      const { user_id, is_admin, role, ttl = 500 } = JSON.parse(message);
+      const {
+        user_id,
+        is_admin,
+        role,
+        ttl = 500,
+        django_msg_key,
+      } = JSON.parse(message);
+      msg_key = django_msg_key;
+      // change byte string to string
+      console.log(`the message: ${msg_key}==${node_msg_key}`);
+      const truth = msg_key == node_msg_key;
+      console.log(`the message: ${truth}`);
       if (user_id) {
         console.log(`hello again ${user_id}`);
         req.user = {
@@ -70,12 +86,7 @@ export class SecurityMiddleware implements NestMiddleware {
           isAdmin: is_admin,
           role: role,
         };
-        // const userProps = { user, is_admin };
-        // const userPropsJson = JSON.stringify(userProps);
-        // cache.set(jwt_auth, userPropsJson);
         cache.set(jwt_auth, JSON.stringify(req.user));
-        // console.log(userPropsJson);
-        // cache.set(jwt_auth, user);
         cache.expire(jwt_auth, ttl);
         // req.resume();
         // next();
@@ -85,16 +96,31 @@ export class SecurityMiddleware implements NestMiddleware {
         // res.status(401).send('Please login first');
       }
       // next();
-      sub.unsubscribe('nodeLdjango-django').then(() => {
-        // console.log('unsubscribed from the channel');
-      });
+      if (msg_key == node_msg_key) {
+        sub.unsubscribe('nodeLdjango-django').then(() => {
+          console.log('unsubscribed from the channel');
+        });
+      }
+      // sub.unsubscribe('nodeLdjango-django').then(() => {
+      //   console.log('unsubscribed from the channel');
+      // });
+
       // req.resume();
       // next();
     });
-    // while (!truth) {
-    //   // console.log(`waiting for the message ${truth}`);
     // }
-    await sleep(0.5);
+    // start timer
+    const start = new Date().getTime();
+    // wait for matching message and 2 seconds
+    while (msg_key != node_msg_key && new Date().getTime() - start < 2000) {
+      console.log(
+        `waiting for the message ${msg_key} ${node_msg_key} ${
+          new Date().getTime() - start < 2000
+        }`,
+      );
+      await sleep(0.05);
+    }
+    // await sleep(0.5);
     req.resume();
     next();
   }
