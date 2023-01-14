@@ -2,7 +2,7 @@ import { InputType, Int, Field } from '@nestjs/graphql';
 import { UserReacts } from 'src/common/entities/base.entity';
 import { Upload } from 'src/common/scalars/upload.scalar';
 import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
-import { NewsCategory, NewsState } from '../entities/news.entity';
+import { NewsCategory, NewsLanguage, NewsState } from '../entities/news.entity';
 // import GraphQLUpload from 'graphql-upload';
 
 // registerEnumType(NewsState, {
@@ -38,6 +38,8 @@ export class CreateNewsInput {
   pinned?: boolean;
   @Field(() => NewsState, { description: 'News Status', nullable: true })
   state?: NewsState;
+  @Field(() => NewsLanguage, { description: 'News Language', nullable: false })
+  language?: NewsLanguage;
 }
 
 @InputType()
