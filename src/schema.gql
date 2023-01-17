@@ -11,7 +11,7 @@ type Author {
   name: String!
 
   """User profile information"""
-  profile: Profile!
+  profile: Profile
 }
 
 type CommentsResponse {
@@ -47,6 +47,9 @@ input CreateNewsInput {
 
   """News Image source"""
   imgSource: String
+
+  """News Language"""
+  language: NewsLanguage!
 
   """News link"""
   link: String
@@ -279,6 +282,9 @@ input FilterNewsInput {
   """News category"""
   category: Int
 
+  """News Language"""
+  language: NewsLanguage
+
   """News title"""
   title: String
 }
@@ -354,6 +360,9 @@ type News {
 
   """News Image source"""
   imgSource: String
+
+  """News language"""
+  language: NewsLanguage!
 
   """React of user to the news"""
   like: UserLikesNews
@@ -491,6 +500,11 @@ type NewsImage {
 
   """News image updatedBy"""
   updatedBy: Int!
+}
+
+enum NewsLanguage {
+  ENGLISH
+  NEPALI
 }
 
 type NewsPageInfo {
@@ -966,6 +980,9 @@ input UpdateNewsInput {
 
   """News Image source"""
   imgSource: String
+
+  """News Language"""
+  language: NewsLanguage
 
   """News link"""
   link: String

@@ -22,6 +22,7 @@ export class PublicToiletService {
 
   async create(
     publicToiletInput: CreatePublicToiletInput,
+    user: number
   ): Promise<PublicToilet> {
     let publicToiletInputData = {
       ...publicToiletInput,
@@ -42,17 +43,15 @@ export class PublicToiletService {
         singleImage: file_path,
       };
     }
-
     const publicToiletData: PublicToilet =
       await this.publicToiletRepository.save({
         ...publicToiletInputData,
         publishedAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 1,
-        updatedBy: 1,
+        createdBy: user,
+        updatedBy: user,
       });
-
     if (publicToiletInput.images) {
       const imagePaths = publicToiletInput.images.map(async (image) => {
         const imageFile: any = await image;
@@ -68,12 +67,12 @@ export class PublicToiletService {
       const publicToiletImages: Promise<PublicToiletImage>[] = imagePaths.map(
         async (imagePath) => {
           return await this.publicToiletImageRepository.save({
-            imageURL: await imagePath,
+            image: await imagePath,
             createdAt: new Date(),
             updatedAt: new Date(),
             publicToilet: publicToiletData,
-            createdBy: 1,
-            updatedBy: 1,
+            createdBy: user,
+            updatedBy: user,
           });
         },
       );
@@ -107,7 +106,7 @@ export class PublicToiletService {
     return new NotFoundException(`PublicToilet with id ${id} not found`);
   }
 
-  async update(id: number, updatePublicToiletInput: UpdatePublicToiletInput) {
+  async update(id: number, updatePublicToiletInput: UpdatePublicToiletInput, user: number) {
     const publicToilet: PublicToilet =
       await this.publicToiletRepository.findOne({
         where: { id: id },
@@ -147,12 +146,12 @@ export class PublicToiletService {
         const publicToiletImages: Promise<PublicToiletImage>[] = imagePaths.map(
           async (imagePath) => {
             return await this.publicToiletImageRepository.save({
-              imageURL: await imagePath,
+              image: await imagePath,
               createdAt: new Date(),
               updatedAt: new Date(),
               publicToilet: publicToilet,
-              createdBy: 1,
-              updatedBy: 1,
+              createdBy: user,
+              updatedBy: user,
             });
           },
         );
@@ -162,7 +161,7 @@ export class PublicToiletService {
         ...publicToilet,
         ...publicToiletInputData,
         updatedAt: new Date(),
-        updatedBy: 1,
+        updatedBy: user,
       };
       return this.publicToiletRepository.save(updatedPublicToilet);
     }

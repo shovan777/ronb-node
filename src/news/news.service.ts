@@ -169,6 +169,9 @@ export class NewsService {
     if (filterNewsInput?.title){
       whereOptions.title = Like(`%${filterNewsInput.title}%`)
     }
+    if (filterNewsInput?.language) {
+      whereOptions.language = filterNewsInput.language
+    }
     return this.newsRepository.findAndCount({
       relations: {
         category: true,

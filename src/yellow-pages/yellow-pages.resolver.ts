@@ -32,12 +32,21 @@ import {
   YellowPagesPhoneNumberService,
   YellowPagesCategoryService,
 } from './yellow-pages.service';
+import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
+import { UseGuards, UseInterceptors } from '@nestjs/common';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enum/role.enum';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { MakePublic } from 'src/common/decorators/public.decorator';
 
 @Resolver()
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
 export class YellowPagesResolver {
   constructor(private readonly yellowPagesService: YellowPagesService) {}
 
   @Mutation(() => YellowPages)
+  @Roles(Role.Writer)
   async createYellowPages(
     @Args('createYellowPagesInput')
     createYellowPagesInput: CreateYellowPagesInput,
@@ -48,6 +57,7 @@ export class YellowPagesResolver {
   }
 
   @Query(() => YellowPagesResponse, { name: 'yellowPages' })
+  @MakePublic()
   async getAllYellowPages(
     @Args() args: ConnectionArgs,
   ): Promise<YellowPagesResponse> {
@@ -66,6 +76,8 @@ export class YellowPagesResolver {
   }
 
   @Query(() => [YellowPages], { name: 'yellowPagesAdmin' })
+  // @UseGuards(AdminGuard)
+  @Roles(Role.Writer)
   async getAllYellowPagesAdmin(
     @Args() args: FetchPaginationArgs,
   ): Promise<any> {
@@ -73,6 +85,7 @@ export class YellowPagesResolver {
   }
 
   @Query(() => YellowPages, { name: 'yellowPagesById' })
+  @MakePublic()
   async findOne(@Args('id', { type: () => Int }) id: number) {
     return this.yellowPagesService.findOne(id);
   }
@@ -100,12 +113,15 @@ export class YellowPagesResolver {
 }
 
 @Resolver()
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
 export class YellowPagesCategoryResolver {
   constructor(
     private readonly yellowPagesCategoryService: YellowPagesCategoryService,
   ) {}
 
   @Mutation(() => YellowPagesCatgory)
+  @Roles(Role.Writer)
   async createYellowPagesCategory(
     @Args('createYellowPagesCategoryInput')
     createYellowPagesCategoryInput: CreateYellowPagesCategoryInput,
@@ -119,6 +135,7 @@ export class YellowPagesCategoryResolver {
   }
 
   @Query(() => YellowPagesCategoryResponse, { name: 'yellowPagesCategories' })
+  @MakePublic()
   async getAllYellowPagesCategory(
     @Args() args: ConnectionArgs,
   ): Promise<YellowPagesCategoryResponse> {
@@ -135,6 +152,7 @@ export class YellowPagesCategoryResolver {
   }
 
   @Query(() => [YellowPagesCatgory], { name: 'yellowPagesCategoryAdmin' })
+  @Roles(Role.Writer)
   async getAllYellowPagesCategoryAdmin(
     @Args() args: FetchPaginationArgs,
   ): Promise<any> {
@@ -142,6 +160,7 @@ export class YellowPagesCategoryResolver {
   }
 
   @Query(() => YellowPagesCatgory, { name: 'yellowPagesCategoryById' })
+  @MakePublic()
   async findOne(
     @Args('id', { type: () => Int }) id: number,
   ): Promise<YellowPagesCatgory> {
@@ -173,12 +192,15 @@ export class YellowPagesCategoryResolver {
 }
 
 @Resolver()
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
 export class YellowPagesAddressResolver {
   constructor(
     private readonly yellowPagesAddressService: YellowPagesAddressService,
   ) {}
 
   @Mutation(() => YellowPagesAddress)
+  @Roles(Role.Writer)
   async createYellowPagesAddress(
     @Args('createYellowPagesAddressInput')
     createYellowPagesAddressInput: CreateYellowPagesAddressInput,
@@ -191,11 +213,13 @@ export class YellowPagesAddressResolver {
   }
 
   @Query(() => [YellowPagesAddress], { name: 'yellowPagesAddress' })
+  @MakePublic()
   async findAll(): Promise<YellowPagesAddress[]> {
     return this.yellowPagesAddressService.findAll();
   }
 
   @Query(() => YellowPagesAddress, { name: 'yellowPagesAddressById' })
+  @MakePublic()
   async findOne(@Args('id', { type: () => Int }) id: number) {
     return this.yellowPagesAddressService.findOne(id);
   }
@@ -225,12 +249,15 @@ export class YellowPagesAddressResolver {
 }
 
 @Resolver()
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
 export class YellowPagesPhoneNumberResolver {
   constructor(
     private readonly yellowPagesPhoneNumberService: YellowPagesPhoneNumberService,
   ) {}
 
   @Mutation(() => YellowPagesPhoneNumber)
+  @Roles(Role.Writer)
   async createYellowPagesPhoneNumber(
     @Args('createYellowPagesPhoneNumberInput')
     createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput,
@@ -243,11 +270,13 @@ export class YellowPagesPhoneNumberResolver {
   }
 
   @Query(() => [YellowPagesPhoneNumber], { name: 'yellowPagesPhoneNumber' })
+  @MakePublic()
   async findAll(): Promise<YellowPagesPhoneNumber[]> {
     return await this.yellowPagesPhoneNumberService.findAll();
   }
 
   @Query(() => YellowPagesPhoneNumber, { name: 'yellowPagesPhoneNumberById' })
+  @MakePublic()
   async findOne(@Args('id', { type: () => Int }) id: number) {
     return this.yellowPagesPhoneNumberService.findOne(id);
   }

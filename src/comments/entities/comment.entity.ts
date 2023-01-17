@@ -174,6 +174,6 @@ export class Author {
   // @Field({ description: 'User lastname' })
   // lastName: string;
 
-  @Field(() => Profile, { description: 'User profile information' })
+  @Field(() => Profile, { description: 'User profile information', nullable:true })
   profile: Profile;
 }
