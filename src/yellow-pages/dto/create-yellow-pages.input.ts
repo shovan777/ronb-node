@@ -7,11 +7,15 @@ import {
   YellowPages,
   YellowPagesCatgory,
 } from '../entities/yellow-pages.entity';
+import { State as YellowPagesState } from '../../common/enum/state.enum'
 
 @InputType()
 export class CreateYellowPagesCategoryInput {
   @Field({ description: 'Yellow Pages name' })
   name: string;
+
+  @Field({ description: 'Yellow Pages Category description', nullable: true })
+  description?:string;
 }
 
 @InputType()
@@ -19,11 +23,17 @@ export class CreateYellowPagesInput {
   @Field({ description: 'Yellow Pages name' })
   name: string;
 
+  @Field({ description: 'Yellow Pages description', nullable: true })
+  description?:string;
+
   @Field(() => Int, {
     description: 'Yellow Pages category',
     nullable: true,
   })
   category?: number;
+
+  @Field(()=> YellowPagesState, { description: 'Yellow Pages State', nullable: true })
+  state?: YellowPagesState
 }
 
 @InputType()

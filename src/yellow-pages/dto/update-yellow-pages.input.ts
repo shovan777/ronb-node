@@ -7,46 +7,15 @@ import {
   YellowPages,
   YellowPagesCatgory,
 } from '../entities/yellow-pages.entity';
-import { CreateYellowPagesInput } from './create-yellow-pages.input';
+import { CreateYellowPagesAddressInput, CreateYellowPagesCategoryInput, CreateYellowPagesInput, CreateYellowPagesPhoneNumberInput } from './create-yellow-pages.input';
 
 @InputType()
-export class UpdateYellowPagesInput {
-  @Field({ description: 'Yellow Pages name' , nullable:true})
-  name?: string;
-
-  @Field(() => Int, {
-    description: 'Yellow Pages category',
-    nullable: true,
-  })
-  category?: number;
-}
+export class UpdateYellowPagesInput extends PartialType(CreateYellowPagesInput){}
+@InputType()
+export class UpdateYellowPagesAddressInput extends PartialType(CreateYellowPagesAddressInput){}
 
 @InputType()
-export class UpdateYellowPagesAddressInput {
-  @Field(() => Int, { description: 'District Type', nullable: true })
-  district?: number;
-
-  @Field(() => Int, { description: 'Province Type', nullable: true })
-  province?: number;
-
-  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
-  yellowpages?: number;
-}
+export class UpdateYellowPagesPhoneNumberInput extends PartialType(CreateYellowPagesPhoneNumberInput){}
 
 @InputType()
-export class UpdateYellowPagesPhoneNumberInput {
-  @Field({ description: 'Phone number', nullable: true })
-  phone_number?: number;
-
-  @Field({ description: '', nullable: true })
-  is_emergency?: boolean;
-
-  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
-  yellowpages?: number;
-}
-
-@InputType()
-export class UpdateYellowPagesCategoryInput {
-  @Field({ description: 'Yellow Pages name' })
-  name?: string;
-}
+export class UpdateYellowPagesCategoryInput extends PartialType(CreateYellowPagesCategoryInput){}

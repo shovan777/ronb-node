@@ -170,6 +170,9 @@ input CreateYellowPagesAddressInput {
 }
 
 input CreateYellowPagesCategoryInput {
+  """Yellow Pages Category description"""
+  description: String
+
   """Yellow Pages name"""
   name: String!
 }
@@ -178,8 +181,14 @@ input CreateYellowPagesInput {
   """Yellow Pages category"""
   category: Int
 
+  """Yellow Pages description"""
+  description: String
+
   """Yellow Pages name"""
   name: String!
+
+  """Yellow Pages State"""
+  state: YellowPagesState
 }
 
 input CreateYellowPagesPhoneNumberInput {
@@ -979,16 +988,25 @@ input UpdateYellowPagesAddressInput {
 }
 
 input UpdateYellowPagesCategoryInput {
+  """Yellow Pages Category description"""
+  description: String
+
   """Yellow Pages name"""
-  name: String!
+  name: String
 }
 
 input UpdateYellowPagesInput {
   """Yellow Pages category"""
   category: Int
 
+  """Yellow Pages description"""
+  description: String
+
   """Yellow Pages name"""
   name: String
+
+  """Yellow Pages State"""
+  state: YellowPagesState
 }
 
 input UpdateYellowPagesPhoneNumberInput {
@@ -1096,6 +1114,9 @@ type YellowPagesCatgory {
 
   """one who created"""
   createdBy: Int!
+
+  """Yellow Pages description"""
+  description: String
 
   """id field for int"""
   id: Int!
