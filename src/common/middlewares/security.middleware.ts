@@ -79,24 +79,25 @@ export class SecurityMiddleware implements NestMiddleware {
       console.log(`the message: ${msg_key}==${node_msg_key}`);
       const truth = msg_key == node_msg_key;
       console.log(`the message: ${truth}`);
-      if (user_id) {
-        console.log(`hello again ${user_id}`);
-        req.user = {
-          id: parseInt(user_id),
-          isAdmin: is_admin,
-          role: role,
-        };
-        cache.set(jwt_auth, JSON.stringify(req.user));
-        cache.expire(jwt_auth, ttl);
-        // req.resume();
-        // next();
-      } else {
-        console.log('Please login first');
-        req.user = null;
-        // res.status(401).send('Please login first');
-      }
-      // next();
       if (msg_key == node_msg_key) {
+        if (user_id) {
+          console.log(`hello again ${user_id}`);
+          req.user = {
+            id: parseInt(user_id),
+            isAdmin: is_admin,
+            role: role,
+          };
+          cache.set(jwt_auth, JSON.stringify(req.user));
+          cache.expire(jwt_auth, ttl);
+          // req.resume();
+          // next();
+        } else {
+          console.log('Please login first');
+          req.user = null;
+          // res.status(401).send('Please login first');
+        }
+        // next();
+        // if (msg_key == node_msg_key) {
         sub.unsubscribe('nodeLdjango-django').then(() => {
           console.log('unsubscribed from the channel');
         });
