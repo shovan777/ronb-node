@@ -23,11 +23,11 @@ export class UpdateYellowPagesInput {
 
 @InputType()
 export class UpdateYellowPagesAddressInput {
-  @Field(() => District, { description: 'District Type', nullable: true })
-  district?: District;
+  @Field(() => Int, { description: 'District Type', nullable: true })
+  district?: number;
 
-  @Field(() => Province, { description: 'Province Type', nullable: true })
-  province?: Province;
+  @Field(() => Int, { description: 'Province Type', nullable: true })
+  province?: number;
 
   @Field(() => Int, { description: 'Yellow pages id', nullable: true })
   yellowpages?: number;

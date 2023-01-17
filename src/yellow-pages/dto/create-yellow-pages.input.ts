@@ -28,11 +28,11 @@ export class CreateYellowPagesInput {
 
 @InputType()
 export class CreateYellowPagesAddressInput {
-  @Field(() => District, { description: 'District Type' })
-  district: District;
+  @Field(() => Int, { description: 'District Type' })
+  district: number;
 
-  @Field(() => Province, { description: 'Province Type' })
-  province: Province;
+  @Field(() => Int, { description: 'Province Type' })
+  province: number;
 
   @Field(() => Int, { description: 'Yellow pages id' })
   yellowpages?: number;

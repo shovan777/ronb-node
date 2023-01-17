@@ -2,7 +2,9 @@ import { InputType, Int, Field } from '@nestjs/graphql';
 import { UserReacts } from 'src/common/entities/base.entity';
 import { Upload } from 'src/common/scalars/upload.scalar';
 import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
-import { NewsCategory, NewsLanguage, NewsState } from '../entities/news.entity';
+import { NewsCategory, NewsLanguage } from '../entities/news.entity';
+import { State as NewsState } from '../../common/enum/state.enum';
+
 // import GraphQLUpload from 'graphql-upload';
 
 // registerEnumType(NewsState, {
