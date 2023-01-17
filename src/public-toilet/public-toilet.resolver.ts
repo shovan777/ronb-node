@@ -16,6 +16,8 @@ import PublicToiletResponse from './public-toilet.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
+import { User } from 'src/common/decorators/user.decorator';
+import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 import { Role } from 'src/common/enum/role.enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -29,8 +31,12 @@ export class PublicToiletResolver {
 
     @Mutation(() => PublicToilet)
     @Roles(Role.Writer)
-    async createPublicToilet(@Args('createPublicToiletInput') createPublicToiletInput: CreatePublicToiletInput) {
-        return await this.publicToiletService.create(createPublicToiletInput);
+    async createPublicToilet(
+        @Args('createPublicToiletInput') createPublicToiletInput: CreatePublicToiletInput,
+        @User() user: number,
+    ) {
+        checkUserAuthenticated(user);
+        return await this.publicToiletService.create(createPublicToiletInput, user);
     }
 
     @Query(() => PublicToiletResponse, { name: 'publicToilets' })
@@ -82,8 +88,10 @@ export class PublicToiletResolver {
     async updatePublicToilet(
         @Args({ name: 'id', type: () => Int }) id: number,
         @Args('updatePublicToiletInput') updatePublicToiletInput: UpdatePublicToiletInput,
+        @User() user: number,
     ) {
-        return await this.publicToiletService.update(id, updatePublicToiletInput);
+        checkUserAuthenticated(user);
+        return await this.publicToiletService.update(id, updatePublicToiletInput, user);
     }
 
     @Mutation(() => PublicToilet)
