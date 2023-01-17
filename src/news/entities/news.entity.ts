@@ -46,8 +46,17 @@ export enum NewsState {
   REVIWED = 'reviewed',
 }
 
+export enum NewsLanguage {
+  NEPALI = "nepali",
+  ENGLISH = "english",
+}
+
 registerEnumType(NewsState, {
   name: 'NewsState',
+});
+
+registerEnumType(NewsLanguage, {
+  name: 'NewsLanguage',
 });
 
 @ObjectType()
@@ -130,6 +139,7 @@ export class News {
   @Field(() => NewsState, { description: 'News state' })
   @Column({ type: 'enum', enum: NewsState, default: NewsState.DRAFT })
   state: NewsState;
+
   // @Field(() => [UserLikesNews], { description: 'News likes', nullable: true })
   @OneToMany(() => UserLikesNews, (likes) => likes.news, {
     nullable: true,
@@ -152,6 +162,11 @@ export class News {
     nullable: true,
   })
   engagements?: UserNewsEngagement | any;
+
+  @Field(() => NewsLanguage, { description: 'News language' })
+  @Column({ type: 'enum', enum: NewsLanguage, default: NewsLanguage.NEPALI })
+  language: NewsLanguage;
+
 }
 
 @ObjectType()
