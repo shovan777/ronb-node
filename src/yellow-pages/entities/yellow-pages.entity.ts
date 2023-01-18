@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
-import { State as YellowPagesState } from 'src/common/enum/state.enum';
+import { State as YellowPagesState } from 'src/common/enum/publish_state.enum';
 import {
   Column,
   Entity,
@@ -30,10 +30,6 @@ export class YellowPagesCatgory extends CreatorBaseEntity {
   })
   yellowpages: YellowPages[];
 }
-
-registerEnumType(YellowPagesState, {
-  name: 'YellowPagesState',
-});
 
 @ObjectType()
 @Entity()

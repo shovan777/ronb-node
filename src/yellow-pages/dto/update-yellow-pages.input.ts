@@ -7,12 +7,18 @@ import {
   YellowPages,
   YellowPagesCatgory,
 } from '../entities/yellow-pages.entity';
-import { CreateYellowPagesAddressInput, CreateYellowPagesCategoryInput, CreateYellowPagesInput, CreateYellowPagesPhoneNumberInput } from './create-yellow-pages.input';
+import { CreateDistrictInput, CreateProvinceInput, CreateYellowPagesAddressInput, CreateYellowPagesCategoryInput, CreateYellowPagesInput, CreateYellowPagesPhoneNumberInput } from './create-yellow-pages.input';
 
 @InputType()
 export class UpdateYellowPagesInput extends PartialType(CreateYellowPagesInput){}
 @InputType()
 export class UpdateYellowPagesAddressInput extends PartialType(CreateYellowPagesAddressInput){}
+
+@InputType()
+export class UpdateDistrictInput extends PartialType(CreateDistrictInput){}
+
+@InputType()
+export class UpdateProvinceInput extends PartialType(CreateProvinceInput){}
 
 @InputType()
 export class UpdateYellowPagesPhoneNumberInput extends PartialType(CreateYellowPagesPhoneNumberInput){}

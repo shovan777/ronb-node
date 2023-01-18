@@ -62,7 +62,7 @@ input CreateNewsInput {
   source: String
 
   """News Status"""
-  state: YellowPagesState
+  state: State
 
   """News tags"""
   tags: [String!]
@@ -188,7 +188,7 @@ input CreateYellowPagesInput {
   name: String!
 
   """Yellow Pages State"""
-  state: YellowPagesState
+  state: State
 }
 
 input CreateYellowPagesPhoneNumberInput {
@@ -327,7 +327,7 @@ type News {
   source: String
 
   """News state"""
-  state: YellowPagesState!
+  state: State!
 
   """News tags"""
   tags: [NewsTaggit!]
@@ -884,6 +884,12 @@ type RepliesResponse {
   pageData: PageData
 }
 
+enum State {
+  DRAFT
+  PUBLISHED
+  REVIEWED
+}
+
 type Tag {
   """id field for int"""
   id: Int!
@@ -932,7 +938,7 @@ input UpdateNewsInput {
   source: String
 
   """News Status"""
-  state: YellowPagesState
+  state: State
 
   """News tags"""
   tags: [String!]
@@ -1006,7 +1012,7 @@ input UpdateYellowPagesInput {
   name: String
 
   """Yellow Pages State"""
-  state: YellowPagesState
+  state: State
 }
 
 input UpdateYellowPagesPhoneNumberInput {
@@ -1086,7 +1092,7 @@ type YellowPages {
   phone_number: [YellowPagesPhoneNumber!]!
 
   """Yellow Pages state"""
-  state: YellowPagesState!
+  state: State!
 }
 
 type YellowPagesAddress {
@@ -1185,10 +1191,4 @@ type YellowPagesPhoneNumber {
 type YellowPagesResponse {
   page: YellowPagesConnection!
   pageData: PageData
-}
-
-enum YellowPagesState {
-  DRAFT
-  PUBLISHED
-  REVIEWED
 }
