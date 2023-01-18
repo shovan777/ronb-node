@@ -12,6 +12,7 @@ import {
 import {Point} from 'geojson';
 import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
 import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
+import { PublicToiletReview } from 'src/reviews/entities/reviews.entity';
 
 @ObjectType()
 @Entity()
@@ -69,6 +70,12 @@ export class PublicToilet {
   @Field(() => [PublicToiletImage], { description: 'Public Toilet image', nullable: true })
   @OneToMany(() => PublicToiletImage, (publicToiletImage) => publicToiletImage.publicToilet, { nullable: true })
   images?: PublicToiletImage[];
+
+  @Field(() => [PublicToiletReview], { description: 'Public Toilet Review', nullable: true })
+  @OneToMany(() => PublicToiletReview, (review) => review.publicToilet, {
+    nullable: true,
+  })
+  review?: PublicToiletReview[];
 }
 
 

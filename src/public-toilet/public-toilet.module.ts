@@ -11,6 +11,7 @@ import { PublicToilet, PublicToiletImage } from "./entities/public-toilet.entity
     imports: [
         TypeOrmModule.forFeature([PublicToilet, PublicToiletImage]),
     ],
+    exports: [PublicToiletService]
 })
 
 export class PublicToiletModule {}

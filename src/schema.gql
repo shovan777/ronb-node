@@ -121,6 +121,17 @@ input CreatePublicToiletInput {
   singleImage: Upload
 }
 
+input CreatePublicToiletReviewInput {
+  """Review content"""
+  content: String!
+
+  """Public Toilet id"""
+  publicToilet: Int!
+
+  """Review rating"""
+  rating: Int
+}
+
 input CreateTagInput {
   """Tag name"""
   name: String!
@@ -300,6 +311,7 @@ type Mutation {
   createNewsTaggit(createNewsTaggitInput: CreateNewsTaggitInput!): NewsTaggit!
   createNotificationDevice(CreateNotificationDeviceInput: CreateNotificationDeviceInput!): NotificationDevice!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
+  createPublicToiletReview(createPublicToiletReviewsInput: CreatePublicToiletReviewInput!): PublicToiletReview!
   createTag(createTagInput: CreateTagInput!): Tag!
   createUserInterests(createUserInterestsInput: CreateUserInterestsInput!): UserInterests!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
@@ -727,6 +739,9 @@ type PublicToilet {
   """Public Toilet publishedAt"""
   publishedAt: DateTime
 
+  """Public Toilet Review"""
+  review: [PublicToiletReview!]
+
   """Public Toilet main image."""
   singleImage: String
 
@@ -778,6 +793,27 @@ type PublicToiletPageInfo {
 type PublicToiletResponse {
   page: PublicToiletConnection!
   pageData: PageData
+}
+
+type PublicToiletReview {
+  """one wrote the review"""
+  author: Int!
+
+  """Review content"""
+  content: String!
+
+  """date of creation"""
+  createdAt: DateTime!
+
+  """id field for int"""
+  id: Int!
+  publicToilet: PublicToilet!
+
+  """Review rating"""
+  rating: Int!
+
+  """date of update"""
+  updatedAt: DateTime!
 }
 
 type Query {
