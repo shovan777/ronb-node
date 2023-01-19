@@ -4,7 +4,7 @@ on:
   #   types: [opened]
   push:
     branches:
-      - dev
+      - main
 
   # allows to manually run the workflow in actions tab
   workflow_dispatch:
