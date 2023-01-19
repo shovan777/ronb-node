@@ -1,0 +1,87 @@
+name: Post contributor guidelines to PRs
+on:
+  # pull_request:
+  #   types: [opened]
+  # push:
+  #   branches:
+  #     - deployment-actions
+
+  # allows to manually run the workflow in actions tab
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version"
+        required: true
+
+env:
+  REGISTRY: registry.digitalocean.com/ronb
+  IMAGE_NAME: ronb-node
+
+jobs:
+  build_and_push:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    environment: do
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+
+      - name: Build container image
+        run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
+
+      # - shell: bash
+      #   env:
+      #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      #     sshs: ${{ secrets.SSH_HOST}}
+      #     username: ${{ secrets.USERNAME}}
+      #   run: |
+      #     echo "hello world!!!!!"
+      #     echo ${{env.token}}
+      #     echo $token
+      #     echo $sshs
+      #     echo $username
+      #     echo ${{env.username}}
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Log in to DigitalOcean Container Registry
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Remove all old images
+        run: if [ ! -z "$(doctl registry repository list | grep "$(echo $IMAGE_NAME)")" ]; then doctl registry repository delete-manifest $(echo $IMAGE_NAME) $(doctl registry repository list-tags $(echo $IMAGE_NAME) | grep -o "sha.*") --force; else echo "No repository"; fi
+
+      - name: Push image to registry
+        run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
+
+  deploy:
+    name: Deploy to DigitalOcean
+    runs-on: ubuntu-latest
+    environment: do
+    needs: build_and_push
+
+    steps:
+      - name: Deploy to DigitalOcean droplet via SSH action
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA
+          script: |
+            # # Login to registry
+            # docker login -u ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -p ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} registry.digitalocean.com
+            # # stop running container
+            # docker stop $(echo $IMAGE_NAME)
+            # # Remove old container
+            # docker rm $(echo $IMAGE_NAME)
+            # # Run a new container from a new image
+            # docker run -d \
+            # --restart always \
+            # --name $(echo $IMAGE_NAME) \
+            # $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
+            export nodetag=$(echo $GITHUB_SHA | head -c7)
+            cd ronb-platform
+            docker compose up -d api-nest

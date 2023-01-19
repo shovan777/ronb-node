@@ -2,6 +2,39 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""Comment Author"""
+type Author {
+  """User id"""
+  id: Int!
+
+  """User name"""
+  name: String!
+
+  """User profile information"""
+  profile: Profile
+}
+
+type CommentsResponse {
+  page: NewsCommentConnection!
+  pageData: PageData
+}
+
+input CreateNewsCategoryInput {
+  """News category description"""
+  description: String
+
+  """News category name"""
+  name: String!
+}
+
+input CreateNewsCommentInput {
+  """Comment content"""
+  content: String!
+
+  """News id"""
+  news: Int!
+}
+
 input CreateNewsInput {
   """News category"""
   category: Int
@@ -15,21 +48,149 @@ input CreateNewsInput {
   """News Image source"""
   imgSource: String
 
+  """News Language"""
+  language: NewsLanguage!
+
   """News link"""
   link: String
 
-  """News name"""
-  name: String!
+  """Is news pinned?"""
+  pinned: Boolean
   singleImage: Upload
 
   """News source"""
   source: String
 
+  """News Status"""
+  state: NewsState
+
   """News tags"""
   tags: [String!]
 
   """News title"""
-  title: String
+  title: String!
+}
+
+input CreateNewsReplyInput {
+  """News comment id"""
+  comment: Int!
+
+  """Comment content"""
+  content: String!
+
+  """User who is replied to by this comment"""
+  repliedTo: Int!
+}
+
+input CreateNewsTaggitInput {
+  """News id"""
+  news: Int!
+
+  """Tag id"""
+  tag: Int!
+}
+
+input CreateNotificationDeviceInput {
+  """Notification device platform"""
+  platform: String!
+
+  """Notification device token"""
+  token: String!
+
+  """Notification device user"""
+  userId: Float
+}
+
+input CreatePublicToiletInput {
+  """Public Toilet address"""
+  address: String!
+
+  """Public Toilet content"""
+  content: String!
+
+  """Public Toilet location"""
+  geopoint: GeoJSONPointScalar
+
+  """Public Toilet image"""
+  images: [Upload!]
+
+  """PublicToilet name"""
+  name: String!
+
+  """Public Toilet Feature Image"""
+  singleImage: Upload
+}
+
+input CreateTagInput {
+  """Tag name"""
+  name: String!
+}
+
+input CreateUserInterestsInput {
+  """News categories interesting to the user"""
+  newsCategories: [Int!]
+
+  """News tags interesting to the user"""
+  newsTags: [Int!]
+}
+
+input CreateUserLikesNewsCommentInput {
+  """News comment liked by the user"""
+  commentId: Int!
+
+  """User reaction to comment"""
+  react: UserReacts
+}
+
+input CreateUserLikesNewsInput {
+  """News liked by the user"""
+  newsId: Int!
+
+  """User reaction to news"""
+  react: UserReacts
+}
+
+input CreateUserLikesNewsReplyInput {
+  """User reaction to reply"""
+  react: UserReacts
+
+  """News reply liked by the user"""
+  replyId: Int!
+}
+
+input CreateYellowPagesAddressInput {
+  """District Type"""
+  district: District!
+
+  """Province Type"""
+  province: Province!
+
+  """Yellow pages id"""
+  yellowpages: Int!
+}
+
+input CreateYellowPagesCategoryInput {
+  """Yellow Pages name"""
+  name: String!
+}
+
+input CreateYellowPagesInput {
+  """Yellow Pages category"""
+  category: Int
+
+  """Yellow Pages name"""
+  name: String!
+}
+
+input CreateYellowPagesPhoneNumberInput {
+  """"""
+  is_emergency: Boolean!
+
+  """Phone number"""
+  phone_number: Float!
+
+  """Yellow pages id"""
+  yellowpages: Int!
 }
 
 """
@@ -37,15 +198,150 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+enum District {
+  Achham
+  Arghakhanchi
+  Baglung
+  Baitadi
+  Bajhang
+  Bajura
+  Banke
+  Bara
+  Bardiya
+  Bhaktapur
+  Bhojpur
+  Chitawan
+  Dadeldhura
+  Dailekh
+  Dang
+  Darchula
+  Dhading
+  Dhankuta
+  Dhanusa
+  Dolakha
+  Dolpa
+  Doti
+  Galkot
+  Gandaki
+  Ghorahi
+  Gulmi
+  Humla
+  Ilam
+  Jajarkot
+  Jhapa
+  Jumla
+  Kailali
+  Kalikot
+  Kanchanpur
+  Kapilvastu
+  Kaski
+  Kathmandu
+  Kavrepalanchok
+  Khotang
+  Lalitpur
+  Lamjung
+  Mahottari
+  Makwanpur
+  Manang
+  Morang
+  Mugu
+  Mustang
+  Myagdi
+  Nawalparasi
+  Nuwakot
+  Okhaldhunga
+  Palpa
+  Panchthar
+  Parbat
+  Parsa
+  Pyuthan
+  Ramechhap
+  Rasuwa
+  Rautahat
+  Rolpa
+  Rukum
+  Rupandehi
+  Salyan
+  Sankhuwasabha
+  Saptari
+  Sarlahi
+  Sindhuli
+  Sindhupalchok
+  Siraha
+  Solukhumbu
+  Sunsari
+  Surkhet
+  Syangja
+  Tanahu
+  Taplejung
+  Terhathum
+  Udayapur
+}
+
+input FilterNewsInput {
+  """News category"""
+  category: Int
+
+  """News Language"""
+  language: NewsLanguage
+
+  """News title"""
+  title: String
+}
+
+"""GeoJSON Point"""
+scalar GeoJSONPointScalar
+
 type Mutation {
   createNews(createNewsInput: CreateNewsInput!): News!
+  createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
+  createNewsComment(createNewsCommentInput: CreateNewsCommentInput!): NewsComment!
+  createNewsReply(createNewsReplyInput: CreateNewsReplyInput!): NewsReply!
+  createNewsTaggit(createNewsTaggitInput: CreateNewsTaggitInput!): NewsTaggit!
+  createNotificationDevice(CreateNotificationDeviceInput: CreateNotificationDeviceInput!): NotificationDevice!
+  createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
+  createTag(createTagInput: CreateTagInput!): Tag!
+  createUserInterests(createUserInterestsInput: CreateUserInterestsInput!): UserInterests!
+  createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
+  createUserLikesNewsComment(createUserLikesNewsCommentInput: CreateUserLikesNewsCommentInput!): UserLikesNewsComment!
+  createUserLikesNewsReply(createUserLikesNewsReplyInput: CreateUserLikesNewsReplyInput!): UserLikesNewsReply!
+  createYellowPages(createYellowPagesInput: CreateYellowPagesInput!): YellowPages!
+  createYellowPagesAddress(createYellowPagesAddressInput: CreateYellowPagesAddressInput!): YellowPagesAddress!
+  createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
+  createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
   removeNews(id: Int!): News!
+  removeNewsCategory(id: Int!): NewsCategory!
+  removeNewsComment(id: Int!): NewsComment!
+  removeNewsImage(id: Int!): NewsImage!
+  removeNewsReply(id: Int!): NewsReply!
+  removeNewsTaggit(id: Int!): NewsTaggit!
+  removePublicToilet(id: Int!): PublicToilet!
+  removeUserLikesNews(newsId: Int!): UserLikesNews!
+  removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
+  removeUserLikesNewsReply(replyId: Int!): UserLikesNewsReply!
+  removeYellowPages(id: Int!): YellowPages!
+  removeYellowPagesAddress(id: Int!): YellowPagesAddress!
+  removeYellowPagesCategory(id: Int!): YellowPagesCatgory!
+  removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
+  sendNotification(notificationInput: NotificationInput!): Notification!
+  sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
+  updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
+  updateNewsComment(id: Int!, updateNewsCommentInput: UpdateNewsCommentInput!): NewsComment!
+  updateNewsReply(id: Int!, updateNewsReplyInput: UpdateNewsReplyInput!): NewsReply!
+  updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
+  updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
+  updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
+  updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
+  updateYellowPagesAddress(id: Int!, updateYellowPagesAddressInput: UpdateYellowPagesAddressInput!): YellowPagesAddress!
+  updateYellowPagesCategory(id: Int!, updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput!): YellowPagesCatgory!
+  updateYellowPagesPhoneNumber(id: Int!, updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
 }
 
 type News {
   """News category"""
-  category: Int
+  category: NewsCategory
+  commentCount: Int!
 
   """News content"""
   content: String!
@@ -65,11 +361,18 @@ type News {
   """News Image source"""
   imgSource: String
 
+  """News language"""
+  language: NewsLanguage!
+
+  """React of user to the news"""
+  like: UserLikesNews
+  likeCount: Int!
+
   """News link"""
   link: String
 
-  """News name"""
-  name: String!
+  """Is news pinned?"""
+  pinned: Boolean!
 
   """News publishedAt"""
   publishedAt: DateTime
@@ -80,17 +383,92 @@ type News {
   """News source"""
   source: String
 
+  """News state"""
+  state: NewsState!
+
   """News tags"""
-  tags: [String!]
+  tags: [NewsTaggit!]
 
   """News title"""
-  title: String
+  title: String!
 
   """News updatedAt"""
   updatedAt: DateTime!
 
   """News updatedBy"""
   updatedBy: Int!
+}
+
+type NewsCategory {
+  """date of creation"""
+  createdAt: DateTime!
+
+  """one who created"""
+  createdBy: Int!
+
+  """News category description"""
+  description: String
+
+  """id field for int"""
+  id: Int!
+
+  """News category name"""
+  name: String!
+
+  """News in this category"""
+  news: [News!]!
+
+  """date of update"""
+  updatedAt: DateTime!
+
+  """one who updated"""
+  updatedBy: Int!
+}
+
+type NewsComment {
+  """one wrote the comment"""
+  author: Int!
+  authorDetail: Author!
+
+  """Comment content"""
+  content: String!
+
+  """date of creation"""
+  createdAt: DateTime!
+
+  """id field for int"""
+  id: Int!
+
+  """Reaction of the user to this comment"""
+  like: UserLikesNewsComment
+  likeCount: Int!
+  reactCounts: ReactCount!
+
+  """Replies to this comment"""
+  replies: [NewsReply!]!
+
+  """Number of replies"""
+  replyCount: Int!
+
+  """date of update"""
+  updatedAt: DateTime!
+}
+
+type NewsCommentConnection {
+  edges: [NewsCommentEdge!]!
+  pageInfo: NewsCommentPageInfo!
+}
+
+type NewsCommentEdge {
+  cursor: String
+  node: NewsComment
+}
+
+type NewsCommentPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
 }
 
 type NewsConnection {
@@ -124,7 +502,56 @@ type NewsImage {
   updatedBy: Int!
 }
 
+enum NewsLanguage {
+  ENGLISH
+  NEPALI
+}
+
 type NewsPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type NewsReply {
+  """one wrote the comment"""
+  author: Int!
+  authorDetail: Author!
+
+  """Comment content"""
+  content: String!
+
+  """date of creation"""
+  createdAt: DateTime!
+
+  """id field for int"""
+  id: Int!
+
+  """Reaction of the user to this comment"""
+  like: UserLikesNewsReply
+  likeCount: Int!
+  reactCounts: ReactCount!
+
+  """User who is replied to"""
+  repliedTo: Int!
+  repliedToDetail: Author!
+
+  """date of update"""
+  updatedAt: DateTime!
+}
+
+type NewsReplyConnection {
+  edges: [NewsReplyEdge!]!
+  pageInfo: NewsReplyPageInfo!
+}
+
+type NewsReplyEdge {
+  cursor: String
+  node: NewsReply
+}
+
+type NewsReplyPageInfo {
   endCursor: String
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
@@ -136,14 +563,258 @@ type NewsResponse {
   pageData: PageData
 }
 
+enum NewsState {
+  DRAFT
+  PUBLISHED
+  REVIWED
+}
+
+type NewsTaggit {
+  """id field for int"""
+  id: Int!
+
+  """news name"""
+  news: News!
+
+  """Tag name"""
+  tag: Tag!
+}
+
+type Notification {
+  """Notification body"""
+  body: String!
+
+  """Created at"""
+  createdAt: DateTime!
+
+  """Notification data"""
+  data: String
+
+  """Notification from User"""
+  fromUserId: Int
+
+  """id field for int"""
+  id: Int!
+
+  """Notification image"""
+  image: String
+
+  """Notification title"""
+  title: String!
+
+  """Notification to User"""
+  toUserId: Int
+}
+
+type NotificationConnection {
+  edges: [NotificationEdge!]!
+  pageInfo: NotificationPageInfo!
+}
+
+type NotificationDevice {
+  """Created at"""
+  createdAt: DateTime!
+
+  """id field for int"""
+  id: Int!
+
+  """Notification device platform"""
+  platform: String!
+
+  """Notification device token"""
+  token: String!
+
+  """Updated at"""
+  updatedAt: DateTime!
+
+  """Notification device User"""
+  userId: Int
+}
+
+type NotificationEdge {
+  cursor: String
+  node: Notification
+}
+
+input NotificationInput {
+  """Notification body"""
+  body: String!
+
+  """Notification data"""
+  data: String
+
+  """Notification image"""
+  image: String
+
+  """Notification title"""
+  title: String!
+}
+
+input NotificationNewsInput {
+  """News Id"""
+  newsId: Float!
+}
+
+type NotificationPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type NotificationResponse {
+  page: NotificationConnection!
+  pageData: PageData
+}
+
 type PageData {
+  """total number of objects"""
   count: Float!
+
+  """current date time"""
+  curTime: DateTime!
   limit: Float!
   offset: Float!
 }
 
+"""Profile of the user"""
+type Profile {
+  """User Blood Group"""
+  bloodGroup: String
+
+  """Profile id"""
+  id: Int!
+
+  """Url of the profile picture"""
+  image: String
+}
+
+enum Province {
+  Bagmati
+  Gandaki
+  Karnali
+  Lumbini
+  Madhesh
+  Province_No_1
+  Sudurpashchim
+}
+
+type PublicToilet {
+  """Public Toilet Address"""
+  address: String!
+
+  """Public Toilet content"""
+  content: String!
+
+  """Public Toilet createdAt"""
+  createdAt: DateTime!
+
+  """Public Toilet createdBy"""
+  createdBy: Int!
+
+  """Public Toilet Location"""
+  geopoint: GeoJSONPointScalar!
+
+  """id field for int"""
+  id: Int!
+
+  """Public Toilet image"""
+  images: [PublicToiletImage!]
+
+  """Public Toilet name"""
+  name: String!
+
+  """Public Toilet publishedAt"""
+  publishedAt: DateTime
+
+  """Public Toilet main image."""
+  singleImage: String
+
+  """Public Toilet updatedAt"""
+  updatedAt: DateTime!
+
+  """Public Toilet updatedBy"""
+  updatedBy: Int!
+}
+
+type PublicToiletConnection {
+  edges: [PublicToiletEdge!]!
+  pageInfo: PublicToiletPageInfo!
+}
+
+type PublicToiletEdge {
+  cursor: String
+  node: PublicToilet
+}
+
+type PublicToiletImage {
+  """News image createdAt"""
+  createdAt: DateTime!
+
+  """News image createdBy"""
+  createdBy: Int!
+
+  """id field for int"""
+  id: Int!
+
+  """Public Toilet image"""
+  image: String!
+  publicToilet: PublicToilet!
+
+  """News image updatedAt"""
+  updatedAt: DateTime!
+
+  """News image updatedBy"""
+  updatedBy: Int!
+}
+
+type PublicToiletPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type PublicToiletResponse {
+  page: PublicToiletConnection!
+  pageData: PageData
+}
+
 type Query {
+  instrestingTags: [Tag!]!
   news(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+    filterNewsInput: FilterNewsInput
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): NewsResponse!
+  newsAdmin(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+    filterNewsInput: FilterNewsInput
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): NewsResponse!
+  newsById(id: Int!): News!
+  newsCategories: [NewsCategory!]!
+  newsCategoryById(id: Int!): NewsCategory!
+  newsComment(id: Int!): NewsComment!
+  newsComments(
     """Paginate after cursor"""
     after: String
 
@@ -155,8 +826,142 @@ type Query {
 
     """Paginate last"""
     last: Float
-  ): NewsResponse!
-  newsById(id: Int!): News!
+    newsId: Int!
+  ): CommentsResponse!
+  newsReplies(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+    newsCommentId: Int!
+  ): RepliesResponse!
+  newsTaggit: [NewsTaggit!]!
+  notificationUser(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): NotificationResponse!
+  publicToiletById(id: Int!): PublicToilet!
+  publicToiletNearMe(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+    origin: GeoJSONPointScalar!
+  ): PublicToiletResponse!
+  publicToilets(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): PublicToiletResponse!
+  tags: [Tag!]!
+  yellowPages(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): YellowPagesResponse!
+  yellowPagesAddress: [YellowPagesAddress!]!
+  yellowPagesAddressById(id: Int!): YellowPagesAddress!
+  yellowPagesAdmin(skip: Int = 0, take: Int = 25): [YellowPages!]!
+  yellowPagesById(id: Int!): YellowPages!
+  yellowPagesCategories(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): YellowPagesCategoryResponse!
+  yellowPagesCategoryAdmin(skip: Int = 0, take: Int = 25): [YellowPagesCatgory!]!
+  yellowPagesCategoryById(id: Int!): YellowPagesCatgory!
+  yellowPagesPhoneNumber: [YellowPagesPhoneNumber!]!
+  yellowPagesPhoneNumberById(id: Int!): YellowPagesPhoneNumber!
+}
+
+type ReactCount {
+  """Number of angry reacts"""
+  angry: Int!
+
+  """Number of hahas reacts"""
+  haha: Int!
+
+  """Number of love reacts"""
+  love: Int!
+
+  """Number of sad reacts"""
+  sad: Int!
+
+  """Number of wow reacts"""
+  wow: Int!
+}
+
+type RepliesResponse {
+  page: NewsReplyConnection!
+  pageData: PageData
+}
+
+type Tag {
+  """id field for int"""
+  id: Int!
+
+  """name of the tag"""
+  name: String!
+}
+
+input UpdateNewsCategoryInput {
+  """News category description"""
+  description: String
+
+  """News category name"""
+  name: String
+}
+
+input UpdateNewsCommentInput {
+  """Comment content"""
+  content: String!
 }
 
 input UpdateNewsInput {
@@ -172,15 +977,21 @@ input UpdateNewsInput {
   """News Image source"""
   imgSource: String
 
+  """News Language"""
+  language: NewsLanguage
+
   """News link"""
   link: String
 
-  """News name"""
-  name: String
+  """Is news pinned?"""
+  pinned: Boolean
   singleImage: Upload
 
   """News source"""
   source: String
+
+  """News Status"""
+  state: NewsState
 
   """News tags"""
   tags: [String!]
@@ -189,5 +1000,230 @@ input UpdateNewsInput {
   title: String
 }
 
+input UpdateNewsReplyInput {
+  """Comment content"""
+  content: String!
+}
+
+input UpdatePublicToiletInput {
+  """Public Toilet address"""
+  address: String
+
+  """Public Toilet content"""
+  content: String
+
+  """Public Toilet location"""
+  geopoint: GeoJSONPointScalar
+
+  """Public Toilet image"""
+  images: [Upload!]
+
+  """PublicToilet name"""
+  name: String
+
+  """Public Toilet Feature Image"""
+  singleImage: Upload
+}
+
+input UpdateUserLikesNewsCommentInput {
+  """User reaction to comment"""
+  react: UserReacts
+}
+
+input UpdateUserLikesNewsReplyInput {
+  """User reaction to reply"""
+  react: UserReacts
+}
+
+input UpdateYellowPagesAddressInput {
+  """District Type"""
+  district: District
+
+  """Province Type"""
+  province: Province
+
+  """Yellow pages id"""
+  yellowpages: Int
+}
+
+input UpdateYellowPagesCategoryInput {
+  """Yellow Pages name"""
+  name: String!
+}
+
+input UpdateYellowPagesInput {
+  """Yellow Pages category"""
+  category: Int
+
+  """Yellow Pages name"""
+  name: String
+}
+
+input UpdateYellowPagesPhoneNumberInput {
+  """"""
+  is_emergency: Boolean
+
+  """Phone number"""
+  phone_number: Float
+
+  """Yellow pages id"""
+  yellowpages: Int
+}
+
 """Upload files"""
 scalar Upload
+
+type UserInterests {
+  """News categories of interest to user"""
+  newsCategories: [NewsCategory!]
+
+  """News tags of interest to user"""
+  newsTags: [Tag!]
+
+  """id field for user"""
+  userId: Int!
+}
+
+type UserLikesNews {
+  """likes for the news"""
+  news: News!
+
+  """id field for int"""
+  userId: Int!
+}
+
+type UserLikesNewsComment {
+  """User reacts"""
+  react: UserReacts!
+
+  """id field for int"""
+  userId: Int!
+}
+
+type UserLikesNewsReply {
+  """User reacts"""
+  react: UserReacts!
+
+  """id field for int"""
+  userId: Int!
+}
+
+enum UserReacts {
+  ANGRY
+  HAHA
+  LOVE
+  SAD
+  WOW
+}
+
+type YellowPages {
+  """Yellow Pages address(s)"""
+  address: [YellowPagesAddress!]
+
+  """Yellow Pages category"""
+  category: YellowPagesCatgory
+
+  """id field for int"""
+  id: Int!
+
+  """Yellow Pages name"""
+  name: String!
+
+  """Yellow Pages phone number(s)"""
+  phone_number: [YellowPagesPhoneNumber!]!
+}
+
+type YellowPagesAddress {
+  """District Type"""
+  district: District!
+
+  """id field for int"""
+  id: Int!
+
+  """Province Type"""
+  province: Province!
+
+  """"""
+  yellowpages: YellowPages!
+}
+
+type YellowPagesCategoryResponse {
+  page: YellowPagesCatgoryConnection!
+  pageData: PageData
+}
+
+type YellowPagesCatgory {
+  """date of creation"""
+  createdAt: DateTime!
+
+  """one who created"""
+  createdBy: Int!
+
+  """id field for int"""
+  id: Int!
+
+  """Yellow Pages name"""
+  name: String!
+
+  """date of update"""
+  updatedAt: DateTime!
+
+  """one who updated"""
+  updatedBy: Int!
+
+  """Yellow Pages in this category"""
+  yellowpages: [YellowPages!]!
+}
+
+type YellowPagesCatgoryConnection {
+  edges: [YellowPagesCatgoryEdge!]!
+  pageInfo: YellowPagesCatgoryPageInfo!
+}
+
+type YellowPagesCatgoryEdge {
+  cursor: String
+  node: YellowPagesCatgory
+}
+
+type YellowPagesCatgoryPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type YellowPagesConnection {
+  edges: [YellowPagesEdge!]!
+  pageInfo: YellowPagesPageInfo!
+}
+
+type YellowPagesEdge {
+  cursor: String
+  node: YellowPages
+}
+
+type YellowPagesPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type YellowPagesPhoneNumber {
+  """id field for int"""
+  id: Int!
+
+  """"""
+  is_emergency: Boolean!
+
+  """Phone number"""
+  phone_number: Int!
+
+  """"""
+  yellowpages: YellowPages!
+}
+
+type YellowPagesResponse {
+  page: YellowPagesConnection!
+  pageData: PageData
+}

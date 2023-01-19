@@ -1,13 +1,63 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql';
+import { NewsComment } from 'src/comments/entities/comment.entity';
+import { CreatorBaseEntity } from 'src/common/entities/base.entity';
+import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
+import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+@ObjectType()
+@Entity()
+export class NewsCategory extends CreatorBaseEntity {
+  @Field({ description: 'News category name' })
+  @Column()
+  name: string;
+
+  @Field({ description: 'News category description', nullable: true })
+  @Column({ nullable: true })
+  description?: string;
+
+  @Field(() => [News], { description: 'News in this category' })
+  @OneToMany(() => News, (news) => news.category)
+  news: News[];
+
+  // @Field(() => [UserInterests], { description: 'User interests' })
+  @ManyToMany(
+    () => UserInterests,
+    (userInterests) => userInterests.newsCategories,
+  )
+  userInterests: UserInterests[];
+}
+
+export enum NewsState {
+  DRAFT = 'draft',
+  PUBLISHED = 'published',
+  REVIWED = 'reviewed',
+}
+
+export enum NewsLanguage {
+  NEPALI = "nepali",
+  ENGLISH = "english",
+}
+
+registerEnumType(NewsState, {
+  name: 'NewsState',
+});
+
+registerEnumType(NewsLanguage, {
+  name: 'NewsLanguage',
+});
 
 @ObjectType()
 @Entity()
@@ -16,13 +66,13 @@ export class News {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field({ description: 'News name' })
-  @Column()
-  name: string;
+  // @Field({ description: 'News name' })
+  // @Column()
+  // name: string;
 
-  @Field({ description: 'News title', nullable: true })
-  @Column({ nullable: true })
-  title?: string;
+  @Field({ description: 'News title' })
+  @Column()
+  title: string;
 
   @Field({ description: 'News publishedAt', nullable: true })
   @Column({ nullable: true })
@@ -57,12 +107,18 @@ export class News {
   @Column({ nullable: true })
   singleImage?: string;
 
-  @Field(() => Int, { description: 'News category', nullable: true })
-  @Column({ nullable: true })
-  category?: number;
+  @Field(() => NewsCategory, { description: 'News category', nullable: true })
+  @ManyToOne(() => NewsCategory, (category) => category.news, {
+    nullable: true,
+  })
+  category?: NewsCategory;
 
-  @Field(() => [String], { description: 'News tags', nullable: true })
-  tags?: string[];
+  // tags?: string[];
+  @Field(() => [NewsTaggit], { description: 'News tags', nullable: true })
+  @OneToMany(() => NewsTaggit, (newsTaggit) => newsTaggit.news, {
+    nullable: true,
+  })
+  tags?: NewsTaggit[];
 
   @Field({ description: 'News link', nullable: true })
   @Column({ nullable: true })
@@ -75,6 +131,42 @@ export class News {
   @Field({ description: 'News Image source', nullable: true })
   @Column({ nullable: true })
   imgSource?: string;
+
+  @Field({ description: 'Is news pinned?' })
+  @Column({ default: false })
+  pinned: boolean;
+
+  @Field(() => NewsState, { description: 'News state' })
+  @Column({ type: 'enum', enum: NewsState, default: NewsState.DRAFT })
+  state: NewsState;
+
+  // @Field(() => [UserLikesNews], { description: 'News likes', nullable: true })
+  @OneToMany(() => UserLikesNews, (likes) => likes.news, {
+    nullable: true,
+  })
+  likes?: UserLikesNews[];
+
+  // @Field(() => [NewsComment], { description: 'News comments', nullable: true })
+  @OneToMany(() => NewsComment, (comment) => comment.news, {
+    nullable: true,
+  })
+  comments?: Comment[];
+
+  @Field(() => UserLikesNews, {
+    description: 'React of user to the news',
+    nullable: true,
+  })
+  like?: UserLikesNews | any;
+
+  @OneToMany(() => UserNewsEngagement, (engagements) => engagements.news, {
+    nullable: true,
+  })
+  engagements?: UserNewsEngagement | any;
+
+  @Field(() => NewsLanguage, { description: 'News language' })
+  @Column({ type: 'enum', enum: NewsLanguage, default: NewsLanguage.NEPALI })
+  language: NewsLanguage;
+
 }
 
 @ObjectType()
@@ -88,7 +180,7 @@ export class NewsImage {
   @ManyToOne(() => News, (news) => news.images)
   news: News;
 
-  @Field({ description: 'News image' })
+  @Field({ description: 'News image', middleware: [pathFinderMiddleware] })
   @Column()
   imageURL: string;
 
@@ -112,3 +204,120 @@ export class NewsImage {
   @Column()
   updatedBy: number;
 }
+
+@ObjectType()
+@Entity()
+export class UserLikesNews {
+  @Field(() => Int, { description: 'id field for int' })
+  @PrimaryColumn({ type: 'int', nullable: false })
+  userId: number;
+
+  @PrimaryColumn()
+  newsId: number;
+
+  @Field(() => News, { description: 'likes for the news' })
+  // @PrimaryColumn({ type: 'int', name: 'newsId' })
+  @JoinColumn({ name: 'newsId' })
+  @ManyToOne(() => News, (news) => news.likes, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  public news: News;
+}
+
+@ObjectType()
+@Entity()
+export class UserNewsEngagement {
+  @Field(() => Int, { description: 'id field for user' })
+  @PrimaryColumn({ type: 'int', nullable: false })
+  userId: number;
+
+  @PrimaryColumn()
+  newsId: number;
+
+  @JoinColumn({ name: 'newsId' })
+  @ManyToOne(() => News, (news) => news.engagements, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  public news: News;
+
+  @Field(() => Boolean, { description: 'Is news read?' })
+  @Column({ default: false })
+  hasRead: boolean;
+}
+
+@ObjectType()
+@Entity()
+export class UserInterests {
+  // stores the news tags that are of interest to the user
+  @Field(() => Int, { description: 'id field for user' })
+  @PrimaryColumn({ type: 'int', nullable: false })
+  userId: number;
+
+  // relation to tags
+  @Field(() => [Tag], {
+    description: 'News tags of interest to user',
+    nullable: true,
+  })
+  @ManyToMany(() => Tag, (tag) => tag.userInterests, {
+    nullable: true,
+  })
+  @JoinTable()
+  newsTags?: Tag[];
+
+  // relation to categories
+  @Field(() => [NewsCategory], {
+    description: 'News categories of interest to user',
+    nullable: true,
+  })
+  @ManyToMany(() => NewsCategory, (category) => category.userInterests, {
+    nullable: true,
+  })
+  @JoinTable()
+  newsCategories?: NewsCategory[];
+}
+// @Entity()
+// export class NewsTag {
+//   @Field(() => Int, { description: 'id field for int' })
+//   @PrimaryGeneratedColumn()
+//   id: number;
+
+//   @Field({ description: 'News tag name' })
+//   @Column()
+//   name: string;
+
+//   @Field({ description: 'News tag createdAt' })
+//   @CreateDateColumn()
+//   createdAt: Date;
+
+//   @Field({ description: 'News tag updatedAt' })
+//   @UpdateDateColumn()
+//   updatedAt: Date;
+
+//   @Field(() => Int, { description: 'News tag createdBy' })
+//   @Column()
+//   createdBy: number;
+
+//   @Field(() => Int, { description: 'News tag updatedBy' })
+//   @Column()
+//   updatedBy: number;
+// }
+
+// @Entity()
+// export class NewsSource {
+//   @Field(() => Int, { description: 'id field for int' })
+//   @PrimaryGeneratedColumn()
+//   id: number;
+
+//   @Field({ description: 'News source name' })
+//   @Column()
+//   name: string;
+
+//   @Field({ description: 'News source createdAt' })
+//   @CreateDateColumn()
+//   createdAt: Date;
+
+//   @Field({ description: 'News source updatedAt' })
+//   @UpdateDateColumn()
+//   updatedAt: Date;
