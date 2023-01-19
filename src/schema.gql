@@ -62,7 +62,7 @@ input CreateNewsInput {
   source: String
 
   """News Status"""
-  state: State
+  state: NewsState
 
   """News tags"""
   tags: [String!]
@@ -327,7 +327,7 @@ type News {
   source: String
 
   """News state"""
-  state: State!
+  state: NewsState!
 
   """News tags"""
   tags: [NewsTaggit!]
@@ -504,6 +504,12 @@ type NewsReplyPageInfo {
 type NewsResponse {
   page: NewsConnection!
   pageData: PageData
+}
+
+enum NewsState {
+  DRAFT
+  PUBLISHED
+  REVIEWED
 }
 
 type NewsTaggit {
@@ -938,7 +944,7 @@ input UpdateNewsInput {
   source: String
 
   """News Status"""
-  state: State
+  state: NewsState
 
   """News tags"""
   tags: [String!]

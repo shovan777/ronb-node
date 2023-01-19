@@ -1,7 +1,6 @@
 import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql';
 import { NewsComment } from 'src/comments/entities/comment.entity';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
-import { State as NewsState } from 'src/common/enum/publish_state.enum';
 import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
 import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
 import {
@@ -41,9 +40,19 @@ export class NewsCategory extends CreatorBaseEntity {
   userInterests: UserInterests[];
 }
 
+export enum NewsState {
+  DRAFT = 'draft',
+  PUBLISHED = 'published',
+  REVIEWED = 'reviewed',
+}
+
+registerEnumType(NewsState, {
+  name: 'NewsState',
+});
+
 export enum NewsLanguage {
-  NEPALI = "nepali",
-  ENGLISH = "english",
+  NEPALI = 'nepali',
+  ENGLISH = 'english',
 }
 
 registerEnumType(NewsLanguage, {
@@ -157,7 +166,6 @@ export class News {
   @Field(() => NewsLanguage, { description: 'News language' })
   @Column({ type: 'enum', enum: NewsLanguage, default: NewsLanguage.NEPALI })
   language: NewsLanguage;
-
 }
 
 @ObjectType()

@@ -17,6 +17,7 @@ import {
   News,
   NewsCategory,
   NewsImage,
+  NewsState,
   UserInterests,
   UserLikesNews,
 } from './entities/news.entity';
@@ -25,7 +26,6 @@ import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
 import { NewsTaggitService, TagsService } from 'src/tags/tags.service';
 import { join } from 'path';
 import { FilesService } from 'src/common/services/files.service';
-import { State as NewsState } from 'src/common/enum/publish_state.enum';
 
 @Injectable()
 export class NewsService {

@@ -1,6 +1,6 @@
-import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
-import { State as YellowPagesState } from 'src/common/enum/publish_state.enum';
+import { PublishState as YellowPagesState } from 'src/common/enum/publish_state.enum';
 import {
   Column,
   Entity,
@@ -69,7 +69,6 @@ export class YellowPages {
     description: 'Yellow Pages category',
     nullable: true,
   })
-  
   @ManyToOne(() => YellowPagesCatgory, (category) => category.yellowpages, {
     nullable: true,
   })
@@ -99,9 +98,14 @@ export class Province {
   @OneToMany(() => District, (district) => district.province)
   district: District[];
 
-  @Field(()=> [YellowPagesAddress],{ description: 'Addresses for this province' })
-  @OneToMany(() => YellowPagesAddress, (yellowpagesaddress) => yellowpagesaddress.province)
-  yellowpagesaddress: YellowPagesAddress[]
+  @Field(() => [YellowPagesAddress], {
+    description: 'Addresses for this province',
+  })
+  @OneToMany(
+    () => YellowPagesAddress,
+    (yellowpagesaddress) => yellowpagesaddress.province,
+  )
+  yellowpagesaddress: YellowPagesAddress[];
 }
 
 @ObjectType()
@@ -119,9 +123,14 @@ export class District {
   @ManyToOne(() => Province, (province) => province.district)
   province: Province;
 
-  @Field(()=> [YellowPagesAddress],{ description: 'Address for this district' })
-  @OneToMany(() => YellowPagesAddress, (yellowpagesaddress) => yellowpagesaddress.district)
-  yellowpagesaddress: YellowPagesAddress[]
+  @Field(() => [YellowPagesAddress], {
+    description: 'Address for this district',
+  })
+  @OneToMany(
+    () => YellowPagesAddress,
+    (yellowpagesaddress) => yellowpagesaddress.district,
+  )
+  yellowpagesaddress: YellowPagesAddress[];
 }
 
 // export enum District {

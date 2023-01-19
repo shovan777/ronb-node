@@ -7,7 +7,7 @@ import {
   YellowPages,
   YellowPagesCatgory,
 } from '../entities/yellow-pages.entity';
-import { State as YellowPagesState } from '../../common/enum/publish_state.enum'
+import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum'
 
 @InputType()
 export class CreateYellowPagesCategoryInput {
