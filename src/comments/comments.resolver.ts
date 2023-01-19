@@ -10,13 +10,16 @@ import {
 import {
   NewsCommentsService,
   NewsRepliesService,
-  PermissionService,
   UserLikesNewsCommentService,
   UserLikesNewsReplyService,
-  UsersService,
 } from './comments.service';
 import {
-  Author,
+  UsersService,
+} from 'src/users/users.service';
+import {
+  Author
+} from 'src/users/entitiy/users.entity'
+import {
   NewsComment,
   NewsReply,
   UserLikesNewsComment,
@@ -40,27 +43,7 @@ import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import CommentsResponse, { RepliesResponse } from './comments.response';
 import { ReactCount } from 'src/common/entities/base.entity';
-
-export const getAuthor = async (service, id: number): Promise<Author> => {
-  return service.findOne(id).then((user) => {
-    if (user) {
-      const author: Author = {
-        id: user.id,
-        name: `${user.first_name} ${user.last_name}`,
-        profile: {
-          id: user.profile.id,
-          bloodGroup: user.profile.bloodGroup,
-          image: user.profile.image,
-        },
-      };
-      return author;
-    }
-    return {
-      id: -1,
-      name: "Account Deleted",
-    }
-  });
-};
+import { getAuthor } from 'src/users/users.resolver'
 
 @Resolver(() => NewsComment)
 export class NewsCommentsResolver {
@@ -68,7 +51,6 @@ export class NewsCommentsResolver {
     private readonly newsCommentsService: NewsCommentsService,
     private readonly newsCommentsLikeService: UserLikesNewsCommentService,
     private readonly userService: UsersService,
-    private readonly permissionService: PermissionService,
   ) {}
 
   @Mutation(() => NewsComment)
@@ -78,9 +60,6 @@ export class NewsCommentsResolver {
     @User() user: number,
   ) {
     checkUserAuthenticated(user);
-    // TODO: check if user has permission to create comment
-    // console.log(user);
-    // console.log(await this.permissionService.hasPermission(user,"can_review_news"));
     return this.newsCommentsService.create(createNewsCommentInput, user);
   }
 
@@ -160,8 +139,6 @@ export class NewsCommentsResolver {
     const { author } = newsComment;
     const authDetail = getAuthor(this.userService, author);
     return authDetail;
-    // return await this.userService.findOne(author).then((user) => user.username);
-    // return author.name;
   }
 }
 
@@ -247,20 +224,12 @@ export class NewsRepliesResolver {
   async authorDetail(@Parent() newsReply: NewsReply): Promise<Author> {
     const { author } = newsReply;
     return getAuthor(this.userService, author);
-    // return await this.userService
-    //   .findOne(author)
-    //   .then((user) => `${user.firstname} ${user.lastname}`);
-    // return author.name;
   }
 
   @ResolveField(() => Author)
   async repliedToDetail(@Parent() newsReply: NewsReply) {
     const { repliedTo } = newsReply;
     return getAuthor(this.userService, repliedTo);
-    // return await this.userService
-    //   .findOne(repliedTo)
-    //   .then((user) => user.username);
-    // return author.name;
   }
 }
 
