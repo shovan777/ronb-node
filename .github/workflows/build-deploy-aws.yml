@@ -78,5 +78,5 @@ jobs:
             cd ronb-platform
             export NEST_TAG=$(echo $TAG)
             echo NEST_IMAGE=$NEST_TAG > .env.nestimg
-            cat .env.django .env.nestimg > .env
+            cat .env.django .env.nestimg .env.dashboard > .env
             docker compose up -d api-nest
