@@ -1,6 +1,7 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { PublicToiletModule } from "src/public-toilet/public-toilet.module";
+import { UsersModule } from "src/users/users.module";
 import { PublicToiletReview } from "./entities/reviews.entity";
 import { PublicToiletReviewsResolver } from "./reviews.resolver";
 import { PublicToiletReviewsService } from "./reviews.service";
@@ -12,7 +13,9 @@ import { PublicToiletReviewsService } from "./reviews.service";
     ],
     imports: [
         TypeOrmModule.forFeature([PublicToiletReview]),
-        PublicToiletModule
-    ]
+        forwardRef(() => PublicToiletModule),
+        UsersModule,
+    ],
+    exports: [PublicToiletReviewsService,],
 })
 export class ReviewsModule {}

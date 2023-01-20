@@ -22,13 +22,20 @@ import { Role } from 'src/common/enum/role.enum';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { MakePublic } from 'src/common/decorators/public.decorator';
+import { TotalReviewRatings } from 'src/reviews/entities/reviews.entity';
+import { PublicToiletReviewsService } from 'src/reviews/reviews.service';
+
 
 @Resolver(() => PublicToilet)
 @Roles(Role.Admin, Role.SuperAdmin)
 @UseGuards(RolesGuard)
 export class PublicToiletResolver {
-    constructor(private readonly publicToiletService: PublicToiletService) {}
+    constructor(
+        private readonly publicToiletService: PublicToiletService,
+        private readonly publicToiletReviewService: PublicToiletReviewsService,
+    ) {}
 
+    // Mutations
     @Mutation(() => PublicToilet)
     @Roles(Role.Writer)
     async createPublicToilet(
@@ -39,6 +46,27 @@ export class PublicToiletResolver {
         return await this.publicToiletService.create(createPublicToiletInput, user);
     }
 
+    @Mutation(() => PublicToilet)
+    @Roles(Role.Writer)
+    async updatePublicToilet(
+        @Args({ name: 'id', type: () => Int }) id: number,
+        @Args('updatePublicToiletInput') updatePublicToiletInput: UpdatePublicToiletInput,
+        @User() user: number,
+    ) {
+        checkUserAuthenticated(user);
+        return await this.publicToiletService.update(id, updatePublicToiletInput, user);
+    }
+
+    @Mutation(() => PublicToilet)
+    @Roles(Role.Writer)
+    removePublicToilet(
+        @Args('id', { type: () => Int }) id: number,
+    ): Promise<NotFoundException | any> {
+        return this.publicToiletService.remove(id);
+    }
+
+
+    //Query
     @Query(() => PublicToiletResponse, { name: 'publicToilets' })
     @MakePublic()
     async findAll(@Args() args: ConnectionArgs): Promise<PublicToiletResponse> {
@@ -74,6 +102,8 @@ export class PublicToiletResolver {
         return { page, pageData: { count, limit, offset } };
     }
 
+
+    //Resolve
     @ResolveField(() => [PublicToiletImage])
     @MakePublic()
     async images(@Parent() publicToilet: PublicToilet) {
@@ -84,20 +114,18 @@ export class PublicToiletResolver {
         return await this.publicToiletService.findImagesOfPublicToilet(id);
     }
 
-    @Mutation(() => PublicToilet)
-    async updatePublicToilet(
-        @Args({ name: 'id', type: () => Int }) id: number,
-        @Args('updatePublicToiletInput') updatePublicToiletInput: UpdatePublicToiletInput,
-        @User() user: number,
-    ) {
-        checkUserAuthenticated(user);
-        return await this.publicToiletService.update(id, updatePublicToiletInput, user);
-    }
-
-    @Mutation(() => PublicToilet)
-    removePublicToilet(
-        @Args('id', { type: () => Int }) id: number,
-    ): Promise<NotFoundException | any> {
-        return this.publicToiletService.remove(id);
+    @ResolveField(() => TotalReviewRatings, { description: 'Total Review Rating', nullable: true })
+    @MakePublic()
+    async totalReviewRating(@Parent() publicToilet:PublicToilet) {
+        const {id} = publicToilet;
+        const [reviews, count] = await this.publicToiletReviewService.findAll(id, 0,0);
+        let total_rating = 0;
+        for (let review in reviews) {
+            total_rating += reviews[review].rating;
+        }
+        return {
+            totalRating: total_rating,
+            totalReview: count
+        }
     }
 }

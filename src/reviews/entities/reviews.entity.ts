@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from "@nestjs/graphql";
+import { Field, Float, Int, ObjectType } from "@nestjs/graphql";
 import { Max, Min } from "class-validator";
 import { BaseIdEntity } from "src/common/entities/base.entity";
 import { PublicToilet } from "src/public-toilet/entities/public-toilet.entity";
@@ -39,6 +39,14 @@ export class PublicToiletReview extends BaseReview {
     @ManyToOne(() => PublicToilet, (publicToilet) => publicToilet.review, {
         onDelete: 'CASCADE',
     })
-    publicToilet: PublicToilet
+    publicToilet: PublicToilet;
+}
 
+@ObjectType({ description: 'Total Reveiw and Rating' })
+export class TotalReviewRatings{
+    @Field(() => Float, { description: 'Total Rating' })
+    totalRating: number;
+
+    @Field(() => Int, { description: 'Total Reviewer' })
+    totalReview: number;
 }
