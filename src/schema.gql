@@ -11,7 +11,7 @@ type Author {
   name: String!
 
   """User profile information"""
-  profile: Profile!
+  profile: Profile
 }
 
 type CommentsResponse {

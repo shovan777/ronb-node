@@ -1,6 +1,5 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { join, resolve } from 'path';
+import { Response, NextFunction } from 'express';
 import { createClient } from 'redis';
 
 const sub = createClient({
@@ -33,11 +32,8 @@ export class SecurityMiddleware implements NestMiddleware {
   async use(req: any, res: Response, next: NextFunction) {
     // do something
     req.pause();
-    // console.log('**********security middleware');
     const cookies = await req.cookies;
-    // console.log(`the cookies here: ${cookies.JWT}`);
     const jwt_auth = cookies.JWT;
-    console.log(jwt_auth);
     if (!jwt_auth) {
       console.log('No jwt token');
       // res.status(401).send('Unauthorized');
@@ -76,29 +72,29 @@ export class SecurityMiddleware implements NestMiddleware {
       } = JSON.parse(message);
       msg_key = django_msg_key;
       // change byte string to string
-      console.log(`the message: ${msg_key}==${node_msg_key}`);
-      const truth = msg_key == node_msg_key;
-      console.log(`the message: ${truth}`);
-      if (user_id) {
-        console.log(`hello again ${user_id}`);
-        req.user = {
-          id: parseInt(user_id),
-          isAdmin: is_admin,
-          role: role,
-        };
-        cache.set(jwt_auth, JSON.stringify(req.user));
-        cache.expire(jwt_auth, ttl);
-        // req.resume();
-        // next();
-      } else {
-        console.log('Please login first');
-        req.user = null;
-        // res.status(401).send('Please login first');
-      }
-      // next();
+      // const truth = msg_key == node_msg_key;
+      // console.log(`the message: ${truth}`);
       if (msg_key == node_msg_key) {
+        if (user_id) {
+          console.log(`hello again ${user_id}`);
+          req.user = {
+            id: parseInt(user_id),
+            isAdmin: is_admin,
+            role: role,
+          };
+          cache.set(jwt_auth, JSON.stringify(req.user));
+          cache.expire(jwt_auth, ttl);
+          // req.resume();
+          // next();
+        } else {
+          console.log('Please login first');
+          req.user = null;
+          // res.status(401).send('Please login first');
+        }
+        // next();
+        // if (msg_key == node_msg_key) {
         sub.unsubscribe('nodeLdjango-django').then(() => {
-          console.log('unsubscribed from the channel');
+          // console.log('unsubscribed from the channel');
         });
       }
       // sub.unsubscribe('nodeLdjango-django').then(() => {
@@ -113,11 +109,11 @@ export class SecurityMiddleware implements NestMiddleware {
     const start = new Date().getTime();
     // wait for matching message and 2 seconds
     while (msg_key != node_msg_key && new Date().getTime() - start < 2000) {
-      console.log(
-        `waiting for the message ${msg_key} ${node_msg_key} ${
-          new Date().getTime() - start < 2000
-        }`,
-      );
+      // console.log(
+      //   `waiting for the message ${msg_key} ${node_msg_key} ${
+      //     new Date().getTime() - start < 2000
+      //   }`,
+      // );
       await sleep(0.05);
     }
     // await sleep(0.5);

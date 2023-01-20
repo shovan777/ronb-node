@@ -30,7 +30,7 @@ import {
   UpdateNewsCategoryInput,
   UpdateNewsInput,
 } from './dto/update-news.input';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, UseGuards, UseInterceptors } from '@nestjs/common';
 import NewsResponse from './news.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
@@ -39,12 +39,18 @@ import { User } from 'src/common/decorators/user.decorator';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 import { NewsTaggit, Tag } from 'src/tags/entities/tag.entity';
 import { NewsTaggitService, TagsService } from 'src/tags/tags.service';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enum/role.enum';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { MakePublic } from 'src/common/decorators/public.decorator';
 
 // const fileUpload = (fileName, uploadDir) => {
 
 // };
 
 @Resolver(() => News)
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
 export class NewsResolver {
   constructor(
     private readonly newsService: NewsService,
@@ -52,6 +58,7 @@ export class NewsResolver {
   ) {}
 
   @Mutation(() => News)
+  @Roles(Role.Writer)
   async createNews(
     @Args('createNewsInput') createNewsInput: CreateNewsInput,
     @User() user: number,
@@ -61,6 +68,7 @@ export class NewsResolver {
   }
 
   @Query(() => NewsResponse, { name: 'news' })
+  @MakePublic()
   async findAll(
     @Args() args: ConnectionArgs,
     @Args('filterNewsInput', { nullable: true })
@@ -83,6 +91,7 @@ export class NewsResolver {
   }
 
   @Query(() => NewsResponse, { name: 'newsAdmin' })
+  @Roles(Role.Writer)
   async findAllAdmin(
     @Args() args: ConnectionArgs,
     @Args('filterNewsInput', { nullable: true })
@@ -104,6 +113,7 @@ export class NewsResolver {
   }
 
   @Query(() => News, { name: 'newsById' })
+  @MakePublic()
   findOne(
     @Args('id', { type: () => Int }) id: number,
   ): Promise<News | NotFoundException> {
@@ -111,6 +121,7 @@ export class NewsResolver {
   }
 
   @ResolveField(() => [NewsImage])
+  @MakePublic()
   async images(@Parent() news: News) {
     const { id } = news;
     if (news.images) {
@@ -120,6 +131,7 @@ export class NewsResolver {
   }
 
   @ResolveField(() => UserLikesNews)
+  @MakePublic()
   async like(@Parent() news: News, @User() user: number) {
     const { id } = news;
     if (!user) {
@@ -129,24 +141,28 @@ export class NewsResolver {
   }
 
   @ResolveField(() => Int)
+  @MakePublic()
   async likeCount(@Parent() news: News) {
     const { id } = news;
     return await this.newsService.countLikes(id);
   }
 
   @ResolveField(() => Int)
+  @MakePublic()
   async commentCount(@Parent() news: News) {
     const { id } = news;
     return await this.newsService.countComments(id);
   }
 
   @ResolveField(() => NewsCategory)
+  @MakePublic()
   async category(@Parent() news: News) {
     const { id } = news;
     return await this.newsService.findCategoryofNews(id);
   }
 
   @ResolveField(() => [NewsTaggit], { nullable: true })
+  @MakePublic()
   async tags(@Parent() news: News) {
     const { id } = news;
     return await this.newsTaggitService.findAllByNews(id);
@@ -182,15 +198,19 @@ export class NewsResolver {
 }
 
 @Resolver(() => NewsCategory)
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
 export class NewsCategoryResolver {
   constructor(private readonly newsCategoryService: NewsCategoryService) {}
 
   @Query(() => [NewsCategory], { name: 'newsCategories' })
+  @MakePublic()
   async findAll(): Promise<NewsCategory[]> {
     return this.newsCategoryService.findAll();
   }
 
   @Query(() => NewsCategory, { name: 'newsCategoryById' })
+  @MakePublic()
   async findOne(
     @Args('id', { type: () => Int }) id: number,
   ): Promise<NewsCategory | NotFoundException> {
@@ -198,6 +218,7 @@ export class NewsCategoryResolver {
   }
 
   @Mutation(() => NewsCategory)
+  @Roles(Role.Writer)
   async createNewsCategory(
     @Args('createNewsCategoryInput')
     createNewsCategoryInput: CreateNewsCategoryInput,

@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import {Point} from 'geojson';
+import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
 import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
 
 @ObjectType()
@@ -51,7 +52,7 @@ export class PublicToilet {
   @Column()
   address: string;
 
-  @Field({ description: 'Public Toilet main image.', nullable: true })
+  @Field({ description: 'Public Toilet main image.', nullable: true, middleware: [pathFinderMiddleware]  })
   @Column({ nullable: true })
   singleImage?: string;
   
@@ -82,7 +83,7 @@ export class PublicToiletImage {
   @ManyToOne(() => PublicToilet, (publicToilet) => publicToilet.images)
   publicToilet: PublicToilet;
 
-  @Field({ description: 'Public Toilet image' })
+  @Field({ description: 'Public Toilet image', middleware: [pathFinderMiddleware] })
   @Column()
   image: string;
 
