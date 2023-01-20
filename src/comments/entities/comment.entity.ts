@@ -4,7 +4,6 @@ import {
   BaseUserLikesEntity,
   ReactCount,
 } from 'src/common/entities/base.entity';
-import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
 import { News } from 'src/news/entities/news.entity';
 import {
   Column,
@@ -22,7 +21,6 @@ import {
 } from 'typeorm';
 
 @ObjectType({ isAbstract: true })
-// @Entity()
 export abstract class BaseComment extends BaseIdEntity {
   @Field({ description: 'Comment content' })
   @Column()
@@ -145,35 +143,4 @@ export class UserLikesNewsReply extends BaseUserLikesEntity {
     nullable: false,
   })
   public reply: NewsReply;
-}
-
-@ObjectType({ description: 'Profile of the user' })
-export class Profile {
-  @Field(() => Int, { description: 'Profile id' })
-  id: number;
-
-  @Field(() => String, { description: 'User Blood Group', nullable: true })
-  bloodGroup?: string;
-
-  @Field(() => String, {
-    description: 'Url of the profile picture',
-    nullable: true,
-    middleware: [pathFinderMiddleware],
-  })
-  image?: string;
-}
-
-@ObjectType({ description: 'Comment Author' })
-export class Author {
-  @Field(() => Int, { description: 'User id' })
-  id: number;
-
-  @Field({ description: 'User name' })
-  name: string;
-
-  // @Field({ description: 'User lastname' })
-  // lastName: string;
-
-  @Field(() => Profile, { description: 'User profile information', nullable:true })
-  profile: Profile;
 }

@@ -2,10 +2,8 @@ import { Module } from '@nestjs/common';
 import {
   NewsCommentsService,
   NewsRepliesService,
-  PermissionService,
   UserLikesNewsCommentService,
   UserLikesNewsReplyService,
-  UsersService,
 } from './comments.service';
 import {
   NewsCommentsResolver,
@@ -27,6 +25,7 @@ import {
   UserLikesNewsReplySubscriber,
 } from './comments.subscriber';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -39,6 +38,7 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
     // TypeOrmModule.forFeature('usersConnection'),
     NewsModule,
     NotificationsModule,
+    UsersModule,
   ],
   providers: [
     NewsCommentsResolver,
@@ -49,8 +49,6 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
     UserLikesNewsCommentResolver,
     UserLikesNewsReplyResolver,
     UserLikesNewsReplyService,
-    UsersService,
-    PermissionService,
     NewsReplySubscriber,
     UserLikesNewsCommentSubscriber,
     UserLikesNewsReplySubscriber,
