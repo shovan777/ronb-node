@@ -160,16 +160,19 @@ input CreateUserLikesNewsReplyInput {
 
 input CreateYellowPagesAddressInput {
   """District Type"""
-  district: District!
+  district: Int!
 
   """Province Type"""
-  province: Province!
+  province: Int!
 
   """Yellow pages id"""
   yellowpages: Int!
 }
 
 input CreateYellowPagesCategoryInput {
+  """Yellow Pages Category description"""
+  description: String
+
   """Yellow Pages name"""
   name: String!
 }
@@ -178,8 +181,14 @@ input CreateYellowPagesInput {
   """Yellow Pages category"""
   category: Int
 
+  """Yellow Pages description"""
+  description: String
+
   """Yellow Pages name"""
   name: String!
+
+  """Yellow Pages State"""
+  state: State
 }
 
 input CreateYellowPagesPhoneNumberInput {
@@ -198,84 +207,18 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-enum District {
-  Achham
-  Arghakhanchi
-  Baglung
-  Baitadi
-  Bajhang
-  Bajura
-  Banke
-  Bara
-  Bardiya
-  Bhaktapur
-  Bhojpur
-  Chitawan
-  Dadeldhura
-  Dailekh
-  Dang
-  Darchula
-  Dhading
-  Dhankuta
-  Dhanusa
-  Dolakha
-  Dolpa
-  Doti
-  Galkot
-  Gandaki
-  Ghorahi
-  Gulmi
-  Humla
-  Ilam
-  Jajarkot
-  Jhapa
-  Jumla
-  Kailali
-  Kalikot
-  Kanchanpur
-  Kapilvastu
-  Kaski
-  Kathmandu
-  Kavrepalanchok
-  Khotang
-  Lalitpur
-  Lamjung
-  Mahottari
-  Makwanpur
-  Manang
-  Morang
-  Mugu
-  Mustang
-  Myagdi
-  Nawalparasi
-  Nuwakot
-  Okhaldhunga
-  Palpa
-  Panchthar
-  Parbat
-  Parsa
-  Pyuthan
-  Ramechhap
-  Rasuwa
-  Rautahat
-  Rolpa
-  Rukum
-  Rupandehi
-  Salyan
-  Sankhuwasabha
-  Saptari
-  Sarlahi
-  Sindhuli
-  Sindhupalchok
-  Siraha
-  Solukhumbu
-  Sunsari
-  Surkhet
-  Syangja
-  Tanahu
-  Taplejung
-  Terhathum
-  Udayapur
+type District {
+  """id field for int"""
+  id: Int!
+
+  """District Name"""
+  name: String!
+
+  """Districts Province"""
+  province: Province
+
+  """Address for this district"""
+  yellowpagesaddress: [YellowPagesAddress!]!
 }
 
 input FilterNewsInput {
@@ -566,7 +509,7 @@ type NewsResponse {
 enum NewsState {
   DRAFT
   PUBLISHED
-  REVIWED
+  REVIEWED
 }
 
 type NewsTaggit {
@@ -689,14 +632,18 @@ type Profile {
   image: String
 }
 
-enum Province {
-  Bagmati
-  Gandaki
-  Karnali
-  Lumbini
-  Madhesh
-  Province_No_1
-  Sudurpashchim
+type Province {
+  """Province Districts"""
+  district: [District!]!
+
+  """id field for int"""
+  id: Int!
+
+  """Province name"""
+  name: String!
+
+  """Addresses for this province"""
+  yellowpagesaddress: [YellowPagesAddress!]!
 }
 
 type PublicToilet {
@@ -943,6 +890,12 @@ type RepliesResponse {
   pageData: PageData
 }
 
+enum State {
+  DRAFT
+  PUBLISHED
+  REVIEWED
+}
+
 type Tag {
   """id field for int"""
   id: Int!
@@ -1037,26 +990,35 @@ input UpdateUserLikesNewsReplyInput {
 
 input UpdateYellowPagesAddressInput {
   """District Type"""
-  district: District
+  district: Int
 
   """Province Type"""
-  province: Province
+  province: Int
 
   """Yellow pages id"""
   yellowpages: Int
 }
 
 input UpdateYellowPagesCategoryInput {
+  """Yellow Pages Category description"""
+  description: String
+
   """Yellow Pages name"""
-  name: String!
+  name: String
 }
 
 input UpdateYellowPagesInput {
   """Yellow Pages category"""
   category: Int
 
+  """Yellow Pages description"""
+  description: String
+
   """Yellow Pages name"""
   name: String
+
+  """Yellow Pages State"""
+  state: State
 }
 
 input UpdateYellowPagesPhoneNumberInput {
@@ -1123,6 +1085,9 @@ type YellowPages {
   """Yellow Pages category"""
   category: YellowPagesCatgory
 
+  """Yellow Pages description"""
+  description: String
+
   """id field for int"""
   id: Int!
 
@@ -1131,6 +1096,9 @@ type YellowPages {
 
   """Yellow Pages phone number(s)"""
   phone_number: [YellowPagesPhoneNumber!]!
+
+  """Yellow Pages state"""
+  state: State!
 }
 
 type YellowPagesAddress {
@@ -1158,6 +1126,9 @@ type YellowPagesCatgory {
 
   """one who created"""
   createdBy: Int!
+
+  """Yellow Pages description"""
+  description: String
 
   """id field for int"""
   id: Int!

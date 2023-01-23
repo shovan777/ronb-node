@@ -43,17 +43,17 @@ export class NewsCategory extends CreatorBaseEntity {
 export enum NewsState {
   DRAFT = 'draft',
   PUBLISHED = 'published',
-  REVIWED = 'reviewed',
-}
-
-export enum NewsLanguage {
-  NEPALI = "nepali",
-  ENGLISH = "english",
+  REVIEWED = 'reviewed',
 }
 
 registerEnumType(NewsState, {
   name: 'NewsState',
 });
+
+export enum NewsLanguage {
+  NEPALI = 'nepali',
+  ENGLISH = 'english',
+}
 
 registerEnumType(NewsLanguage, {
   name: 'NewsLanguage',
@@ -166,7 +166,6 @@ export class News {
   @Field(() => NewsLanguage, { description: 'News language' })
   @Column({ type: 'enum', enum: NewsLanguage, default: NewsLanguage.NEPALI })
   language: NewsLanguage;
-
 }
 
 @ObjectType()

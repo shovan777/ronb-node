@@ -7,11 +7,15 @@ import {
   YellowPages,
   YellowPagesCatgory,
 } from '../entities/yellow-pages.entity';
+import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum'
 
 @InputType()
 export class CreateYellowPagesCategoryInput {
   @Field({ description: 'Yellow Pages name' })
   name: string;
+
+  @Field({ description: 'Yellow Pages Category description', nullable: true })
+  description?:string;
 }
 
 @InputType()
@@ -19,23 +23,44 @@ export class CreateYellowPagesInput {
   @Field({ description: 'Yellow Pages name' })
   name: string;
 
+  @Field({ description: 'Yellow Pages description', nullable: true })
+  description?:string;
+
   @Field(() => Int, {
     description: 'Yellow Pages category',
     nullable: true,
   })
   category?: number;
+
+  @Field(()=> YellowPagesState, { description: 'Yellow Pages State', nullable: true })
+  state?: YellowPagesState
 }
 
 @InputType()
 export class CreateYellowPagesAddressInput {
-  @Field(() => District, { description: 'District Type' })
-  district: District;
+  @Field(() => Int, { description: 'District Type' })
+  district: number;
 
-  @Field(() => Province, { description: 'Province Type' })
-  province: Province;
+  @Field(() => Int, { description: 'Province Type' })
+  province: number;
 
   @Field(() => Int, { description: 'Yellow pages id' })
   yellowpages?: number;
+}
+
+@InputType()
+export class CreateProvinceInput {
+  @Field()
+  name: string;
+}
+
+@InputType()
+export class CreateDistrictInput {
+  @Field({ description: 'District name' })
+  name: string;
+
+  @Field(()=>Int,{ description:'Districts Province'})
+  province: number;
 }
 
 @InputType()
