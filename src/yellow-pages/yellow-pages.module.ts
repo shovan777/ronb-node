@@ -5,6 +5,8 @@ import {
   YellowPagesPhoneNumber,
   YellowPages,
   YellowPagesCatgory,
+  District,
+  Province,
 } from './entities/yellow-pages.entity';
 import {
   YellowPagesAddressResolver,
@@ -35,6 +37,8 @@ import {
       YellowPages,
       YellowPagesCatgory,
       YellowPagesAddress,
+      District,
+      Province,
       YellowPagesPhoneNumber,
     ]),
   ],
