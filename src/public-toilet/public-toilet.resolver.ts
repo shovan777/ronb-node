@@ -69,7 +69,23 @@ export class PublicToiletResolver {
     //Query
     @Query(() => PublicToiletResponse, { name: 'publicToilets' })
     @MakePublic()
-    async findAll(@Args() args: ConnectionArgs): Promise<PublicToiletResponse> {
+    async findAll(
+        @Args() args: ConnectionArgs
+    ): Promise<PublicToiletResponse> {
+        const { limit, offset } = args.pagingParams();
+        const [publicToilets, count] = await this.publicToiletService.findAll(limit, offset, true);
+        const page = connectionFromArraySlice(publicToilets, args, {
+            arrayLength: count,
+            sliceStart: offset || 0,
+        });
+        return { page, pageData: { count, limit, offset } };
+    }
+
+    @Query(() => PublicToiletResponse, { name: 'publicToiletsAdmin' })
+    @Roles(Role.Writer)
+    async findAllAdmin(
+        @Args() args: ConnectionArgs,
+    ): Promise<PublicToiletResponse> {
         const { limit, offset } = args.pagingParams();
         const [publicToilets, count] = await this.publicToiletService.findAll(limit, offset);
         const page = connectionFromArraySlice(publicToilets, args, {

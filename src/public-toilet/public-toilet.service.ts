@@ -89,10 +89,21 @@ export class PublicToiletService {
   async findAll(
     limit: number,
     offset: number,
+    publishedOnly = false,
   ): Promise<[PublicToilet[], number]> {
+    const whereOptions: any = {};
+    if (publishedOnly) {
+      whereOptions.state = PublicToiletState.PUBLISHED;
+    }
     return this.publicToiletRepository.findAndCount({
       take: limit,
       skip: offset,
+      where: {
+        ...whereOptions
+      },
+      order: {
+        createdAt: 'DESC'
+      }
     });
   }
 
