@@ -94,8 +94,11 @@ export class Province {
   @Column()
   name: string;
 
-  @Field(() => [District], { description: 'Province Districts' })
-  @OneToMany(() => District, (district) => district.province)
+  @Field(() => [District], {
+    description: 'Province Districts',
+    nullable: true,
+  })
+  @OneToMany(() => District, (district) => district.province, { eager: true })
   district: District[];
 
   @Field(() => [YellowPagesAddress], {
@@ -104,6 +107,7 @@ export class Province {
   @OneToMany(
     () => YellowPagesAddress,
     (yellowpagesaddress) => yellowpagesaddress.province,
+    { nullable: true },
   )
   yellowpagesaddress: YellowPagesAddress[];
 }
@@ -242,8 +246,10 @@ export class YellowPagesAddress {
   @ManyToOne(() => District, (district) => district.yellowpagesaddress)
   district: District;
 
-  @Field(() => Province, { description: 'Province Type' })
-  @ManyToOne(() => Province, (province) => province.yellowpagesaddress)
+  @Field(() => Province, { description: 'Province Type', nullable: true })
+  @ManyToOne(() => Province, (province) => province.yellowpagesaddress, {
+    eager: true,
+  })
   province: Province;
 
   @Field(() => YellowPages, { description: '' })

@@ -4,6 +4,8 @@ import { User } from 'src/common/decorators/user.decorator';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 import {
+  CreateDistrictInput,
+  CreateProvinceInput,
   CreateYellowPagesAddressInput,
   CreateYellowPagesCategoryInput,
   CreateYellowPagesInput,
@@ -11,6 +13,8 @@ import {
 } from './dto/create-yellow-pages.input';
 import { FetchPaginationArgs } from '../common/pagination/fetch-pagination-input';
 import {
+  UpdateDistrictInput,
+  UpdateProvinceInput,
   UpdateYellowPagesAddressInput,
   UpdateYellowPagesCategoryInput,
   UpdateYellowPagesInput,
@@ -21,6 +25,8 @@ import {
   YellowPages,
   YellowPagesPhoneNumber,
   YellowPagesCatgory,
+  Province,
+  District,
 } from './entities/yellow-pages.entity';
 import {
   YellowPagesResponse,
@@ -31,6 +37,8 @@ import {
   YellowPagesAddressService,
   YellowPagesPhoneNumberService,
   YellowPagesCategoryService,
+  ProvinceService,
+  DistrictService,
 } from './yellow-pages.service';
 import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
@@ -38,6 +46,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { MakePublic } from 'src/common/decorators/public.decorator';
+import { FilterDistrictInput } from './dto/filter-yellowpages.input';
 
 @Resolver()
 @Roles(Role.Admin, Role.SuperAdmin)
@@ -245,6 +254,106 @@ export class YellowPagesAddressResolver {
   ): Promise<YellowPagesAddress> {
     checkUserAuthenticated(user);
     return this.yellowPagesAddressService.remove(id);
+  }
+}
+
+@Resolver()
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
+export class ProvinceResolver {
+  constructor(private readonly provinceService: ProvinceService) {}
+
+  @Query(() => [Province], { name: 'provinces' })
+  @MakePublic()
+  async getAllProvince(): Promise<Province[]> {
+    return this.provinceService.findAll();
+  }
+
+  @Query(() => Province, { name: 'provinceById' })
+  @MakePublic()
+  async findOne(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<Province> {
+    return this.provinceService.findOne(id);
+  }
+
+  @Mutation(() => Province)
+  @Roles(Role.Writer)
+  async createProvince(
+    @Args('createProvinceInput') createProvinceInput: CreateProvinceInput,
+    @User() user: number,
+  ): Promise<Province> {
+    checkUserAuthenticated(user);
+    return this.provinceService.create(createProvinceInput);
+  }
+
+  @Mutation(() => Province)
+  @Roles(Role.Writer)
+  async updateProvince(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('updateProvinceInput') updateProvinceInput: UpdateProvinceInput,
+    @User() user: number,
+  ): Promise<Province> {
+    checkUserAuthenticated(user);
+    return this.provinceService.update(id, updateProvinceInput);
+  }
+
+  @Mutation(() => Province)
+  @Roles(Role.Writer)
+  async removeProvince(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<Province> {
+    checkUserAuthenticated(user);
+    return this.provinceService.remove(id);
+  }
+}
+
+@Resolver()
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
+export class DistrictResolver {
+  constructor(private readonly districtService: DistrictService) {}
+
+  @Mutation(() => District)
+  @Roles(Role.Writer)
+  async creatDistrict(
+    @Args('createDistrictInput') createDistrictInput: CreateDistrictInput,
+    @User() user: number,
+  ): Promise<District> {
+    checkUserAuthenticated(user);
+    return await this.districtService.create(createDistrictInput);
+  }
+
+  @Query(() => [District], { name: 'districts' })
+  @MakePublic()
+  async findAll(
+    @Args('filterDistrictInput', { nullable: true })
+    filterDistrictInput: FilterDistrictInput,
+  ): Promise<District[]> {
+    console.log('api req from font-end');
+    return await this.districtService.findAll(filterDistrictInput);
+  }
+
+  @Mutation(() => District)
+  @Roles(Role.Writer)
+  async updateDistrict(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('updateDistrictInput') updateDistrictInput: UpdateDistrictInput,
+    @User() user: number,
+  ): Promise<District> {
+    checkUserAuthenticated(user);
+    return this.districtService.update(id, updateDistrictInput);
+  }
+
+  @Mutation(() => District)
+  @Roles(Role.Writer)
+  async removeDistrict(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<District> {
+    checkUserAuthenticated(user);
+    return this.districtService.remove(id);
   }
 }
 

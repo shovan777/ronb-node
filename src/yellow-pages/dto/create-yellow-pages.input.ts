@@ -7,7 +7,8 @@ import {
   YellowPages,
   YellowPagesCatgory,
 } from '../entities/yellow-pages.entity';
-import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum'
+import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum';
+import { IsEmail, MaxLength, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateYellowPagesCategoryInput {
@@ -15,7 +16,7 @@ export class CreateYellowPagesCategoryInput {
   name: string;
 
   @Field({ description: 'Yellow Pages Category description', nullable: true })
-  description?:string;
+  description?: string;
 }
 
 @InputType()
@@ -24,7 +25,7 @@ export class CreateYellowPagesInput {
   name: string;
 
   @Field({ description: 'Yellow Pages description', nullable: true })
-  description?:string;
+  description?: string;
 
   @Field(() => Int, {
     description: 'Yellow Pages category',
@@ -32,8 +33,11 @@ export class CreateYellowPagesInput {
   })
   category?: number;
 
-  @Field(()=> YellowPagesState, { description: 'Yellow Pages State', nullable: true })
-  state?: YellowPagesState
+  @Field(() => YellowPagesState, {
+    description: 'Yellow Pages State',
+    nullable: true,
+  })
+  state?: YellowPagesState;
 }
 
 @InputType()
@@ -59,7 +63,7 @@ export class CreateDistrictInput {
   @Field({ description: 'District name' })
   name: string;
 
-  @Field(()=>Int,{ description:'Districts Province'})
+  @Field(() => Int, { description: 'Districts Province' })
   province: number;
 }
 

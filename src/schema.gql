@@ -19,6 +19,14 @@ type CommentsResponse {
   pageData: PageData
 }
 
+input CreateDistrictInput {
+  """District name"""
+  name: String!
+
+  """Districts Province"""
+  province: Int!
+}
+
 input CreateNewsCategoryInput {
   """News category description"""
   description: String
@@ -99,6 +107,10 @@ input CreateNotificationDeviceInput {
 
   """Notification device user"""
   userId: Float
+}
+
+input CreateProvinceInput {
+  name: String!
 }
 
 input CreatePublicToiletInput {
@@ -221,6 +233,11 @@ type District {
   yellowpagesaddress: [YellowPagesAddress!]!
 }
 
+input FilterDistrictInput {
+  """Districts Province"""
+  province: Int
+}
+
 input FilterNewsInput {
   """News category"""
   category: Int
@@ -236,12 +253,14 @@ input FilterNewsInput {
 scalar GeoJSONPointScalar
 
 type Mutation {
+  creatDistrict(createDistrictInput: CreateDistrictInput!): District!
   createNews(createNewsInput: CreateNewsInput!): News!
   createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
   createNewsComment(createNewsCommentInput: CreateNewsCommentInput!): NewsComment!
   createNewsReply(createNewsReplyInput: CreateNewsReplyInput!): NewsReply!
   createNewsTaggit(createNewsTaggitInput: CreateNewsTaggitInput!): NewsTaggit!
   createNotificationDevice(CreateNotificationDeviceInput: CreateNotificationDeviceInput!): NotificationDevice!
+  createProvince(createProvinceInput: CreateProvinceInput!): Province!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
   createTag(createTagInput: CreateTagInput!): Tag!
   createUserInterests(createUserInterestsInput: CreateUserInterestsInput!): UserInterests!
@@ -252,12 +271,14 @@ type Mutation {
   createYellowPagesAddress(createYellowPagesAddressInput: CreateYellowPagesAddressInput!): YellowPagesAddress!
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
   createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
+  removeDistrict(id: Int!): District!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
   removeNewsComment(id: Int!): NewsComment!
   removeNewsImage(id: Int!): NewsImage!
   removeNewsReply(id: Int!): NewsReply!
   removeNewsTaggit(id: Int!): NewsTaggit!
+  removeProvince(id: Int!): Province!
   removePublicToilet(id: Int!): PublicToilet!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
@@ -268,10 +289,12 @@ type Mutation {
   removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
+  updateDistrict(id: Int!, updateDistrictInput: UpdateDistrictInput!): District!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
   updateNewsComment(id: Int!, updateNewsCommentInput: UpdateNewsCommentInput!): NewsComment!
   updateNewsReply(id: Int!, updateNewsReplyInput: UpdateNewsReplyInput!): NewsReply!
+  updateProvince(id: Int!, updateProvinceInput: UpdateProvinceInput!): Province!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
   updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
   updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
@@ -634,7 +657,7 @@ type Profile {
 
 type Province {
   """Province Districts"""
-  district: [District!]!
+  district: [District!]
 
   """id field for int"""
   id: Int!
@@ -728,6 +751,7 @@ type PublicToiletResponse {
 }
 
 type Query {
+  districts(filterDistrictInput: FilterDistrictInput): [District!]!
   instrestingTags: [Tag!]!
   news(
     """Paginate after cursor"""
@@ -803,6 +827,8 @@ type Query {
     """Paginate last"""
     last: Float
   ): NotificationResponse!
+  provinceById(id: Int!): Province!
+  provinces: [Province!]!
   publicToiletById(id: Int!): PublicToilet!
   publicToiletNearMe(
     """Paginate after cursor"""
@@ -904,6 +930,14 @@ type Tag {
   name: String!
 }
 
+input UpdateDistrictInput {
+  """District name"""
+  name: String
+
+  """Districts Province"""
+  province: Int
+}
+
 input UpdateNewsCategoryInput {
   """News category description"""
   description: String
@@ -956,6 +990,10 @@ input UpdateNewsInput {
 input UpdateNewsReplyInput {
   """Comment content"""
   content: String!
+}
+
+input UpdateProvinceInput {
+  name: String
 }
 
 input UpdatePublicToiletInput {
@@ -1109,7 +1147,7 @@ type YellowPagesAddress {
   id: Int!
 
   """Province Type"""
-  province: Province!
+  province: Province
 
   """"""
   yellowpages: YellowPages!

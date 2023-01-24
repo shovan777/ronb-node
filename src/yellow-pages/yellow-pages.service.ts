@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
+  CreateDistrictInput,
+  CreateProvinceInput,
   CreateYellowPagesAddressInput,
   CreateYellowPagesCategoryInput,
   CreateYellowPagesInput,
@@ -9,6 +11,8 @@ import {
 } from './dto/create-yellow-pages.input';
 import { FetchPaginationArgs } from '../common/pagination/fetch-pagination-input';
 import {
+  UpdateDistrictInput,
+  UpdateProvinceInput,
   UpdateYellowPagesAddressInput,
   UpdateYellowPagesCategoryInput,
   UpdateYellowPagesInput,
@@ -19,7 +23,10 @@ import {
   YellowPagesCatgory,
   YellowPagesAddress,
   YellowPagesPhoneNumber,
+  District,
+  Province,
 } from './entities/yellow-pages.entity';
+import { FilterDistrictInput } from './dto/filter-yellowpages.input';
 
 @Injectable()
 export class YellowPagesService {
@@ -77,7 +84,7 @@ export class YellowPagesService {
     return yellowpagesData;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<YellowPages> {
     const yellowpages = await this.yellowPagesRepository.findOne({
       where: { id: id },
       relations: ['address', 'phone_number', 'category'],
@@ -173,8 +180,8 @@ export class YellowPagesCategoryService {
   async adminFindAll(args: FetchPaginationArgs): Promise<YellowPagesCatgory[]> {
     return await this.yellowPagesCategoryRepository.find({
       take: args.take,
-      skip: args.skip
-    })
+      skip: args.skip,
+    });
   }
 
   async findOne(id: number): Promise<YellowPagesCatgory> {
@@ -329,6 +336,150 @@ export class YellowPagesAddressService {
       };
     }
     throw new NotFoundException(`Yellow Pages Address with id ${id} not found`);
+  }
+}
+
+@Injectable()
+export class ProvinceService {
+  constructor(
+    @InjectRepository(Province)
+    private readonly provinceRepository: Repository<Province>,
+  ) {}
+
+  async create(provinceInput: CreateProvinceInput): Promise<Province> {
+    return await this.provinceRepository.save(provinceInput);
+  }
+
+  async findAll(): Promise<Province[]> {
+    return this.provinceRepository.find({});
+  }
+
+  async findOne(id: number): Promise<Province> {
+    const province = await this.provinceRepository.findOne({
+      where: { id: id },
+    });
+
+    if (!province) {
+      throw new NotFoundException(`Province with id ${id} not found`);
+    }
+    return province;
+  }
+
+  async update(
+    id: number,
+    updateProvinceInput: UpdateProvinceInput,
+  ): Promise<Province> {
+    const province: Province = await this.findOne(id);
+
+    if (!province) {
+      throw new NotFoundException(`Province with id ${id} not found`);
+    }
+
+    await this.provinceRepository.update(id, updateProvinceInput);
+    return await this.findOne(id);
+  }
+
+  async remove(id: number) {
+    const province: Province = await this.provinceRepository.findOne({
+      where: { id: id },
+    });
+
+    if (province) {
+      await this.provinceRepository.delete(id);
+      return province;
+    }
+
+    throw new NotFoundException(`Province with id ${id} not found`);
+  }
+}
+
+@Injectable()
+export class DistrictService {
+  constructor(
+    @InjectRepository(District)
+    private readonly districtRepository: Repository<District>,
+    @InjectRepository(Province)
+    private readonly provinceRepository: Repository<Province>,
+  ) {}
+
+  async create(districtInput: CreateDistrictInput): Promise<District> {
+    let districtInputData: any = {
+      ...districtInput,
+    };
+
+    const provinceID = districtInput.province;
+
+    if (provinceID) {
+      const province: Province = await this.provinceRepository.findOne({
+        where: { id: provinceID },
+      });
+
+      if (!province) {
+        throw new NotFoundException(`Province with id ${provinceID} not found`);
+      }
+
+      districtInputData = {
+        ...districtInputData,
+        province: province,
+      };
+    }
+    return await this.districtRepository.save({ ...districtInputData });
+  }
+
+  async findAll(filterDistrictInput: FilterDistrictInput): Promise<District[]> {
+    const whereOptions: any = {};
+    if (filterDistrictInput?.province) {
+      whereOptions.province = filterDistrictInput.province;
+    }
+    return this.districtRepository.find({
+      where: { province: { id: filterDistrictInput.province } },
+    });
+  }
+
+  async update(
+    id: number,
+    updateDistrictInput: UpdateDistrictInput,
+  ): Promise<District> {
+    let districtInputData: any = {
+      ...updateDistrictInput,
+    };
+    const district: District = await this.districtRepository.findOne({
+      where: { id },
+    });
+
+    if (!district) {
+      throw new NotFoundException(`District with id ${id} not found`);
+    }
+    if (updateDistrictInput.province) {
+      const province: Province = await this.provinceRepository.findOneBy({
+        id: updateDistrictInput.province,
+      });
+      if (!province) {
+        throw new NotFoundException(
+          `Province with id ${updateDistrictInput.province} not found`,
+        );
+      }
+      districtInputData = {
+        ...districtInputData,
+        province: province,
+      };
+    }
+    await this.districtRepository.update(id, { ...districtInputData });
+
+    return this.districtRepository.findOneOrFail({ where: { id: id } });
+  }
+
+  async remove(id: number) {
+    const district: District = await this.districtRepository.findOne({
+      where: { id: id },
+    });
+
+    if (district) {
+      await this.districtRepository.delete(id);
+      return district;
+    }
+
+    throw new NotFoundException(`District with id ${id} not found`);
   }
 }
 
