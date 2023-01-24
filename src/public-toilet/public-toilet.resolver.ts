@@ -11,7 +11,7 @@ import { PublicToiletService } from './public-toilet.service';
 import { PublicToilet, PublicToiletImage } from './entities/public-toilet.entity';
 import { CreatePublicToiletInput } from './dto/create-public-toilet.input';
 import { UpdatePublicToiletInput } from './dto/update-public-toilet.input';
-import { NotFoundException, UseGuards, UseInterceptors } from '@nestjs/common';
+import { NotFoundException, UseGuards } from '@nestjs/common';
 import PublicToiletResponse from './public-toilet.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
@@ -61,8 +61,10 @@ export class PublicToiletResolver {
     @Roles(Role.Writer)
     removePublicToilet(
         @Args('id', { type: () => Int }) id: number,
+        @User() user: number,
     ): Promise<NotFoundException | any> {
-        return this.publicToiletService.remove(id);
+        checkUserAuthenticated(user);
+        return this.publicToiletService.remove(id, user);
     }
 
 
