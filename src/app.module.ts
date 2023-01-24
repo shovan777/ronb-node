@@ -15,6 +15,7 @@ import { TagsModule } from './tags/tags.module';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { YellowPagesModule } from './yellow-pages/yellow-pages.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { YellowPagesModule } from './yellow-pages/yellow-pages.module';
     TagsModule,
     NotificationsModule,
     YellowPagesModule,
+    UsersModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     GraphQLModule.forRoot({
       driver: ApolloDriver,

@@ -2,8 +2,9 @@ import { DataSource, EntitySubscriberInterface, EventSubscriber, InsertEvent, Up
 import { NewsReply, UserLikesNewsComment, UserLikesNewsReply } from "./entities/comment.entity";
 import { Inject, Logger } from "@nestjs/common";
 import { NotificationsService } from "src/notifications/notifications.service";
-import { NewsCommentsService, UsersService } from "./comments.service";
-import { getAuthor } from "./comments.resolver";
+import { NewsCommentsService } from "./comments.service";
+import { getAuthor } from "src/users/users.resolver";
+import { UsersService } from "src/users/users.service";
 
 
 @EventSubscriber()
