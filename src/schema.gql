@@ -129,7 +129,7 @@ input CreatePublicToiletReviewInput {
   publicToilet: Int!
 
   """Review rating"""
-  rating: Int
+  rating: Int!
 }
 
 input CreateTagInput {
@@ -1118,7 +1118,7 @@ input UpdatePublicToiletReviewInput {
   content: String!
 
   """Review rating"""
-  rating: Int
+  rating: Int!
 }
 
 input UpdateUserLikesNewsCommentInput {

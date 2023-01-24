@@ -11,6 +11,6 @@ export class CreatePublicToiletReviewInput {
 
     @Min(0)
     @Max(5)
-    @Field(() => Int, { description: 'Review rating', nullable:true })
+    @Field(() => Int, { description: 'Review rating' })
     rating: number;
 }

@@ -11,9 +11,7 @@ export abstract class BaseReview extends BaseIdEntity {
     content: string;
 
     @Field(() => Int, { description: "Review rating" })
-    @Column({
-        nullable: true,
-    })
+    @Column()
     @Min(0)
     @Max(5)
     rating: number;
