@@ -43,23 +43,27 @@ export class PublicToiletReviewsResolver {
     @Mutation(() => PublicToiletReview)
     @MakePublic()
     updatePublicToiletReview(
-        @Args('id', { type: () => Int }) id: number,
+        @User() user: number,
+        @Args('publicToiletId', { type: () => Int }) publicToiletId: number,
         @Args('updatePublicToiletReviewInput')
         updatePublicToiletReviewInput: UpdatePublicToiletReviewInput,
-        @User() user: number,
     ) {
         checkUserAuthenticated(user);
-        return this.publicToiletReviewsService.update(id, updatePublicToiletReviewInput, user);
+        return this.publicToiletReviewsService.update(
+            updatePublicToiletReviewInput,
+            user,
+            publicToiletId,
+        );
     }
 
     @Mutation(() => PublicToiletReview)
     @MakePublic()
     removePublicToiletReview(
-        @Args('id', { type: () => Int }) id: number,
+        @Args('publicToiletId', { type: () => Int }) publicToiletId: number,
         @User() user: number,
     ) {
         checkUserAuthenticated(user);
-        return this.publicToiletReviewsService.remove(id, user);
+        return this.publicToiletReviewsService.remove(publicToiletId, user);
     }
 
 
@@ -90,8 +94,11 @@ export class PublicToiletReviewsResolver {
 
     @Query(() => PublicToiletReview, {name:'publicToiletComment'})
     @MakePublic()
-    findOne(@Args('id', { type: () => Int }) id: number) {
-        return this.publicToiletReviewsService.findOne(id);
+    findOne(
+        @Args('publicToiletId', { type: () => Int }) publicToiletId: number,
+        @User() user: number,
+    ) {
+        return this.publicToiletReviewsService.findOne(publicToiletId, user);
     }
 
 

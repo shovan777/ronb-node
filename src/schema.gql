@@ -274,7 +274,7 @@ type Mutation {
   removeNewsReply(id: Int!): NewsReply!
   removeNewsTaggit(id: Int!): NewsTaggit!
   removePublicToilet(id: Int!): PublicToilet!
-  removePublicToiletReview(id: Int!): PublicToiletReview!
+  removePublicToiletReview(publicToiletId: Int!): PublicToiletReview!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
   removeUserLikesNewsReply(replyId: Int!): UserLikesNewsReply!
@@ -289,7 +289,7 @@ type Mutation {
   updateNewsComment(id: Int!, updateNewsCommentInput: UpdateNewsCommentInput!): NewsComment!
   updateNewsReply(id: Int!, updateNewsReplyInput: UpdateNewsReplyInput!): NewsReply!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
-  updatePublicToiletReview(id: Int!, updatePublicToiletReviewInput: UpdatePublicToiletReviewInput!): PublicToiletReview!
+  updatePublicToiletReview(publicToiletId: Int!, updatePublicToiletReviewInput: UpdatePublicToiletReviewInput!): PublicToiletReview!
   updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
   updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
   updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
@@ -763,9 +763,6 @@ type PublicToiletReview {
 
   """date of creation"""
   createdAt: DateTime!
-
-  """id field for int"""
-  id: Int!
   publicToilet: PublicToilet!
 
   """Review rating"""
@@ -874,7 +871,7 @@ type Query {
     last: Float
   ): NotificationResponse!
   publicToiletById(id: Int!): PublicToilet!
-  publicToiletComment(id: Int!): PublicToiletReview!
+  publicToiletComment(publicToiletId: Int!): PublicToiletReview!
   publicToiletNearMe(
     """Paginate after cursor"""
     after: String

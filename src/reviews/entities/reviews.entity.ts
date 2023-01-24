@@ -2,10 +2,14 @@ import { Field, Float, Int, ObjectType } from "@nestjs/graphql";
 import { Max, Min } from "class-validator";
 import { BaseIdEntity } from "src/common/entities/base.entity";
 import { PublicToilet } from "src/public-toilet/entities/public-toilet.entity";
-import { Column, CreateDateColumn, Entity, IsNull, ManyToOne, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @ObjectType({ isAbstract: true })
-export abstract class BaseReview extends BaseIdEntity {
+export abstract class BaseReview {
+    @Field(() => Int, { description: 'one wrote the review', })
+    @PrimaryColumn({ type: 'int', nullable: false })
+    author: number;
+
     @Field({ description: "Review content" })
     @Column()
     content: string;
@@ -23,19 +27,20 @@ export abstract class BaseReview extends BaseIdEntity {
     @Field({ description: 'date of update' })
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @Field(() => Int, { description: 'one wrote the review', })
-    @Column()
-    author: number;
 }
 
 
 @Entity()
 @ObjectType()
 export class PublicToiletReview extends BaseReview {
+    @PrimaryColumn()
+    publicToiletId: number;
+
     @Field(() => PublicToilet)
+    @JoinColumn({ name: 'publicToiletId' })
     @ManyToOne(() => PublicToilet, (publicToilet) => publicToilet.review, {
         onDelete: 'CASCADE',
+        nullable: false,
     })
     publicToilet: PublicToilet;
 }

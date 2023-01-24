@@ -54,24 +54,25 @@ export class PublicToiletReviewsService {
         });
     }
 
-    async findOne(id: number) {
+    async findOne(publicToiletId: number, user:number) {
         const publicToiletReview = await this.publicToiletReviewRepository.findOne({
             where: {
-                id,
+                author:user,
+                publicToiletId:publicToiletId,
             },
         });
         if (!publicToiletReview) {
-            throw new NotFoundException(`Public Toilet with id ${id} not found`);
+            throw new NotFoundException(`Public Toilet was not found`);
         }
         return publicToiletReview;
     }
 
     async update(
-        id: number,
         updatePublicToiletReviewInput: UpdatePublicToiletReviewInput,
         user: number,
+        publicToiletId: number
     ): Promise<PublicToiletReview> {
-        const review: PublicToiletReview = await this.findOne(id);
+        const review: PublicToiletReview = await this.findOne(publicToiletId, user);
         checkUserIsAuthor(user, review.author);
         return this.publicToiletReviewRepository.save({
             ...review,
@@ -79,11 +80,12 @@ export class PublicToiletReviewsService {
         });
     }
 
-    async remove(id: number, user: number) {
-        const review: PublicToiletReview = await this.findOne(id);
+    async remove(publicToiletId: number, user: number) {
+        const review: PublicToiletReview = await this.findOne(publicToiletId, user);
         checkUserIsAuthor(user, review.author);
-        await this.publicToiletReviewRepository.delete(review.id);
-        return review;
+        const removedPublicToiletReview = { ...review };
+        await this.publicToiletReviewRepository.remove(review);
+        return removedPublicToiletReview;
     }
 
 }
