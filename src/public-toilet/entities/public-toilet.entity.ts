@@ -13,6 +13,7 @@ import {Point} from 'geojson';
 import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
 import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
 import { PublicToiletReview } from 'src/reviews/entities/reviews.entity';
+import { PublishState as PublicToiletState } from 'src/common/enum/publish_state.enum';
 
 @ObjectType()
 @Entity()
@@ -76,6 +77,14 @@ export class PublicToilet {
     nullable: true,
   })
   review?: PublicToiletReview[];
+
+  @Field(() => PublicToiletState, { description: 'Public Toilet state' })
+  @Column({
+    type: 'enum',
+    enum: PublicToiletState,
+    default: PublicToiletState.DRAFT,
+  })
+  state: PublicToiletState;
 }
 
 

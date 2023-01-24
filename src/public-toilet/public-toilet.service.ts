@@ -9,6 +9,7 @@ import {
   PublicToiletImage,
 } from './entities/public-toilet.entity';
 import { uploadFileStream } from '../common/utils/upload';
+import { PublishState as PublicToiletState } from "src/common/enum/publish_state.enum";
 
 @Injectable()
 export class PublicToiletService {
@@ -46,7 +47,7 @@ export class PublicToiletService {
     const publicToiletData: PublicToilet =
       await this.publicToiletRepository.save({
         ...publicToiletInputData,
-        publishedAt: new Date(),
+        publishedAt: publicToiletInput.state === PublicToiletState.PUBLISHED ? new Date() : null,
         createdAt: new Date(),
         updatedAt: new Date(),
         createdBy: user,
@@ -160,6 +161,7 @@ export class PublicToiletService {
       const { images, ...updatedPublicToilet } = {
         ...publicToilet,
         ...publicToiletInputData,
+        publishedAt: publicToilet.publishedAt || (updatePublicToiletInput.state === PublicToiletState.PUBLISHED ? new Date() : null),
         updatedAt: new Date(),
         updatedBy: user,
       };

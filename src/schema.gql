@@ -119,6 +119,9 @@ input CreatePublicToiletInput {
 
   """Public Toilet Feature Image"""
   singleImage: Upload
+
+  """Public Toilet State"""
+  state: State!
 }
 
 input CreatePublicToiletReviewInput {
@@ -694,6 +697,9 @@ type PublicToilet {
   """Public Toilet main image."""
   singleImage: String
 
+  """Public Toilet state"""
+  state: State!
+
   """Total Review Rating"""
   totalReviewRating: TotalReviewRatings
 
@@ -1064,6 +1070,9 @@ input UpdatePublicToiletInput {
 
   """Public Toilet Feature Image"""
   singleImage: Upload
+
+  """Public Toilet State"""
+  state: State
 }
 
 input UpdatePublicToiletReviewInput {
