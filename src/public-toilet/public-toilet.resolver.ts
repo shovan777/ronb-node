@@ -123,8 +123,9 @@ export class PublicToiletResolver {
         for (let review in reviews) {
             total_rating += reviews[review].rating;
         }
+        const average_rating = count > 0 ? total_rating/count : 0;
         return {
-            totalRating: total_rating,
+            totalRating: average_rating,
             totalReview: count
         }
     }
