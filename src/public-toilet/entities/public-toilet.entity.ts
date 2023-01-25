@@ -95,7 +95,7 @@ export class PublicToiletImage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => PublicToilet)
+  // @Field(() => PublicToilet)
   @ManyToOne(() => PublicToilet, (publicToilet) => publicToilet.images)
   publicToilet: PublicToilet;
 

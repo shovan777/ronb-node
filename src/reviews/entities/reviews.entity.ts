@@ -6,7 +6,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn,
 
 @ObjectType({ isAbstract: true })
 export abstract class BaseReview {
-    @Field(() => Int, { description: 'one wrote the review', })
+    // @Field(() => Int, { description: 'one wrote the review', })
     @PrimaryColumn({ type: 'int', nullable: false })
     author: number;
 
@@ -33,10 +33,10 @@ export abstract class BaseReview {
 @Entity()
 @ObjectType()
 export class PublicToiletReview extends BaseReview {
+    @Field(() => Int)
     @PrimaryColumn()
     publicToiletId: number;
 
-    @Field(() => PublicToilet)
     @JoinColumn({ name: 'publicToiletId' })
     @ManyToOne(() => PublicToilet, (publicToilet) => publicToilet.review, {
         onDelete: 'CASCADE',

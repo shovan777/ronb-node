@@ -12,7 +12,7 @@ import { PublicToilet, PublicToiletImage } from './entities/public-toilet.entity
 import { CreatePublicToiletInput } from './dto/create-public-toilet.input';
 import { UpdatePublicToiletInput } from './dto/update-public-toilet.input';
 import { NotFoundException, UseGuards } from '@nestjs/common';
-import PublicToiletResponse from './public-toilet.response';
+import { PublicToiletResponse, PublicToiletAdminResponse } from './public-toilet.response';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
@@ -24,7 +24,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { MakePublic } from 'src/common/decorators/public.decorator';
 import { TotalReviewRatings } from 'src/reviews/entities/reviews.entity';
 import { PublicToiletReviewsService } from 'src/reviews/reviews.service';
-
+import { FetchPaginationArgs } from 'src/common/pagination/fetch-pagination-input';
 
 @Resolver(() => PublicToilet)
 @Roles(Role.Admin, Role.SuperAdmin)
@@ -83,18 +83,14 @@ export class PublicToiletResolver {
         return { page, pageData: { count, limit, offset } };
     }
 
-    @Query(() => PublicToiletResponse, { name: 'publicToiletsAdmin' })
+    @Query(() => PublicToiletAdminResponse, { name: 'publicToiletsAdmin' })
     @Roles(Role.Writer)
     async findAllAdmin(
-        @Args() args: ConnectionArgs,
-    ): Promise<PublicToiletResponse> {
-        const { limit, offset } = args.pagingParams();
-        const [publicToilets, count] = await this.publicToiletService.findAll(limit, offset);
-        const page = connectionFromArraySlice(publicToilets, args, {
-            arrayLength: count,
-            sliceStart: offset || 0,
-        });
-        return { page, pageData: { count, limit, offset } };
+        @Args() args: FetchPaginationArgs,
+    ): Promise<PublicToiletAdminResponse> {
+        const { take, skip } = args;
+        const [publicToilets, count] = await this.publicToiletService.findAllAdmin(take, skip);
+        return {count, data:publicToilets}
     }
 
     @Query(() => PublicToilet, { name: 'publicToiletById' })
