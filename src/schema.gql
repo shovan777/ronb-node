@@ -178,7 +178,7 @@ input CreateYellowPagesAddressInput {
   province: Int!
 
   """Yellow pages id"""
-  yellowpages: Int!
+  yellowpages: Int
 }
 
 input CreateYellowPagesCategoryInput {
@@ -190,6 +190,9 @@ input CreateYellowPagesCategoryInput {
 }
 
 input CreateYellowPagesInput {
+  """Address for yellow page address"""
+  address: [CreateYellowPagesAddressInput!]!
+
   """Yellow Pages category"""
   category: Int
 
@@ -198,6 +201,9 @@ input CreateYellowPagesInput {
 
   """Yellow Pages name"""
   name: String!
+
+  """Phone number for yellow pages"""
+  phone_number: [CreateYellowPagesPhoneNumberInput!]!
 
   """Yellow Pages State"""
   state: State
@@ -208,10 +214,10 @@ input CreateYellowPagesPhoneNumberInput {
   is_emergency: Boolean!
 
   """Phone number"""
-  phone_number: Float!
+  phone_number: Int!
 
   """Yellow pages id"""
-  yellowpages: Int!
+  yellowpages: Int
 }
 
 """
@@ -247,6 +253,11 @@ input FilterNewsInput {
 
   """News title"""
   title: String
+}
+
+input FilterYellowPagesInput {
+  """Yellow Pages category"""
+  category: Int
 }
 
 """GeoJSON Point"""
@@ -657,7 +668,7 @@ type Profile {
 
 type Province {
   """Province Districts"""
-  district: [District!]
+  district: [District!]!
 
   """id field for int"""
   id: Int!
@@ -864,6 +875,7 @@ type Query {
 
     """Paginate before cursor"""
     before: String
+    filterYellowPagesInput: FilterYellowPagesInput
 
     """Paginate first"""
     first: Float
@@ -873,7 +885,7 @@ type Query {
   ): YellowPagesResponse!
   yellowPagesAddress: [YellowPagesAddress!]!
   yellowPagesAddressById(id: Int!): YellowPagesAddress!
-  yellowPagesAdmin(skip: Int = 0, take: Int = 25): [YellowPages!]!
+  yellowPagesAdmin(filterYellowPagesInput: FilterYellowPagesInput, skip: Int = 0, take: Int = 25): [YellowPages!]!
   yellowPagesById(id: Int!): YellowPages!
   yellowPagesCategories(
     """Paginate after cursor"""
@@ -1046,6 +1058,9 @@ input UpdateYellowPagesCategoryInput {
 }
 
 input UpdateYellowPagesInput {
+  """Address for yellow page address"""
+  address: [CreateYellowPagesAddressInput!]
+
   """Yellow Pages category"""
   category: Int
 
@@ -1054,6 +1069,9 @@ input UpdateYellowPagesInput {
 
   """Yellow Pages name"""
   name: String
+
+  """Phone number for yellow pages"""
+  phone_number: [CreateYellowPagesPhoneNumberInput!]
 
   """Yellow Pages State"""
   state: State
@@ -1064,7 +1082,7 @@ input UpdateYellowPagesPhoneNumberInput {
   is_emergency: Boolean
 
   """Phone number"""
-  phone_number: Float
+  phone_number: Int
 
   """Yellow pages id"""
   yellowpages: Int
@@ -1133,7 +1151,7 @@ type YellowPages {
   name: String!
 
   """Yellow Pages phone number(s)"""
-  phone_number: [YellowPagesPhoneNumber!]!
+  phone_number: [YellowPagesPhoneNumber!]
 
   """Yellow Pages state"""
   state: State!
@@ -1141,7 +1159,7 @@ type YellowPages {
 
 type YellowPagesAddress {
   """District Type"""
-  district: District!
+  district: District
 
   """id field for int"""
   id: Int!

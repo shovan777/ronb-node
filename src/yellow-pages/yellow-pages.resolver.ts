@@ -46,7 +46,10 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { MakePublic } from 'src/common/decorators/public.decorator';
-import { FilterDistrictInput } from './dto/filter-yellowpages.input';
+import {
+  FilterDistrictInput,
+  FilterYellowPagesInput,
+} from './dto/filter-yellowpages.input';
 
 @Resolver()
 @Roles(Role.Admin, Role.SuperAdmin)
@@ -69,11 +72,14 @@ export class YellowPagesResolver {
   @MakePublic()
   async getAllYellowPages(
     @Args() args: ConnectionArgs,
+    @Args('filterYellowPagesInput', { nullable: true })
+    filterYellowPagesInput?: FilterYellowPagesInput,
   ): Promise<YellowPagesResponse> {
     const { limit, offset } = args.pagingParams();
     const [yellowPages, count] = await this.yellowPagesService.findAll(
       limit,
       offset,
+      filterYellowPagesInput,
     );
 
     const page = connectionFromArraySlice(yellowPages, args, {
@@ -89,8 +95,10 @@ export class YellowPagesResolver {
   @Roles(Role.Writer)
   async getAllYellowPagesAdmin(
     @Args() args: FetchPaginationArgs,
+    @Args('filterYellowPagesInput', { nullable: true })
+    filterYellowPagesInput?: FilterYellowPagesInput,
   ): Promise<any> {
-    return this.yellowPagesService.adminFindAll(args);
+    return this.yellowPagesService.adminFindAll(args, filterYellowPagesInput);
   }
 
   @Query(() => YellowPages, { name: 'yellowPagesById' })

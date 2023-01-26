@@ -1,14 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import {
-  YellowPagesAddress,
-  District,
-  Province,
-  YellowPagesPhoneNumber,
-  YellowPages,
-  YellowPagesCatgory,
-} from '../entities/yellow-pages.entity';
 import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum';
-import { IsEmail, MaxLength, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateYellowPagesCategoryInput {
@@ -38,6 +29,16 @@ export class CreateYellowPagesInput {
     nullable: true,
   })
   state?: YellowPagesState;
+
+  @Field(() => [CreateYellowPagesAddressInput], {
+    description: 'Address for yellow page address',
+  })
+  address?: CreateYellowPagesAddressInput[];
+
+  @Field(() => [CreateYellowPagesPhoneNumberInput], {
+    description: 'Phone number for yellow pages',
+  })
+  phone_number?: CreateYellowPagesPhoneNumberInput[];
 }
 
 @InputType()
@@ -48,7 +49,7 @@ export class CreateYellowPagesAddressInput {
   @Field(() => Int, { description: 'Province Type' })
   province: number;
 
-  @Field(() => Int, { description: 'Yellow pages id' })
+  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
   yellowpages?: number;
 }
 
@@ -69,12 +70,12 @@ export class CreateDistrictInput {
 
 @InputType()
 export class CreateYellowPagesPhoneNumberInput {
-  @Field({ description: 'Phone number' })
+  @Field(() => Int, { description: 'Phone number' })
   phone_number: number;
 
   @Field({ description: '' })
   is_emergency: boolean;
 
-  @Field(() => Int, { description: 'Yellow pages id' })
+  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
   yellowpages?: number;
 }
