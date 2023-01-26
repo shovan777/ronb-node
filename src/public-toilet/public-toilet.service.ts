@@ -1,5 +1,5 @@
 import { GeoJSONPointScalar } from "src/common/scalars/geojson/Point.scalar";
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePublicToiletInput } from './dto/create-public-toilet.input';
@@ -9,6 +9,9 @@ import {
   PublicToiletImage,
 } from './entities/public-toilet.entity';
 import { uploadFileStream } from '../common/utils/upload';
+import { PublishState as PublicToiletState } from "src/common/enum/publish_state.enum";
+import { checkUserIsAuthor } from "src/common/utils/checkUserAuthentication";
+import { checkIfObjectIsPublished } from "src/common/utils/checkPublishedState";
 
 @Injectable()
 export class PublicToiletService {
@@ -46,7 +49,7 @@ export class PublicToiletService {
     const publicToiletData: PublicToilet =
       await this.publicToiletRepository.save({
         ...publicToiletInputData,
-        publishedAt: new Date(),
+        publishedAt: publicToiletInput.state === PublicToiletState.PUBLISHED ? new Date() : null,
         createdAt: new Date(),
         updatedAt: new Date(),
         createdBy: user,
@@ -82,16 +85,48 @@ export class PublicToiletService {
       };
     }
 
-    return await publicToiletData;
+    return publicToiletData;
   }
 
   async findAll(
     limit: number,
     offset: number,
+    publishedOnly = false,
   ): Promise<[PublicToilet[], number]> {
+    const whereOptions: any = {};
+    if (publishedOnly) {
+      whereOptions.state = PublicToiletState.PUBLISHED;
+    }
     return this.publicToiletRepository.findAndCount({
       take: limit,
       skip: offset,
+      where: {
+        ...whereOptions
+      },
+      order: {
+        createdAt: 'DESC'
+      }
+    });
+  }
+
+  async findAllAdmin(
+    limit: number,
+    offset: number,
+    publishedOnly = false,
+  ): Promise<[PublicToilet[], number]> {
+    const whereOptions: any = {};
+    if (publishedOnly) {
+      whereOptions.state = PublicToiletState.PUBLISHED;
+    }
+    return this.publicToiletRepository.findAndCount({
+      take: limit,
+      skip: offset,
+      where: {
+        ...whereOptions
+      },
+      order: {
+        createdAt: 'DESC'
+      }
     });
   }
 
@@ -160,6 +195,7 @@ export class PublicToiletService {
       const { images, ...updatedPublicToilet } = {
         ...publicToilet,
         ...publicToiletInputData,
+        publishedAt: publicToilet.publishedAt || (updatePublicToiletInput.state === PublicToiletState.PUBLISHED ? new Date() : null),
         updatedAt: new Date(),
         updatedBy: user,
       };
@@ -168,7 +204,10 @@ export class PublicToiletService {
     throw new NotFoundException(`PublicToilet with id ${id} not found`);
   }
 
-  async remove(id: number) {
+  async remove(
+    id: number,
+    user: number,
+  ) {
     const publicToilet: PublicToilet =
       await this.publicToiletRepository.findOne({
         where: { id: id },
@@ -176,6 +215,11 @@ export class PublicToiletService {
       });
 
     if (publicToilet) {
+      const published_state = checkIfObjectIsPublished(publicToilet.state);
+      if (published_state) {
+        return new ForbiddenException(`PublicToilet with id ${id} already published.`)
+      }
+      checkUserIsAuthor(user, publicToilet.createdBy);
       const deleteImage = publicToilet.images.map(async (image) => {
         return await this.publicToiletImageRepository.delete(image.id);
       });

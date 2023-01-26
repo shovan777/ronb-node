@@ -2,7 +2,7 @@ import { InputType, Int, Field } from '@nestjs/graphql';
 import { Upload } from 'src/common/scalars/upload.scalar';
 import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
 import { Point } from 'geojson';
-
+import { PublishState as PublicToiletState } from 'src/common/enum/publish_state.enum';
 
 @InputType()
 export class CreatePublicToiletInput {
@@ -23,4 +23,7 @@ export class CreatePublicToiletInput {
 
     @Field(() => GeoJSONPointScalar, { description: 'Public Toilet location',nullable:true })
     geopoint: Point;
+
+    @Field(()=> PublicToiletState, { description: 'Public Toilet State'})
+    state?: PublicToiletState
 }
