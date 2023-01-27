@@ -57,11 +57,21 @@ export class YellowPagesService {
     if (filterYellowPagesInput?.category) {
       whereOptions.category = { id: filterYellowPagesInput.category };
     }
+
+    if (filterYellowPagesInput?.province | filterYellowPagesInput?.district) {
+      whereOptions.address = {
+        province: { id: filterYellowPagesInput.province },
+        district: { id: filterYellowPagesInput.district },
+      };
+    }
     return this.yellowPagesRepository.findAndCount({
       relations: ['address', 'phone_number', 'category'],
       where: { ...whereOptions },
       take: limit,
       skip: offset,
+      order: {
+        id: 'DESC',
+      },
     });
   }
 
@@ -85,7 +95,7 @@ export class YellowPagesService {
     let yellowpagesInputData: any = {
       ...yellowpagesInput,
       address: null,
-      phone_number: null
+      phone_number: null,
     };
 
     if (yellowpagesInput.category) {

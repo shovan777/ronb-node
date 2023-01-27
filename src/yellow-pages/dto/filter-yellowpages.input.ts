@@ -1,6 +1,7 @@
-import { InputType, PartialType, PickType } from '@nestjs/graphql';
+import { Field, InputType, Int, PartialType, PickType } from '@nestjs/graphql';
 import {
   CreateDistrictInput,
+  CreateYellowPagesAddressInput,
   CreateYellowPagesInput,
 } from './create-yellow-pages.input';
 
@@ -12,4 +13,10 @@ export class FilterDistrictInput extends PartialType(
 @InputType()
 export class FilterYellowPagesInput extends PartialType(
   PickType(CreateYellowPagesInput, ['category']),
-) {}
+) {
+  @Field(() => Int, { nullable: true })
+  province?: number;
+
+  @Field(() => Int, { nullable: true })
+  district?: number;
+}
