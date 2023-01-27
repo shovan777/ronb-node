@@ -12,6 +12,6 @@ export const checkUserAuthenticated = (user: number) => {
 
 export const checkUserIsAuthor = (user: number, author: number) => {
   if (user !== author) {
-    throw new ForbiddenException(`{user} is not the author`);
+    throw new ForbiddenException(`${user} is not the author`);
   }
 };

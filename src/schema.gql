@@ -131,6 +131,20 @@ input CreatePublicToiletInput {
 
   """Public Toilet Feature Image"""
   singleImage: Upload
+
+  """Public Toilet State"""
+  state: State!
+}
+
+input CreatePublicToiletReviewInput {
+  """Review content"""
+  content: String!
+
+  """Public Toilet id"""
+  publicToilet: Int!
+
+  """Review rating"""
+  rating: Int!
 }
 
 input CreateTagInput {
@@ -273,6 +287,7 @@ type Mutation {
   createNotificationDevice(CreateNotificationDeviceInput: CreateNotificationDeviceInput!): NotificationDevice!
   createProvince(createProvinceInput: CreateProvinceInput!): Province!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
+  createPublicToiletReview(createPublicToiletReviewsInput: CreatePublicToiletReviewInput!): PublicToiletReview!
   createTag(createTagInput: CreateTagInput!): Tag!
   createUserInterests(createUserInterestsInput: CreateUserInterestsInput!): UserInterests!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
@@ -291,6 +306,7 @@ type Mutation {
   removeNewsTaggit(id: Int!): NewsTaggit!
   removeProvince(id: Int!): Province!
   removePublicToilet(id: Int!): PublicToilet!
+  removePublicToiletReview(publicToiletId: Int!): PublicToiletReview!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
   removeUserLikesNewsReply(replyId: Int!): UserLikesNewsReply!
@@ -307,6 +323,7 @@ type Mutation {
   updateNewsReply(id: Int!, updateNewsReplyInput: UpdateNewsReplyInput!): NewsReply!
   updateProvince(id: Int!, updateProvinceInput: UpdateProvinceInput!): Province!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
+  updatePublicToiletReview(publicToiletId: Int!, updatePublicToiletReviewInput: UpdatePublicToiletReviewInput!): PublicToiletReview!
   updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
   updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
   updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
@@ -708,14 +725,28 @@ type PublicToilet {
   """Public Toilet publishedAt"""
   publishedAt: DateTime
 
+  """Public Toilet Review"""
+  review: [PublicToiletReview!]
+
   """Public Toilet main image."""
   singleImage: String
+
+  """Public Toilet state"""
+  state: State!
+
+  """Total Review Rating"""
+  totalReviewRating: TotalReviewRatings
 
   """Public Toilet updatedAt"""
   updatedAt: DateTime!
 
   """Public Toilet updatedBy"""
   updatedBy: Int!
+}
+
+type PublicToiletAdminResponse {
+  count: Int!
+  data: [PublicToilet!]!
 }
 
 type PublicToiletConnection {
@@ -740,7 +771,6 @@ type PublicToiletImage {
 
   """Public Toilet image"""
   image: String!
-  publicToilet: PublicToilet!
 
   """News image updatedAt"""
   updatedAt: DateTime!
@@ -758,6 +788,45 @@ type PublicToiletPageInfo {
 
 type PublicToiletResponse {
   page: PublicToiletConnection!
+  pageData: PageData
+}
+
+type PublicToiletReview {
+  authorDetail: Author!
+
+  """Review content"""
+  content: String!
+
+  """date of creation"""
+  createdAt: DateTime!
+  publicToiletId: Int!
+
+  """Review rating"""
+  rating: Int!
+
+  """date of update"""
+  updatedAt: DateTime!
+}
+
+type PublicToiletReviewConnection {
+  edges: [PublicToiletReviewEdge!]!
+  pageInfo: PublicToiletReviewPageInfo!
+}
+
+type PublicToiletReviewEdge {
+  cursor: String
+  node: PublicToiletReview
+}
+
+type PublicToiletReviewPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type PublicToiletReviewsResponse {
+  page: PublicToiletReviewConnection!
   pageData: PageData
 }
 
@@ -841,6 +910,7 @@ type Query {
   provinceById(id: Int!): Province!
   provinces: [Province!]!
   publicToiletById(id: Int!): PublicToilet!
+  publicToiletComment(publicToiletId: Int!): PublicToiletReview!
   publicToiletNearMe(
     """Paginate after cursor"""
     after: String
@@ -855,6 +925,20 @@ type Query {
     last: Float
     origin: GeoJSONPointScalar!
   ): PublicToiletResponse!
+  publicToiletReview(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+    publicToiletId: Int!
+  ): PublicToiletReviewsResponse!
   publicToilets(
     """Paginate after cursor"""
     after: String
@@ -868,6 +952,7 @@ type Query {
     """Paginate last"""
     last: Float
   ): PublicToiletResponse!
+  publicToiletsAdmin(skip: Int = 0, take: Int = 25): PublicToiletAdminResponse!
   tags: [Tag!]!
   yellowPages(
     """Paginate after cursor"""
@@ -940,6 +1025,15 @@ type Tag {
 
   """name of the tag"""
   name: String!
+}
+
+"""Total Reveiw and Rating"""
+type TotalReviewRatings {
+  """Total Rating"""
+  totalRating: Float!
+
+  """Total Reviewer"""
+  totalReview: Int!
 }
 
 input UpdateDistrictInput {
@@ -1026,6 +1120,17 @@ input UpdatePublicToiletInput {
 
   """Public Toilet Feature Image"""
   singleImage: Upload
+
+  """Public Toilet State"""
+  state: State
+}
+
+input UpdatePublicToiletReviewInput {
+  """Review content"""
+  content: String!
+
+  """Review rating"""
+  rating: Int!
 }
 
 input UpdateUserLikesNewsCommentInput {
