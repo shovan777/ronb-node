@@ -166,11 +166,11 @@ export class NewsService {
     if (publishedOnly) {
       whereOptions.state = NewsState.PUBLISHED;
     }
-    if (filterNewsInput?.title){
-      whereOptions.title = Like(`%${filterNewsInput.title}%`)
+    if (filterNewsInput?.title) {
+      whereOptions.title = Like(`%${filterNewsInput.title}%`);
     }
     if (filterNewsInput?.language) {
-      whereOptions.language = filterNewsInput.language
+      whereOptions.language = filterNewsInput.language;
     }
     return this.newsRepository.findAndCount({
       relations: {
