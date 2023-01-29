@@ -6,7 +6,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn,
 
 @ObjectType({ isAbstract: true })
 export abstract class BaseReview {
-    // @Field(() => Int, { description: 'one wrote the review', })
+    @Field(() => Int, { description: 'one wrote the review', })
     @PrimaryColumn({ type: 'int', nullable: false })
     author: number;
 
