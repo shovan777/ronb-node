@@ -13,12 +13,8 @@ import {
   UserLikesNewsCommentService,
   UserLikesNewsReplyService,
 } from './comments.service';
-import {
-  UsersService,
-} from 'src/users/users.service';
-import {
-  Author
-} from 'src/users/entitiy/users.entity'
+import { UsersService } from 'src/users/users.service';
+import { Author } from 'src/users/entitiy/users.entity';
 import {
   NewsComment,
   NewsReply,
@@ -43,7 +39,7 @@ import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import CommentsResponse, { RepliesResponse } from './comments.response';
 import { ReactCount } from 'src/common/entities/base.entity';
-import { getAuthor } from 'src/users/users.resolver'
+import { getAuthor } from 'src/users/users.resolver';
 
 @Resolver(() => NewsComment)
 export class NewsCommentsResolver {
