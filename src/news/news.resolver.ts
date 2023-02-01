@@ -158,9 +158,9 @@ export class NewsResolver {
   async category(@Parent() news: News) {
     const { id } = news;
     // console.log(news);
-    // if (news.category) {
-    //   return news.category;
-    // }
+    if (news.category) {
+      return news.category;
+    }
     return await this.newsService.findCategoryofNews(id);
   }
 
@@ -168,6 +168,9 @@ export class NewsResolver {
   @MakePublic()
   async tags(@Parent() news: News) {
     const { id } = news;
+    if (news.tags) {
+      return news.tags;
+    }
     return await this.newsTaggitService.findAllByNews(id);
   }
 
