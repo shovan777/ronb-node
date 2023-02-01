@@ -794,6 +794,8 @@ type PublicToiletResponse {
 }
 
 type PublicToiletReview {
+  """one wrote the review"""
+  author: Int!
   authorDetail: Author!
 
   """Review content"""
