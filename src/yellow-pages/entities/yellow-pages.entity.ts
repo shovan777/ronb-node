@@ -12,10 +12,6 @@ import {
 @ObjectType()
 @Entity()
 export class YellowPagesCatgory extends CreatorBaseEntity {
-  @Field(() => Int, { description: 'id field for int' })
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Field({ description: 'Yellow Pages name' })
   @Column()
   name: string;
@@ -31,11 +27,7 @@ export class YellowPagesCatgory extends CreatorBaseEntity {
 
 @ObjectType()
 @Entity()
-export class YellowPages {
-  @Field(() => Int, { description: 'id field for int' })
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class YellowPages extends CreatorBaseEntity {
   @Field({ description: 'Yellow Pages name' })
   @Column()
   name: string;
@@ -63,6 +55,17 @@ export class YellowPages {
     { nullable: true },
   )
   phone_number?: YellowPagesPhoneNumber[];
+
+  @Field(() => [YellowPagesEmail], {
+    description: 'Yellow Pages email(s)',
+    nullable: true,
+  })
+  @OneToMany(
+    () => YellowPagesEmail,
+    (email) => email.yellowpages,
+    { nullable: true, eager: true },
+  )
+  email?: YellowPagesEmail[];
 
   @Field(() => YellowPagesCatgory, {
     description: 'Yellow Pages category',
@@ -252,6 +255,10 @@ export class YellowPagesAddress {
   })
   province: Province;
 
+  @Field({ description: 'Address' })
+  @Column()
+  address: string
+
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.address, {
     onDelete: 'CASCADE',
@@ -266,16 +273,35 @@ export class YellowPagesPhoneNumber {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => Int, { description: 'Phone number' })
-  @Column()
+  @Field({ description: 'Phone number' })
+  @Column({type: 'bigint'})
   phone_number: number;
 
   @Field(() => Boolean, { description: '' })
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', default: false })
   is_emergency: boolean;
 
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.phone_number, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  yellowpages?: YellowPages;
+}
+
+@ObjectType()
+@Entity()
+export class YellowPagesEmail {
+  @Field(() => Int, { description: 'id field for int' })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Field({ description: 'Email' })
+  @Column()
+  email: string;
+
+  @Field(() => YellowPages, { description: '' })
+  @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.email, {
     onDelete: 'CASCADE',
     nullable: true,
   })

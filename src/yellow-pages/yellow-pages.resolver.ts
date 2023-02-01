@@ -73,7 +73,7 @@ export class YellowPagesResolver {
     @User() user: number,
   ) {
     checkUserAuthenticated(user);
-    return await this.yellowPagesService.create(createYellowPagesInput);
+    return await this.yellowPagesService.create(createYellowPagesInput, user);
   }
 
   @Query(() => YellowPagesResponse, { name: 'yellowPages' })
@@ -124,7 +124,7 @@ export class YellowPagesResolver {
     user: number,
   ) {
     checkUserAuthenticated(user);
-    return await this.yellowPagesService.update(id, updateYellowPagesInput);
+    return await this.yellowPagesService.update(id, updateYellowPagesInput, user);
   }
 
   @Mutation(() => YellowPages)

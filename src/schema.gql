@@ -185,6 +185,9 @@ input CreateUserLikesNewsReplyInput {
 }
 
 input CreateYellowPagesAddressInput {
+  """Address"""
+  address: String!
+
   """District Type"""
   district: Int!
 
@@ -203,6 +206,14 @@ input CreateYellowPagesCategoryInput {
   name: String!
 }
 
+input CreateYellowPagesEmailInput {
+  """Email"""
+  email: String!
+
+  """Yellow pages id"""
+  yellowpages: Int
+}
+
 input CreateYellowPagesInput {
   """Address for yellow page address"""
   address: [CreateYellowPagesAddressInput!]!
@@ -212,6 +223,9 @@ input CreateYellowPagesInput {
 
   """Yellow Pages description"""
   description: String
+
+  """email for yellow pages"""
+  email: [CreateYellowPagesEmailInput!]!
 
   """Yellow Pages name"""
   name: String!
@@ -225,10 +239,10 @@ input CreateYellowPagesInput {
 
 input CreateYellowPagesPhoneNumberInput {
   """"""
-  is_emergency: Boolean!
+  is_emergency: Boolean = false
 
   """Phone number"""
-  phone_number: Int!
+  phone_number: Float!
 
   """Yellow pages id"""
   yellowpages: Int
@@ -1146,6 +1160,9 @@ input UpdateUserLikesNewsReplyInput {
 }
 
 input UpdateYellowPagesAddressInput {
+  """Address"""
+  address: String
+
   """District Type"""
   district: Int
 
@@ -1174,6 +1191,9 @@ input UpdateYellowPagesInput {
   """Yellow Pages description"""
   description: String
 
+  """email for yellow pages"""
+  email: [CreateYellowPagesEmailInput!]
+
   """Yellow Pages name"""
   name: String
 
@@ -1186,10 +1206,10 @@ input UpdateYellowPagesInput {
 
 input UpdateYellowPagesPhoneNumberInput {
   """"""
-  is_emergency: Boolean
+  is_emergency: Boolean = false
 
   """Phone number"""
-  phone_number: Int
+  phone_number: Float
 
   """Yellow pages id"""
   yellowpages: Int
@@ -1248,8 +1268,17 @@ type YellowPages {
   """Yellow Pages category"""
   category: YellowPagesCatgory
 
+  """date of creation"""
+  createdAt: DateTime!
+
+  """one who created"""
+  createdBy: Int!
+
   """Yellow Pages description"""
   description: String
+
+  """Yellow Pages email(s)"""
+  email: [YellowPagesEmail!]
 
   """id field for int"""
   id: Int!
@@ -1262,9 +1291,18 @@ type YellowPages {
 
   """Yellow Pages state"""
   state: State!
+
+  """date of update"""
+  updatedAt: DateTime!
+
+  """one who updated"""
+  updatedBy: Int!
 }
 
 type YellowPagesAddress {
+  """Address"""
+  address: String!
+
   """District Type"""
   district: District
 
@@ -1336,6 +1374,17 @@ type YellowPagesEdge {
   node: YellowPages
 }
 
+type YellowPagesEmail {
+  """Email"""
+  email: String!
+
+  """id field for int"""
+  id: Int!
+
+  """"""
+  yellowpages: YellowPages!
+}
+
 type YellowPagesPageInfo {
   endCursor: String
   hasNextPage: Boolean!
@@ -1351,7 +1400,7 @@ type YellowPagesPhoneNumber {
   is_emergency: Boolean!
 
   """Phone number"""
-  phone_number: Int!
+  phone_number: Float!
 
   """"""
   yellowpages: YellowPages!
