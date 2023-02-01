@@ -1,4 +1,12 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Int,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { User } from 'src/common/decorators/user.decorator';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
@@ -208,7 +216,7 @@ export class YellowPagesCategoryResolver {
   }
 }
 
-@Resolver()
+@Resolver(() => YellowPagesAddress)
 @Roles(Role.Admin, Role.SuperAdmin)
 @UseGuards(RolesGuard)
 export class YellowPagesAddressResolver {
@@ -239,6 +247,20 @@ export class YellowPagesAddressResolver {
   @MakePublic()
   async findOne(@Args('id', { type: () => Int }) id: number) {
     return this.yellowPagesAddressService.findOne(id);
+  }
+
+  @ResolveField(() => District)
+  @MakePublic()
+  async district(@Parent() yellowPagesAddress: YellowPagesAddress) {
+    const { id } = yellowPagesAddress;
+    return await this.yellowPagesAddressService.findDistrictofAddress(id);
+  }
+
+  @ResolveField(() => Province)
+  @MakePublic()
+  async province(@Parent() yellowPagesAddress: YellowPagesAddress) {
+    const { id } = yellowPagesAddress;
+    return await this.yellowPagesAddressService.findProvinceofAddress(id);
   }
 
   @Mutation(() => YellowPagesAddress)
@@ -317,7 +339,7 @@ export class ProvinceResolver {
   }
 }
 
-@Resolver()
+@Resolver(() => District)
 @Roles(Role.Admin, Role.SuperAdmin)
 @UseGuards(RolesGuard)
 export class DistrictResolver {

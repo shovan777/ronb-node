@@ -50,7 +50,6 @@ export class YellowPages {
   })
   @OneToMany(() => YellowPagesAddress, (address) => address.yellowpages, {
     nullable: true,
-    eager: true,
   })
   address?: YellowPagesAddress[];
 
@@ -61,7 +60,7 @@ export class YellowPages {
   @OneToMany(
     () => YellowPagesPhoneNumber,
     (phone_number) => phone_number.yellowpages,
-    { nullable: true, eager: true },
+    { nullable: true },
   )
   phone_number?: YellowPagesPhoneNumber[];
 
@@ -71,7 +70,6 @@ export class YellowPages {
   })
   @ManyToOne(() => YellowPagesCatgory, (category) => category.yellowpages, {
     nullable: true,
-    eager: true,
   })
   category?: YellowPagesCatgory;
 
@@ -245,14 +243,12 @@ export class YellowPagesAddress {
   @Field(() => District, { description: 'District Type', nullable: true })
   @ManyToOne(() => District, (district) => district.yellowpagesaddress, {
     nullable: true,
-    eager: true,
   })
   district: District;
 
   @Field(() => Province, { description: 'Province Type', nullable: true })
   @ManyToOne(() => Province, (province) => province.yellowpagesaddress, {
     nullable: true,
-    eager: true,
   })
   province: Province;
 
