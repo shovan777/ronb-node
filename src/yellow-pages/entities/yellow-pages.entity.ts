@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
 import { PublishState as YellowPagesState } from 'src/common/enum/publish_state.enum';
 import {
@@ -25,9 +25,7 @@ export class YellowPagesCatgory extends CreatorBaseEntity {
   description?: string;
 
   @Field(() => [YellowPages], { description: 'Yellow Pages in this category' })
-  @OneToMany(() => YellowPages, (yellowpages) => yellowpages.category, {
-    eager: true,
-  })
+  @OneToMany(() => YellowPages, (yellowpages) => yellowpages.category)
   yellowpages: YellowPages[];
 }
 
@@ -57,6 +55,7 @@ export class YellowPages {
 
   @Field(() => [YellowPagesPhoneNumber], {
     description: 'Yellow Pages phone number(s)',
+    nullable: true,
   })
   @OneToMany(
     () => YellowPagesPhoneNumber,
@@ -94,8 +93,10 @@ export class Province {
   @Column()
   name: string;
 
-  @Field(() => [District], { description: 'Province Districts' })
-  @OneToMany(() => District, (district) => district.province)
+  @Field(() => [District], {
+    description: 'Province Districts',
+  })
+  @OneToMany(() => District, (district) => district.province, { eager: true })
   district: District[];
 
   @Field(() => [YellowPagesAddress], {
@@ -104,6 +105,7 @@ export class Province {
   @OneToMany(
     () => YellowPagesAddress,
     (yellowpagesaddress) => yellowpagesaddress.province,
+    { nullable: true },
   )
   yellowpagesaddress: YellowPagesAddress[];
 }
@@ -238,18 +240,21 @@ export class YellowPagesAddress {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => District, { description: 'District Type' })
-  @ManyToOne(() => District, (district) => district.yellowpagesaddress)
+  @Field(() => District, { description: 'District Type', nullable: true })
+  @ManyToOne(() => District, (district) => district.yellowpagesaddress, {
+    nullable: true,
+  })
   district: District;
 
-  @Field(() => Province, { description: 'Province Type' })
-  @ManyToOne(() => Province, (province) => province.yellowpagesaddress)
+  @Field(() => Province, { description: 'Province Type', nullable: true })
+  @ManyToOne(() => Province, (province) => province.yellowpagesaddress, {
+    nullable: true,
+  })
   province: Province;
 
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.address, {
     onDelete: 'CASCADE',
-    eager: true,
   })
   yellowpages?: YellowPages;
 }
@@ -272,7 +277,7 @@ export class YellowPagesPhoneNumber {
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.phone_number, {
     onDelete: 'CASCADE',
-    eager: true,
+    nullable: true,
   })
   yellowpages?: YellowPages;
 }

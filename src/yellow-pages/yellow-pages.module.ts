@@ -9,12 +9,16 @@ import {
   Province,
 } from './entities/yellow-pages.entity';
 import {
+  DistrictResolver,
+  ProvinceResolver,
   YellowPagesAddressResolver,
   YellowPagesCategoryResolver,
   YellowPagesPhoneNumberResolver,
   YellowPagesResolver,
 } from './yellow-pages.resolver';
 import {
+  DistrictService,
+  ProvinceService,
   YellowPagesAddressService,
   YellowPagesCategoryService,
   YellowPagesPhoneNumberService,
@@ -29,6 +33,10 @@ import {
     YellowPagesCategoryService,
     YellowPagesAddressResolver,
     YellowPagesAddressService,
+    ProvinceService,
+    ProvinceResolver,
+    DistrictService,
+    DistrictResolver,
     YellowPagesPhoneNumberResolver,
     YellowPagesPhoneNumberService,
   ],
