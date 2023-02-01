@@ -161,7 +161,6 @@ export class NewsService {
     filterNewsInput: FilterNewsInput,
     publishedOnly = false,
   ): Promise<[News[], number]> {
-    // return `This action returns all news`;
     const whereOptions: any = {};
     if (publishedOnly) {
       whereOptions.state = NewsState.PUBLISHED;
@@ -172,7 +171,7 @@ export class NewsService {
     if (filterNewsInput?.language) {
       whereOptions.language = filterNewsInput.language;
     }
-    return this.newsRepository.findAndCount({
+    return await this.newsRepository.findAndCount({
       relations: {
         category: true,
       },
@@ -190,6 +189,47 @@ export class NewsService {
         createdAt: 'DESC',
       },
     });
+  }
+
+  async findAllSearch(
+    limit: number,
+    offset: number,
+    filterNewsInput: FilterNewsInput,
+    publishedOnly = false,
+  ) {
+    const sqlQuery = this.newsRepository
+      .createQueryBuilder('news')
+      .leftJoinAndSelect('news.category', 'category')
+      .leftJoinAndSelect('news.tags', 'tags')
+      .leftJoinAndSelect('tags.tag', 'tag');
+    // .leftJoinAndSelect('tags.tag', 'tag');
+    if (publishedOnly) {
+      sqlQuery.where({ state: NewsState.PUBLISHED });
+    }
+    if (filterNewsInput?.language) {
+      sqlQuery.andWhere('news.language = :language', {
+        language: filterNewsInput.language,
+      });
+    }
+    if (filterNewsInput.searchQuery) {
+      const formattedQuery = filterNewsInput.searchQuery
+        .trim()
+        .replace(/ /g, ' & ');
+      sqlQuery.andWhere(
+        `to_tsvector(coalesce(news.title, ' ')) || to_tsvector(coalesce(category.name, ' ')) || to_tsvector(coalesce(tag.name, ' ')) @@ to_tsquery(:query)`,
+        {
+          query: `${formattedQuery}:*`,
+        },
+      );
+    }
+    const queryOut = await sqlQuery
+      .take(limit)
+      .skip(offset)
+      .orderBy('news.pinned', 'DESC')
+      .addOrderBy('news.createdAt', 'DESC')
+      .getManyAndCount();
+    return queryOut;
+    // await sqlDb2.query(`select * from news where to_tsvector(title) @@ to_tsquery('worlds war')`)
   }
 
   async findOne(id: number, withRelations = true) {

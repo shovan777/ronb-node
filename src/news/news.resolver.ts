@@ -75,13 +75,12 @@ export class NewsResolver {
     filterNewsInput?: FilterNewsInput,
   ): Promise<NewsResponse> {
     const { limit, offset } = args.pagingParams();
-    const [news, count] = await this.newsService.findAll(
+    const [news, count] = await this.newsService.findAllSearch(
       limit,
       offset,
       filterNewsInput,
-      true,
+      true, // show only published news
     );
-    // return this.newsService.findAll();
     const page = connectionFromArraySlice(news, args, {
       arrayLength: count,
       sliceStart: offset || 0,
@@ -158,6 +157,10 @@ export class NewsResolver {
   @MakePublic()
   async category(@Parent() news: News) {
     const { id } = news;
+    // console.log(news);
+    // if (news.category) {
+    //   return news.category;
+    // }
     return await this.newsService.findCategoryofNews(id);
   }
 

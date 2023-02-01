@@ -242,6 +242,9 @@ input FilterNewsInput {
   """News Language"""
   language: NewsLanguage
 
+  """Search query"""
+  searchQuery: String
+
   """News title"""
   title: String
 }
