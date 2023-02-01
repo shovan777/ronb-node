@@ -556,16 +556,12 @@ export class UserInterestsService {
   }
 
   async findAll(user: number): Promise<UserInterests[]> {
-    console.log(user);
-    const interestsNCount = await this.userInterestsRepository.findAndCount({
+    const interests = await this.userInterestsRepository.find({
       where: {
         userId: user,
-        newsCategories: Not(IsNull()),
-        newsTags: Not(IsNull()),
       },
       relations: { newsTags: true, newsCategories: true },
     });
-    console.log(interestsNCount);
-    return interestsNCount[0];
+    return interests;
   }
 }
