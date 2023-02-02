@@ -1,5 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum';
+import { EmailAddressResolver, BigIntResolver } from 'graphql-scalars';
 
 @InputType()
 export class CreateYellowPagesCategoryInput {
@@ -39,6 +40,11 @@ export class CreateYellowPagesInput {
     description: 'Phone number for yellow pages',
   })
   phone_number?: CreateYellowPagesPhoneNumberInput[];
+
+  @Field(() => [CreateYellowPagesEmailInput], {
+    description: 'email for yellow pages',
+  })
+  email?: CreateYellowPagesEmailInput[];
 }
 
 @InputType()
@@ -48,6 +54,9 @@ export class CreateYellowPagesAddressInput {
 
   @Field(() => Int, { description: 'Province Type' })
   province: number;
+
+  @Field({ description: 'Address' })
+  address: string;
 
   @Field(() => Int, { description: 'Yellow pages id', nullable: true })
   yellowpages?: number;
@@ -70,11 +79,20 @@ export class CreateDistrictInput {
 
 @InputType()
 export class CreateYellowPagesPhoneNumberInput {
-  @Field(() => Int, { description: 'Phone number' })
+  @Field(() => BigIntResolver ,{ description: 'Phone number' })
   phone_number: number;
 
-  @Field({ description: '' })
+  @Field({ description: '', defaultValue:false })
   is_emergency: boolean;
+
+  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
+  yellowpages?: number;
+}
+
+@InputType()
+export class CreateYellowPagesEmailInput {
+  @Field(() => EmailAddressResolver, { description: 'Email' })
+  email: string;
 
   @Field(() => Int, { description: 'Yellow pages id', nullable: true })
   yellowpages?: number;
