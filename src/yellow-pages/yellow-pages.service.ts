@@ -29,6 +29,7 @@ import {
   YellowPagesPhoneNumber,
   District,
   Province,
+  YellowPagesEmail,
 } from './entities/yellow-pages.entity';
 import { PublishState as YellowPagesPublishState } from 'src/common/enum/publish_state.enum';
 import {
@@ -50,6 +51,8 @@ export class YellowPagesService {
     private yellowPagesAddress: Repository<YellowPagesAddress>,
     @InjectRepository(YellowPagesPhoneNumber)
     private yellowPagesPhoneNumberRepository: Repository<YellowPagesPhoneNumber>,
+    @InjectRepository(YellowPagesEmail)
+    private yellowPagesEmailRepository: Repository<YellowPagesEmail>,
   ) {}
 
   async findAll(
@@ -69,7 +72,7 @@ export class YellowPagesService {
       };
     }
     return this.yellowPagesRepository.findAndCount({
-      relations: ['address', 'phone_number', 'category'],
+      relations: ['address', 'phone_number', 'category', 'email'],
       where: { ...whereOptions },
       take: limit,
       skip: offset,
@@ -89,18 +92,22 @@ export class YellowPagesService {
       whereOptions.category = { id: filterYellowPagesInput.category };
     }
     return await this.yellowPagesRepository.find({
-      relations: ['address', 'phone_number', 'category'],
+      relations: ['address', 'phone_number', 'category', 'email'],
       where: { ...whereOptions },
       take: args.take,
       skip: args.skip,
     });
   }
 
-  async create(yellowpagesInput: CreateYellowPagesInput): Promise<YellowPages> {
+  async create(
+    yellowpagesInput: CreateYellowPagesInput,
+    user: number,
+  ): Promise<YellowPages> {
     let yellowpagesInputData: any = {
       ...yellowpagesInput,
       address: null,
       phone_number: null,
+      email: null,
     };
 
     if (yellowpagesInput.category) {
@@ -122,6 +129,8 @@ export class YellowPagesService {
 
     const yellowpagesData = await this.yellowPagesRepository.save({
       ...yellowpagesInputData,
+      createdBy: user,
+      updatedBy: user,
     });
 
     await Promise.all(
@@ -139,9 +148,7 @@ export class YellowPagesService {
           where: { id: address.district },
           relations: ['province'],
         });
-        console.log('district', district);
         if (!district) {
-          console.log('district is invalid');
           throw new NotFoundException(
             `District with id ${address.district} not found`,
           );
@@ -158,6 +165,7 @@ export class YellowPagesService {
           let addressInput = {
             district: district,
             province: province,
+            address: address.address,
             yellowpages: yellowpagesData,
           };
           await this.yellowPagesAddress.save({ ...addressInput });
@@ -169,13 +177,21 @@ export class YellowPagesService {
       }),
     );
 
+    await Promise.all(
+      yellowpagesInput.email.map(async (email) => {
+        await this.yellowPagesEmailRepository.save({
+          ...email,
+          yellowpages: yellowpagesData,
+        });
+      }),
+    );
     return this.findOne(yellowpagesData.id);
   }
 
   async findOne(id: number): Promise<YellowPages> {
     const yellowpages = await this.yellowPagesRepository.findOne({
       where: { id: id },
-      relations: ['address', 'phone_number', 'category'],
+      relations: ['address', 'phone_number', 'category', 'email'],
     });
     if (!yellowpages) {
       throw new NotFoundException(`Yellow Pages with id ${id} not found`);
@@ -186,6 +202,7 @@ export class YellowPagesService {
   async update(
     id: number,
     updateYellowPagesInput: UpdateYellowPagesInput,
+    user: number,
   ): Promise<YellowPages> {
     let yellowPagesInputData: any = {
       ...updateYellowPagesInput,
@@ -215,6 +232,7 @@ export class YellowPagesService {
 
     await this.yellowPagesRepository.update(id, {
       ...yellowPagesInputData,
+      updatedBy: user,
     });
     return await this.findOne(id);
   }
