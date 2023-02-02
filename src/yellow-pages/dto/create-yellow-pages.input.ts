@@ -1,5 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum';
+import { EmailAddressResolver, BigIntResolver } from 'graphql-scalars';
 
 @InputType()
 export class CreateYellowPagesCategoryInput {
@@ -78,7 +79,7 @@ export class CreateDistrictInput {
 
 @InputType()
 export class CreateYellowPagesPhoneNumberInput {
-  @Field({ description: 'Phone number' })
+  @Field(() => BigIntResolver ,{ description: 'Phone number' })
   phone_number: number;
 
   @Field({ description: '', defaultValue:false })
@@ -90,7 +91,7 @@ export class CreateYellowPagesPhoneNumberInput {
 
 @InputType()
 export class CreateYellowPagesEmailInput {
-  @Field({ description: 'Email' })
+  @Field(() => EmailAddressResolver, { description: 'Email' })
   email: string;
 
   @Field(() => Int, { description: 'Yellow pages id', nullable: true })

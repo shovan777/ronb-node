@@ -1,4 +1,5 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { EmailAddressResolver, BigIntResolver} from 'graphql-scalars';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
 import { PublishState as YellowPagesState } from 'src/common/enum/publish_state.enum';
 import {
@@ -273,7 +274,7 @@ export class YellowPagesPhoneNumber {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field({ description: 'Phone number' })
+  @Field(() => BigIntResolver, { description: 'Phone number' })
   @Column({type: 'bigint'})
   phone_number: number;
 
@@ -296,7 +297,7 @@ export class YellowPagesEmail {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field({ description: 'Email' })
+  @Field(() => EmailAddressResolver, { description: 'Email' })
   @Column()
   email: string;
 
