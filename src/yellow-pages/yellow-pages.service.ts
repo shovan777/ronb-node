@@ -82,13 +82,13 @@ export class YellowPagesService {
   async adminFindAll(
     args: FetchPaginationArgs,
     filterYellowPagesInput: FilterYellowPagesInput,
-  ): Promise<YellowPages[]> {
+  ): Promise<[YellowPages[], number]> {
     const whereOptions: any = {};
 
     if (filterYellowPagesInput.category) {
       whereOptions.category = { id: filterYellowPagesInput.category };
     }
-    return await this.yellowPagesRepository.find({
+    return await this.yellowPagesRepository.findAndCount({
       relations: ['address', 'phone_number', 'category'],
       where: { ...whereOptions },
       take: args.take,

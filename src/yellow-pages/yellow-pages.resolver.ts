@@ -39,6 +39,7 @@ import {
 import {
   YellowPagesResponse,
   YellowPagesCategoryResponse,
+  YellowPagesAdminResponse,
 } from './yellow-pages.response';
 import {
   YellowPagesService,
@@ -98,15 +99,19 @@ export class YellowPagesResolver {
     return { page, pageData: { count, limit, offset } };
   }
 
-  @Query(() => [YellowPages], { name: 'yellowPagesAdmin' })
+  @Query(() => YellowPagesAdminResponse, { name: 'yellowPagesAdmin' })
   // @UseGuards(AdminGuard)
   @Roles(Role.Writer)
   async getAllYellowPagesAdmin(
     @Args() args: FetchPaginationArgs,
     @Args('filterYellowPagesInput', { nullable: true })
     filterYellowPagesInput?: FilterYellowPagesInput,
-  ): Promise<any> {
-    return this.yellowPagesService.adminFindAll(args, filterYellowPagesInput);
+  ): Promise<YellowPagesAdminResponse> {
+    const [yellowpages, count] = await this.yellowPagesService.adminFindAll(
+      args,
+      filterYellowPagesInput,
+    );
+    return { data: yellowpages, count };
   }
 
   @Query(() => YellowPages, { name: 'yellowPagesById' })

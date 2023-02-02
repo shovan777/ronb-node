@@ -974,7 +974,7 @@ type Query {
   ): YellowPagesResponse!
   yellowPagesAddress: [YellowPagesAddress!]!
   yellowPagesAddressById(id: Int!): YellowPagesAddress!
-  yellowPagesAdmin(filterYellowPagesInput: FilterYellowPagesInput, skip: Int = 0, take: Int = 25): [YellowPages!]!
+  yellowPagesAdmin(filterYellowPagesInput: FilterYellowPagesInput, skip: Int = 0, take: Int = 25): YellowPagesAdminResponse!
   yellowPagesById(id: Int!): YellowPages!
   yellowPagesCategories(
     """Paginate after cursor"""
@@ -1278,6 +1278,11 @@ type YellowPagesAddress {
 
   """"""
   yellowpages: YellowPages!
+}
+
+type YellowPagesAdminResponse {
+  count: Int!
+  data: [YellowPages!]!
 }
 
 type YellowPagesCategoryResponse {
