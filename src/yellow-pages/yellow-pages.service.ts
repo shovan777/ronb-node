@@ -257,7 +257,6 @@ export class YellowPagesService {
         ...removedYellowPages,
       };
     }
-    console.log('you donot have permission to delete this yellow page')
     throw new ForbiddenException(
       `Yellow pages with id ${id} cannot be deleted`,
     );
