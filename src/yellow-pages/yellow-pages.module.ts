@@ -14,6 +14,7 @@ import {
   ProvinceResolver,
   YellowPagesAddressResolver,
   YellowPagesCategoryResolver,
+  YellowPagesEmailResolver,
   YellowPagesPhoneNumberResolver,
   YellowPagesResolver,
 } from './yellow-pages.resolver';
@@ -22,6 +23,7 @@ import {
   ProvinceService,
   YellowPagesAddressService,
   YellowPagesCategoryService,
+  YellowPagesEmailService,
   YellowPagesPhoneNumberService,
   YellowPagesService,
 } from './yellow-pages.service';
@@ -40,6 +42,8 @@ import {
     DistrictResolver,
     YellowPagesPhoneNumberResolver,
     YellowPagesPhoneNumberService,
+    YellowPagesEmailResolver,
+    YellowPagesEmailService
   ],
   imports: [
     TypeOrmModule.forFeature([

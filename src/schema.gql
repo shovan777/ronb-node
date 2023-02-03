@@ -322,6 +322,7 @@ type Mutation {
   createYellowPages(createYellowPagesInput: CreateYellowPagesInput!): YellowPages!
   createYellowPagesAddress(createYellowPagesAddressInput: CreateYellowPagesAddressInput!): YellowPagesAddress!
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
+  createYellowPagesEmail(createYellowPagesEmailInput: CreateYellowPagesEmailInput!): YellowPagesEmail!
   createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
   removeDistrict(id: Int!): District!
   removeNews(id: Int!): News!
@@ -339,6 +340,7 @@ type Mutation {
   removeYellowPages(id: Int!): YellowPages!
   removeYellowPagesAddress(id: Int!): YellowPagesAddress!
   removeYellowPagesCategory(id: Int!): YellowPagesCatgory!
+  removeYellowPagesEmail(id: Int!): YellowPagesEmail!
   removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
@@ -355,6 +357,7 @@ type Mutation {
   updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
   updateYellowPagesAddress(id: Int!, updateYellowPagesAddressInput: UpdateYellowPagesAddressInput!): YellowPagesAddress!
   updateYellowPagesCategory(id: Int!, updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput!): YellowPagesCatgory!
+  updateYellowPagesEmail(id: Int!, updateYellowPagesEmailInput: UpdateYellowPagesEmailInput!): YellowPagesEmail!
   updateYellowPagesPhoneNumber(id: Int!, updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
 }
 
@@ -1015,6 +1018,8 @@ type Query {
   ): YellowPagesCategoryResponse!
   yellowPagesCategoryAdmin(skip: Int = 0, take: Int = 25): [YellowPagesCatgory!]!
   yellowPagesCategoryById(id: Int!): YellowPagesCatgory!
+  yellowPagesEmail: [YellowPagesEmail!]!
+  yellowPagesEmailById(id: Int!): YellowPagesEmail!
   yellowPagesPhoneNumber: [YellowPagesPhoneNumber!]!
   yellowPagesPhoneNumberById(id: Int!): YellowPagesPhoneNumber!
 }
@@ -1191,6 +1196,14 @@ input UpdateYellowPagesCategoryInput {
 
   """Yellow Pages name"""
   name: String
+}
+
+input UpdateYellowPagesEmailInput {
+  """Email"""
+  email: EmailAddress
+
+  """Yellow pages id"""
+  yellowpages: Int
 }
 
 input UpdateYellowPagesInput {

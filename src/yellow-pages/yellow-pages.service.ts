@@ -10,6 +10,7 @@ import {
   CreateProvinceInput,
   CreateYellowPagesAddressInput,
   CreateYellowPagesCategoryInput,
+  CreateYellowPagesEmailInput,
   CreateYellowPagesInput,
   CreateYellowPagesPhoneNumberInput,
 } from './dto/create-yellow-pages.input';
@@ -19,6 +20,7 @@ import {
   UpdateProvinceInput,
   UpdateYellowPagesAddressInput,
   UpdateYellowPagesCategoryInput,
+  UpdateYellowPagesEmailInput,
   UpdateYellowPagesInput,
   UpdateYellowPagesPhoneNumberInput,
 } from './dto/update-yellow-pages.input';
@@ -237,7 +239,7 @@ export class YellowPagesService {
     return await this.findOne(id);
   }
 
-  async remove(id: number) {
+  async remove(id: number, user: number) {
     const yellowpages: YellowPages = await this.yellowPagesRepository.findOne({
       where: { id: id },
     });
@@ -245,15 +247,20 @@ export class YellowPagesService {
     if (!yellowpages) {
       throw new NotFoundException(`Yellow Pages with id ${id} not found`);
     }
-
-    if (yellowpages.state == YellowPagesPublishState.DRAFT) {
+    if (
+      yellowpages.state == YellowPagesPublishState.DRAFT &&
+      yellowpages.createdBy == user
+    ) {
       const removedYellowPages = this.yellowPagesRepository.remove(yellowpages);
       return {
         id,
         ...removedYellowPages,
       };
     }
-    throw new ForbiddenException(`Published yellow pages cannot be deleted.`);
+    console.log('you donot have permission to delete this yellow page')
+    throw new ForbiddenException(
+      `Yellow pages with id ${id} cannot be deleted`,
+    );
   }
 }
 
@@ -731,5 +738,109 @@ export class YellowPagesPhoneNumberService {
       };
     }
     throw new NotFoundException(`Yellow Pages Address with id ${id} not found`);
+  }
+}
+
+@Injectable()
+export class YellowPagesEmailService {
+  constructor(
+    @InjectRepository(YellowPagesEmail)
+    private readonly emailRepository: Repository<YellowPagesEmail>,
+    @InjectRepository(YellowPages)
+    private readonly yellowPagesRepository: Repository<YellowPages>,
+  ) {}
+
+  async create(
+    emailInput: CreateYellowPagesEmailInput,
+  ): Promise<YellowPagesEmail> {
+    let emailInputData: any = {
+      ...emailInput,
+    };
+
+    if (emailInput.yellowpages) {
+      const yellowpages: YellowPages =
+        await this.yellowPagesRepository.findOneBy({
+          id: emailInput.yellowpages,
+        });
+      if (!yellowpages) {
+        throw new NotFoundException(
+          `Yellow pages with id ${emailInput.yellowpages} not found`,
+        );
+      }
+      emailInputData = {
+        ...emailInputData,
+        yellowpages: yellowpages,
+      };
+    }
+
+    return await this.emailRepository.save({
+      ...emailInputData,
+    });
+  }
+
+  async findAll(): Promise<YellowPagesEmail[]> {
+    return await this.emailRepository.find({});
+  }
+
+  async findOne(id: number): Promise<YellowPagesEmail> {
+    const yellowPagesEmail: YellowPagesEmail =
+      await this.emailRepository.findOne({
+        where: { id: id },
+      });
+    if (!yellowPagesEmail) {
+      throw new NotFoundException(`Yellow pages email with id ${id} not found`);
+    }
+
+    return yellowPagesEmail;
+  }
+
+  async update(
+    id: number,
+    updateYellowPagesEmailInput: UpdateYellowPagesEmailInput,
+  ): Promise<YellowPagesEmail> {
+    let emailInputData: any = {
+      ...updateYellowPagesEmailInput,
+    };
+
+    const yellowPagesEmail: YellowPagesEmail = await this.findOne(id);
+    if (!yellowPagesEmail) {
+      throw new NotFoundException(`Yellow pages email with id ${id} not found`);
+    }
+    if (updateYellowPagesEmailInput.yellowpages) {
+      const yellowpages: YellowPages =
+        await this.yellowPagesRepository.findOneBy({
+          id: updateYellowPagesEmailInput.yellowpages,
+        });
+      if (!yellowpages) {
+        throw new NotFoundException(`Yellow pages with id ${id} not found`);
+      }
+      emailInputData = {
+        ...emailInputData,
+        yellowpages: yellowpages,
+      };
+    }
+    this.emailRepository.update(id, { ...emailInputData });
+    return this.emailRepository.findOneOrFail({
+      where: { id: id },
+      relations: ['yellowpages'],
+    });
+  }
+
+  async remove(id: number) {
+    const yellowPagesEmail: YellowPagesEmail =
+      await this.emailRepository.findOne({
+        where: { id: id },
+      });
+
+    if (!yellowPagesEmail) {
+      throw new NotFoundException(`Yellow pages email with id ${id} not found`);
+    }
+    const removedYellowPagesEmail =
+      this.emailRepository.remove(yellowPagesEmail);
+
+    return {
+      id,
+      ...removedYellowPagesEmail,
+    };
   }
 }
