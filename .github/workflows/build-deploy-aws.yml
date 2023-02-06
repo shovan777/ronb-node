@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - main
+  release:
+    types: [published]
+    tags:
+      - 'v*'
 
   # allows to manually run the workflow in actions tab
   workflow_dispatch:
@@ -45,6 +49,7 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=semver,pattern={{version}}
             # minimal (short sha)
             type=sha
       - name: Build and push Docker image
