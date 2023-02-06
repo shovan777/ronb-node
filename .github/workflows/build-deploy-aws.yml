@@ -26,7 +26,8 @@ jobs:
     name: Build and push Docker image
     runs-on: ubuntu-latest
     outputs:
-      img_tag: ${{steps.meta.outputs.tags}}      
+      img_tag: ${{steps.meta.outputs.tags}}
+      json_tag: ${{steps.meta.outputs.json}}      
     environment: aws
     permissions:
       contents: read
@@ -72,7 +73,7 @@ jobs:
       - name: Deploy to aws EC2 instance via SSH action
         uses: appleboy/ssh-action@v0.1.3
         env: 
-            TAG: ${{fromJSON(needs.build_and_push.steps.meta.outputs.json).tags[0]}}
+            TAG: ${{fromJSON(needs.build_and_push.outputs.json_tag).tags}}
             # TAG: ${{needs.build_and_push.outputs.img_tag}}
             #${{ github.sha }}_${{ github.event.inputs.version }}
         with:
