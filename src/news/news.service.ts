@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, Like, Not, IsNull } from 'typeorm';
 import {
   CreateNewsCategoryInput,
   CreateNewsInput,
@@ -166,11 +166,11 @@ export class NewsService {
     if (publishedOnly) {
       whereOptions.state = NewsState.PUBLISHED;
     }
-    if (filterNewsInput?.title){
-      whereOptions.title = Like(`%${filterNewsInput.title}%`)
+    if (filterNewsInput?.title) {
+      whereOptions.title = Like(`%${filterNewsInput.title}%`);
     }
     if (filterNewsInput?.language) {
-      whereOptions.language = filterNewsInput.language
+      whereOptions.language = filterNewsInput.language;
     }
     return this.newsRepository.findAndCount({
       relations: {
@@ -519,15 +519,49 @@ export class UserInterestsService {
   constructor(
     @InjectRepository(UserInterests)
     private userInterestsRepository: Repository<UserInterests>,
+    private newsCategoryService: NewsCategoryService,
+    private newsTagService: TagsService,
   ) {}
 
   async create(
     userInterestsInput: CreateUserInterestsInput,
     user: number,
   ): Promise<UserInterests> {
-    return this.userInterestsRepository.save({
+    const interestsInputData: any = {
       ...userInterestsInput,
       userId: user,
+      newsCategories: null,
+      newsTags: null,
+    };
+    // map the relation input to ids
+    if (userInterestsInput.newsCategories) {
+      const newsCategories: Promise<NewsCategory | NotFoundException>[] =
+        userInterestsInput.newsCategories.map((catId) =>
+          this.newsCategoryService.findOne(catId),
+        );
+      interestsInputData.newsCategories = await Promise.all(newsCategories);
+    }
+
+    if (userInterestsInput.newsTags) {
+      const newsTags: Promise<Tag | NotFoundException>[] =
+        userInterestsInput.newsTags.map((tagId) =>
+          this.newsTagService.findOneById(tagId),
+        );
+      interestsInputData.newsTags = await Promise.all(newsTags);
+    }
+    this.userInterestsRepository.save({
+      ...interestsInputData,
     });
+    return interestsInputData;
+  }
+
+  async findAll(user: number): Promise<UserInterests[]> {
+    const interests = await this.userInterestsRepository.find({
+      where: {
+        userId: user,
+      },
+      relations: { newsTags: true, newsCategories: true },
+    });
+    return interests;
   }
 }

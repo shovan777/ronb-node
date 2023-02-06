@@ -885,6 +885,7 @@ type Query {
     last: Float
   ): PublicToiletResponse!
   tags: [Tag!]!
+  userInterests: [UserInterests!]!
   yellowPages(
     """Paginate after cursor"""
     after: String

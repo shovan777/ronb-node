@@ -68,11 +68,11 @@ export class CreateUserInterestsInput {
     description: 'News tags interesting to the user',
     nullable: true,
   })
-  newsTags: Tag[];
+  newsTags: number[];
 
   @Field(() => [Int], {
     description: 'News categories interesting to the user',
     nullable: true,
   })
-  newsCategories: NewsCategory[];
+  newsCategories: number[];
 }
