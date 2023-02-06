@@ -843,6 +843,19 @@ type Query {
     newsCommentId: Int!
   ): RepliesResponse!
   newsTaggit: [NewsTaggit!]!
+  notificationAll(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): NotificationResponse!
   notificationUser(
     """Paginate after cursor"""
     after: String
