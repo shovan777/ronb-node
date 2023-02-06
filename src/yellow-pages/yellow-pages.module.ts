@@ -7,6 +7,7 @@ import {
   YellowPagesCatgory,
   District,
   Province,
+  YellowPagesEmail,
 } from './entities/yellow-pages.entity';
 import {
   DistrictResolver,
@@ -48,6 +49,7 @@ import {
       District,
       Province,
       YellowPagesPhoneNumber,
+      YellowPagesEmail,
     ]),
   ],
   exports: [YellowPagesService],
