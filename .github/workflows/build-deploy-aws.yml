@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - main
+  release:
+    types: [published]
+    tags:
+      - 'v*'
 
   # allows to manually run the workflow in actions tab
   workflow_dispatch:
@@ -45,6 +49,7 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=semver,pattern={{version}}
             # minimal (short sha)
             type=sha
       - name: Build and push Docker image
@@ -67,7 +72,7 @@ jobs:
       - name: Deploy to aws EC2 instance via SSH action
         uses: appleboy/ssh-action@v0.1.3
         env: 
-            TAG: ${{needs.build_and_push.outputs.img_tag}}
+            TAG: ${{needs.build_and_push.outputs.img_tag[0]}}
             #${{ github.sha }}_${{ github.event.inputs.version }}
         with:
           host: ${{ secrets.SSH_HOST }}
