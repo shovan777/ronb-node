@@ -16,6 +16,7 @@ import {
   CreateProvinceInput,
   CreateYellowPagesAddressInput,
   CreateYellowPagesCategoryInput,
+  CreateYellowPagesEmailInput,
   CreateYellowPagesInput,
   CreateYellowPagesPhoneNumberInput,
 } from './dto/create-yellow-pages.input';
@@ -25,6 +26,7 @@ import {
   UpdateProvinceInput,
   UpdateYellowPagesAddressInput,
   UpdateYellowPagesCategoryInput,
+  UpdateYellowPagesEmailInput,
   UpdateYellowPagesInput,
   UpdateYellowPagesPhoneNumberInput,
 } from './dto/update-yellow-pages.input';
@@ -35,6 +37,7 @@ import {
   YellowPagesCatgory,
   Province,
   District,
+  YellowPagesEmail,
 } from './entities/yellow-pages.entity';
 import {
   YellowPagesResponse,
@@ -48,6 +51,7 @@ import {
   YellowPagesCategoryService,
   ProvinceService,
   DistrictService,
+  YellowPagesEmailService,
 } from './yellow-pages.service';
 import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
@@ -129,7 +133,11 @@ export class YellowPagesResolver {
     user: number,
   ) {
     checkUserAuthenticated(user);
-    return await this.yellowPagesService.update(id, updateYellowPagesInput, user);
+    return await this.yellowPagesService.update(
+      id,
+      updateYellowPagesInput,
+      user,
+    );
   }
 
   @Mutation(() => YellowPages)
@@ -138,7 +146,7 @@ export class YellowPagesResolver {
     @User() user: number,
   ): Promise<YellowPages> {
     checkUserAuthenticated(user);
-    return this.yellowPagesService.remove(id);
+    return this.yellowPagesService.remove(id, user);
   }
 }
 
@@ -446,5 +454,62 @@ export class YellowPagesPhoneNumberResolver {
   ): Promise<YellowPagesPhoneNumber> {
     checkUserAuthenticated(user);
     return this.yellowPagesPhoneNumberService.remove(id);
+  }
+}
+
+@Resolver()
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
+export class YellowPagesEmailResolver {
+  constructor(
+    private readonly yellowPagesEmailService: YellowPagesEmailService,
+  ) {}
+
+  @Mutation(() => YellowPagesEmail)
+  @Roles(Role.Writer)
+  async createYellowPagesEmail(
+    @Args('createYellowPagesEmailInput')
+    createYellowPagesEmailInput: CreateYellowPagesEmailInput,
+    @User() user: number,
+  ): Promise<YellowPagesEmail> {
+    checkUserAuthenticated(user);
+    return await this.yellowPagesEmailService.create(
+      createYellowPagesEmailInput,
+    );
+  }
+
+  @Query(() => [YellowPagesEmail], { name: 'yellowPagesEmail' })
+  @MakePublic()
+  async findAll(): Promise<YellowPagesEmail[]> {
+    return await this.yellowPagesEmailService.findAll();
+  }
+
+  @Query(() => YellowPagesEmail, { name: 'yellowPagesEmailById' })
+  @MakePublic()
+  async findOne(@Args('id', { type: () => Int }) id: number) {
+    return this.yellowPagesEmailService.findOne(id);
+  }
+
+  @Mutation(() => YellowPagesEmail)
+  async updateYellowPagesEmail(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('updateYellowPagesEmailInput')
+    updateYellowPagesEmailInput: UpdateYellowPagesEmailInput,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return await this.yellowPagesEmailService.update(
+      id,
+      updateYellowPagesEmailInput,
+    );
+  }
+
+  @Mutation(() => YellowPagesEmail)
+  async removeYellowPagesEmail(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return this.yellowPagesEmailService.remove(id);
   }
 }
