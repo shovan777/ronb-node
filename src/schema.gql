@@ -298,6 +298,9 @@ input FilterYellowPagesInput {
   category: Int
   district: Int
   province: Int
+
+  """Search query for yellow pages"""
+  searchQuery: String
 }
 
 """GeoJSON Point"""
