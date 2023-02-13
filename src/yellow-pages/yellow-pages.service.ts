@@ -66,7 +66,6 @@ export class YellowPagesService {
     if (filterYellowPagesInput.category) {
       whereOptions.category = { id: filterYellowPagesInput.category };
     }
-
     if (filterYellowPagesInput.province | filterYellowPagesInput.district) {
       whereOptions.address = {
         province: { id: filterYellowPagesInput.province },
@@ -111,10 +110,13 @@ export class YellowPagesService {
       });
     }
 
-    if (filterYellowPagesInput.province | filterYellowPagesInput.district) {
+    if (filterYellowPagesInput.province) {
       sqlQuery.andWhere('address.province = :provinceId', {
         provinceId: filterYellowPagesInput.province,
       });
+    }
+    
+    if (filterYellowPagesInput.district) {
       sqlQuery.andWhere('address.district = :districtId', {
         districtId: filterYellowPagesInput.district,
       });
