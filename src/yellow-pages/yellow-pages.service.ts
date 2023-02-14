@@ -38,6 +38,7 @@ import {
   FilterDistrictInput,
   FilterYellowPagesInput,
 } from './dto/filter-yellowpages.input';
+import { uploadFileStream } from 'src/common/utils/upload';
 @Injectable()
 export class YellowPagesService {
   constructor(
@@ -56,6 +57,7 @@ export class YellowPagesService {
     @InjectRepository(YellowPagesEmail)
     private yellowPagesEmailRepository: Repository<YellowPagesEmail>,
   ) {}
+  uploadDir = process.env.MEDIA_ROOT;
 
   async findAll(
     limit: number,
@@ -68,6 +70,7 @@ export class YellowPagesService {
     }
 
     if (filterYellowPagesInput.province | filterYellowPagesInput.district) {
+      console.log('province and district')
       whereOptions.address = {
         province: { id: filterYellowPagesInput.province },
         district: { id: filterYellowPagesInput.district },
@@ -101,16 +104,40 @@ export class YellowPagesService {
     });
   }
 
+  async get_file_path(yellowpagesInput): Promise<string> {
+    const imageFile: any = await yellowpagesInput.singleImage;
+    const file_name = imageFile.filename;
+
+    const upload_dir = this.uploadDir;
+    const file_path = await uploadFileStream(
+      imageFile.createReadStream,
+      upload_dir,
+      file_name,
+    );
+
+    return file_path;
+  }
+
   async create(
     yellowpagesInput: CreateYellowPagesInput,
     user: number,
   ): Promise<YellowPages> {
     let yellowpagesInputData: any = {
       ...yellowpagesInput,
+      singleImage: null,
       address: null,
       phone_number: null,
       email: null,
     };
+
+    if (yellowpagesInput.singleImage) {
+      const file_path: string = await this.get_file_path(yellowpagesInput);
+
+      yellowpagesInputData = {
+        ...yellowpagesInputData,
+        singleImage: file_path,
+      };
+    }
 
     if (yellowpagesInput.category) {
       const yellowPagesCategoryData: YellowPagesCatgory =
@@ -132,7 +159,9 @@ export class YellowPagesService {
     const yellowpagesData = await this.yellowPagesRepository.save({
       ...yellowpagesInputData,
       createdBy: user,
+      createdAt: new Date(),
       updatedBy: user,
+      updaedAt: new Date(),
     });
 
     await Promise.all(
@@ -144,49 +173,53 @@ export class YellowPagesService {
       }),
     );
 
-    await Promise.all(
-      yellowpagesInput.address.map(async (address) => {
-        const district: District = await this.districtRepository.findOne({
-          where: { id: address.district },
-          relations: ['province'],
-        });
-        if (!district) {
-          throw new NotFoundException(
-            `District with id ${address.district} not found`,
-          );
-        }
-        const province: Province = await this.provinceRepository.findOneBy({
-          id: address.province,
-        });
-        if (!province) {
-          throw new NotFoundException(
-            `Province with id ${address.province} not found`,
-          );
-        }
-        if (district.province?.id == province.id) {
-          let addressInput = {
-            district: district,
-            province: province,
-            address: address.address,
-            yellowpages: yellowpagesData,
-          };
-          await this.yellowPagesAddress.save({ ...addressInput });
-        } else {
-          throw new NotFoundException(
-            `District ${district.name} is not valid for province ${province.name}`,
-          );
-        }
-      }),
-    );
+    if (yellowpagesInput.address){
+      await Promise.all(
+        yellowpagesInput.address.map(async (address) => {
+          const district: District = await this.districtRepository.findOne({
+            where: { id: address.district },
+            relations: ['province'],
+          });
+          if (!district) {
+            throw new NotFoundException(
+              `District with id ${address.district} not found`,
+            );
+          }
+          const province: Province = await this.provinceRepository.findOneBy({
+            id: address.province,
+          });
+          if (!province) {
+            throw new NotFoundException(
+              `Province with id ${address.province} not found`,
+            );
+          }
+          if (district.province?.id == province.id) {
+            let addressInput = {
+              district: district,
+              province: province,
+              address: address.address,
+              yellowpages: yellowpagesData,
+            };
+            await this.yellowPagesAddress.save({ ...addressInput });
+          } else {
+            throw new NotFoundException(
+              `District ${district.name} is not valid for province ${province.name}`,
+            );
+          }
+        }),
+      );
+    }
 
-    await Promise.all(
-      yellowpagesInput.email.map(async (email) => {
-        await this.yellowPagesEmailRepository.save({
-          ...email,
-          yellowpages: yellowpagesData,
-        });
-      }),
-    );
+    if (yellowpagesInput.email){
+      await Promise.all(
+        yellowpagesInput.email.map(async (email) => {
+          await this.yellowPagesEmailRepository.save({
+            ...email,
+            yellowpages: yellowpagesData,
+          });
+        }),
+      );
+    }
     return this.findOne(yellowpagesData.id);
   }
 
@@ -206,15 +239,29 @@ export class YellowPagesService {
     updateYellowPagesInput: UpdateYellowPagesInput,
     user: number,
   ): Promise<YellowPages> {
-    let yellowPagesInputData: any = {
-      ...updateYellowPagesInput,
-    };
     const yellowpages: YellowPages = await this.findOne(id);
     if (!yellowpages) {
       throw new NotFoundException(`Yellow Pages with id ${id} not found`);
     }
-    const category_id = updateYellowPagesInput.category;
 
+    let yellowPagesInputData: any = {
+      ...updateYellowPagesInput,
+      singleImage: null,
+    };
+
+    if (updateYellowPagesInput.singleImage) {
+      const file_path: string = await this.get_file_path(
+        updateYellowPagesInput,
+      );
+
+      yellowPagesInputData = {
+        ...yellowPagesInputData,
+        singleImage: file_path,
+      };
+      yellowpages.singleImage = yellowPagesInputData.singleImage;
+    }
+
+    const category_id = updateYellowPagesInput.category;
     if (category_id) {
       const category = await this.yellowPagesCategoryeRepository.findOneOrFail({
         where: { id: category_id },
@@ -235,6 +282,12 @@ export class YellowPagesService {
     await this.yellowPagesRepository.update(id, {
       ...yellowPagesInputData,
       updatedBy: user,
+      updatedAt: new Date(),
+      publishedAt:
+        yellowpages.publishedAt ||
+        (updateYellowPagesInput.state === YellowPagesPublishState.PUBLISHED
+          ? new Date()
+          : null),
     });
     return await this.findOne(id);
   }

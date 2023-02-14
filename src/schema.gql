@@ -221,7 +221,7 @@ input CreateYellowPagesEmailInput {
 
 input CreateYellowPagesInput {
   """Address for yellow page address"""
-  address: [CreateYellowPagesAddressInput!]!
+  address: [CreateYellowPagesAddressInput!]
 
   """Yellow Pages category"""
   category: Int
@@ -230,13 +230,14 @@ input CreateYellowPagesInput {
   description: String
 
   """email for yellow pages"""
-  email: [CreateYellowPagesEmailInput!]!
+  email: [CreateYellowPagesEmailInput!]
 
   """Yellow Pages name"""
   name: String!
 
   """Phone number for yellow pages"""
   phone_number: [CreateYellowPagesPhoneNumberInput!]!
+  singleImage: Upload
 
   """Yellow Pages State"""
   state: State
@@ -1224,6 +1225,7 @@ input UpdateYellowPagesInput {
 
   """Phone number for yellow pages"""
   phone_number: [CreateYellowPagesPhoneNumberInput!]
+  singleImage: Upload
 
   """Yellow Pages State"""
   state: State
@@ -1313,6 +1315,12 @@ type YellowPages {
 
   """Yellow Pages phone number(s)"""
   phone_number: [YellowPagesPhoneNumber!]
+
+  """Yellow Pages publishedAt"""
+  publishedAt: DateTime
+
+  """Yellow Pages main image"""
+  singleImage: String
 
   """Yellow Pages state"""
   state: State!

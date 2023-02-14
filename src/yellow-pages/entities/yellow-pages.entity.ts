@@ -1,7 +1,8 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
-import { EmailAddressResolver, BigIntResolver} from 'graphql-scalars';
+import { EmailAddressResolver, BigIntResolver } from 'graphql-scalars';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
 import { PublishState as YellowPagesState } from 'src/common/enum/publish_state.enum';
+import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
 import {
   Column,
   Entity,
@@ -37,6 +38,14 @@ export class YellowPages extends CreatorBaseEntity {
   @Column({ nullable: true })
   description?: string;
 
+  @Field({
+    description: 'Yellow Pages main image',
+    nullable: true,
+    middleware: [pathFinderMiddleware],
+  })
+  @Column({ nullable: true })
+  singleImage?: string;
+
   @Field(() => [YellowPagesAddress], {
     description: 'Yellow Pages address(s)',
     nullable: true,
@@ -61,11 +70,10 @@ export class YellowPages extends CreatorBaseEntity {
     description: 'Yellow Pages email(s)',
     nullable: true,
   })
-  @OneToMany(
-    () => YellowPagesEmail,
-    (email) => email.yellowpages,
-    { nullable: true, eager: true },
-  )
+  @OneToMany(() => YellowPagesEmail, (email) => email.yellowpages, {
+    nullable: true,
+    eager: true,
+  })
   email?: YellowPagesEmail[];
 
   @Field(() => YellowPagesCatgory, {
@@ -84,6 +92,10 @@ export class YellowPages extends CreatorBaseEntity {
     default: YellowPagesState.DRAFT,
   })
   state: YellowPagesState;
+
+  @Field({ description: 'Yellow Pages publishedAt', nullable: true })
+  @Column({ nullable: true })
+  publishedAt: Date;
 }
 
 @ObjectType()
@@ -258,7 +270,7 @@ export class YellowPagesAddress {
 
   @Field({ description: 'Address' })
   @Column()
-  address: string
+  address: string;
 
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.address, {
@@ -275,7 +287,7 @@ export class YellowPagesPhoneNumber {
   id: number;
 
   @Field(() => BigIntResolver, { description: 'Phone number' })
-  @Column({type: 'bigint'})
+  @Column({ type: 'bigint' })
   phone_number: number;
 
   @Field(() => Boolean, { description: '' })
