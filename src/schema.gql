@@ -951,7 +951,6 @@ type Query {
   provinceById(id: Int!): Province!
   provinces: [Province!]!
   publicToiletById(id: Int!): PublicToilet!
-  publicToiletComment(publicToiletId: Int!): PublicToiletReview!
   publicToiletNearMe(
     """Paginate after cursor"""
     after: String
@@ -980,6 +979,7 @@ type Query {
     last: Float
     publicToiletId: Int!
   ): PublicToiletReviewsResponse!
+  publicToiletReviewUser(publicToiletId: Int!): PublicToiletReview!
   publicToilets(
     """Paginate after cursor"""
     after: String
