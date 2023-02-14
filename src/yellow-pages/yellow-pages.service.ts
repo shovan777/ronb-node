@@ -70,7 +70,6 @@ export class YellowPagesService {
     }
 
     if (filterYellowPagesInput.province | filterYellowPagesInput.district) {
-      console.log('province and district')
       whereOptions.address = {
         province: { id: filterYellowPagesInput.province },
         district: { id: filterYellowPagesInput.district },
@@ -260,8 +259,8 @@ export class YellowPagesService {
       };
       yellowpages.singleImage = yellowPagesInputData.singleImage;
     }
-
     const category_id = updateYellowPagesInput.category;
+
     if (category_id) {
       const category = await this.yellowPagesCategoryeRepository.findOneOrFail({
         where: { id: category_id },
