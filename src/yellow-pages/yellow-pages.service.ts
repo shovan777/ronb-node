@@ -115,10 +115,16 @@ export class YellowPagesService {
         provinceId: filterYellowPagesInput.province,
       });
     }
-    
+
     if (filterYellowPagesInput.district) {
       sqlQuery.andWhere('address.district = :districtId', {
         districtId: filterYellowPagesInput.district,
+      });
+    }
+
+    if (filterYellowPagesInput.is_emergency) {
+      sqlQuery.andWhere('phone_number.is_emergency = :isEmergency', {
+        isEmergency: filterYellowPagesInput.is_emergency,
       });
     }
 
