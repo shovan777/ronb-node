@@ -51,7 +51,7 @@ export class YellowPagesService {
     @InjectRepository(Province)
     private provinceRepository: Repository<Province>,
     @InjectRepository(YellowPagesAddress)
-    private yellowPagesAddress: Repository<YellowPagesAddress>,
+    private yellowPagesAddressRepository: Repository<YellowPagesAddress>,
     @InjectRepository(YellowPagesPhoneNumber)
     private yellowPagesPhoneNumberRepository: Repository<YellowPagesPhoneNumber>,
     @InjectRepository(YellowPagesEmail)
@@ -68,7 +68,6 @@ export class YellowPagesService {
     if (filterYellowPagesInput.category) {
       whereOptions.category = { id: filterYellowPagesInput.category };
     }
-
     if (filterYellowPagesInput.province | filterYellowPagesInput.district) {
       whereOptions.address = {
         province: { id: filterYellowPagesInput.province },
@@ -84,6 +83,71 @@ export class YellowPagesService {
         id: 'DESC',
       },
     });
+  }
+
+  async findAllSearch(
+    limit: number,
+    offset: number,
+    filterYellowPagesInput: FilterYellowPagesInput,
+    publishedOnly = false,
+  ) {
+    const sqlQuery = this.yellowPagesRepository
+      .createQueryBuilder('yellowpages')
+      .leftJoinAndSelect('yellowpages.category', 'category')
+      .leftJoinAndSelect('yellowpages.address', 'address')
+      // .leftJoinAndSelect('address.district', 'district');
+      // .leftJoinAndSelect('address.province', 'province');
+      .leftJoinAndSelect('yellowpages.phone_number', 'phone_number')
+      .leftJoinAndSelect('yellowpages.email', 'email');
+
+    if (publishedOnly) {
+      sqlQuery.where('yellowpages.state = :state', {
+        state: YellowPagesPublishState.PUBLISHED,
+      });
+    }
+
+    if (filterYellowPagesInput.category) {
+      sqlQuery.andWhere('category.id = :categoryId', {
+        categoryId: filterYellowPagesInput.category,
+      });
+    }
+
+    if (filterYellowPagesInput.province) {
+      sqlQuery.andWhere('address.province = :provinceId', {
+        provinceId: filterYellowPagesInput.province,
+      });
+    }
+
+    if (filterYellowPagesInput.district) {
+      sqlQuery.andWhere('address.district = :districtId', {
+        districtId: filterYellowPagesInput.district,
+      });
+    }
+
+    if (filterYellowPagesInput.is_emergency) {
+      sqlQuery.andWhere('phone_number.is_emergency = :isEmergency', {
+        isEmergency: filterYellowPagesInput.is_emergency,
+      });
+    }
+
+    if (filterYellowPagesInput.searchQuery) {
+      const formattedQuery = filterYellowPagesInput.searchQuery
+        .trim()
+        .replace(/ /g, ' & ');
+      sqlQuery.andWhere(
+        `to_tsvector(coalesce(yellowpages.name, ' ')) || to_tsvector(coalesce(category.name, ' ')) @@ to_tsquery(:query)`,
+        {
+          query: `${formattedQuery}:*`,
+        },
+      );
+    }
+
+    const queryOut = await sqlQuery
+      .take(limit)
+      .skip(offset)
+      .orderBy('yellowpages.createdAt', 'DESC')
+      .getManyAndCount();
+    return queryOut;
   }
 
   async adminFindAll(
@@ -199,7 +263,7 @@ export class YellowPagesService {
               address: address.address,
               yellowpages: yellowpagesData,
             };
-            await this.yellowPagesAddress.save({ ...addressInput });
+            await this.yellowPagesAddressRepository.save({ ...addressInput });
           } else {
             throw new NotFoundException(
               `District ${district.name} is not valid for province ${province.name}`,

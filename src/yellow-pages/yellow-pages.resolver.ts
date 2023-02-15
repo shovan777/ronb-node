@@ -53,7 +53,6 @@ import {
   DistrictService,
   YellowPagesEmailService,
 } from './yellow-pages.service';
-import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
@@ -64,7 +63,7 @@ import {
   FilterYellowPagesInput,
 } from './dto/filter-yellowpages.input';
 
-@Resolver()
+@Resolver(() => YellowPages)
 @Roles(Role.Admin, Role.SuperAdmin)
 @UseGuards(RolesGuard)
 export class YellowPagesResolver {
@@ -89,10 +88,11 @@ export class YellowPagesResolver {
     filterYellowPagesInput?: FilterYellowPagesInput,
   ): Promise<YellowPagesResponse> {
     const { limit, offset } = args.pagingParams();
-    const [yellowPages, count] = await this.yellowPagesService.findAll(
+    const [yellowPages, count] = await this.yellowPagesService.findAllSearch(
       limit,
       offset,
       filterYellowPagesInput,
+      true,
     );
 
     const page = connectionFromArraySlice(yellowPages, args, {
@@ -111,8 +111,9 @@ export class YellowPagesResolver {
     @Args('filterYellowPagesInput', { nullable: true })
     filterYellowPagesInput?: FilterYellowPagesInput,
   ): Promise<YellowPagesAdminResponse> {
-    const [yellowpages, count] = await this.yellowPagesService.adminFindAll(
-      args,
+    const [yellowpages, count] = await this.yellowPagesService.findAllSearch(
+      args.take,
+      args.skip,
       filterYellowPagesInput,
     );
     return { data: yellowpages, count };

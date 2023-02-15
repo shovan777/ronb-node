@@ -298,7 +298,11 @@ input FilterYellowPagesInput {
   """Yellow Pages category"""
   category: Int
   district: Int
+  is_emergency: Boolean
   province: Int
+
+  """Search query for yellow pages"""
+  searchQuery: String
 }
 
 """GeoJSON Point"""
