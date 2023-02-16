@@ -1,4 +1,5 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { EmailAddressResolver, BigIntResolver} from 'graphql-scalars';
 import { CreatorBaseEntity } from 'src/common/entities/base.entity';
 import { PublishState as YellowPagesState } from 'src/common/enum/publish_state.enum';
 import {
@@ -12,10 +13,6 @@ import {
 @ObjectType()
 @Entity()
 export class YellowPagesCatgory extends CreatorBaseEntity {
-  @Field(() => Int, { description: 'id field for int' })
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Field({ description: 'Yellow Pages name' })
   @Column()
   name: string;
@@ -25,19 +22,13 @@ export class YellowPagesCatgory extends CreatorBaseEntity {
   description?: string;
 
   @Field(() => [YellowPages], { description: 'Yellow Pages in this category' })
-  @OneToMany(() => YellowPages, (yellowpages) => yellowpages.category, {
-    eager: true,
-  })
+  @OneToMany(() => YellowPages, (yellowpages) => yellowpages.category)
   yellowpages: YellowPages[];
 }
 
 @ObjectType()
 @Entity()
-export class YellowPages {
-  @Field(() => Int, { description: 'id field for int' })
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class YellowPages extends CreatorBaseEntity {
   @Field({ description: 'Yellow Pages name' })
   @Column()
   name: string;
@@ -57,6 +48,7 @@ export class YellowPages {
 
   @Field(() => [YellowPagesPhoneNumber], {
     description: 'Yellow Pages phone number(s)',
+    nullable: true,
   })
   @OneToMany(
     () => YellowPagesPhoneNumber,
@@ -64,6 +56,17 @@ export class YellowPages {
     { nullable: true },
   )
   phone_number?: YellowPagesPhoneNumber[];
+
+  @Field(() => [YellowPagesEmail], {
+    description: 'Yellow Pages email(s)',
+    nullable: true,
+  })
+  @OneToMany(
+    () => YellowPagesEmail,
+    (email) => email.yellowpages,
+    { nullable: true, eager: true },
+  )
+  email?: YellowPagesEmail[];
 
   @Field(() => YellowPagesCatgory, {
     description: 'Yellow Pages category',
@@ -94,8 +97,10 @@ export class Province {
   @Column()
   name: string;
 
-  @Field(() => [District], { description: 'Province Districts' })
-  @OneToMany(() => District, (district) => district.province)
+  @Field(() => [District], {
+    description: 'Province Districts',
+  })
+  @OneToMany(() => District, (district) => district.province, { eager: true })
   district: District[];
 
   @Field(() => [YellowPagesAddress], {
@@ -104,6 +109,7 @@ export class Province {
   @OneToMany(
     () => YellowPagesAddress,
     (yellowpagesaddress) => yellowpagesaddress.province,
+    { nullable: true },
   )
   yellowpagesaddress: YellowPagesAddress[];
 }
@@ -238,18 +244,25 @@ export class YellowPagesAddress {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => District, { description: 'District Type' })
-  @ManyToOne(() => District, (district) => district.yellowpagesaddress)
+  @Field(() => District, { description: 'District Type', nullable: true })
+  @ManyToOne(() => District, (district) => district.yellowpagesaddress, {
+    nullable: true,
+  })
   district: District;
 
-  @Field(() => Province, { description: 'Province Type' })
-  @ManyToOne(() => Province, (province) => province.yellowpagesaddress)
+  @Field(() => Province, { description: 'Province Type', nullable: true })
+  @ManyToOne(() => Province, (province) => province.yellowpagesaddress, {
+    nullable: true,
+  })
   province: Province;
+
+  @Field({ description: 'Address' })
+  @Column()
+  address: string
 
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.address, {
     onDelete: 'CASCADE',
-    eager: true,
   })
   yellowpages?: YellowPages;
 }
@@ -261,18 +274,37 @@ export class YellowPagesPhoneNumber {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => Int, { description: 'Phone number' })
-  @Column()
+  @Field(() => BigIntResolver, { description: 'Phone number' })
+  @Column({type: 'bigint'})
   phone_number: number;
 
   @Field(() => Boolean, { description: '' })
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', default: false })
   is_emergency: boolean;
 
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.phone_number, {
     onDelete: 'CASCADE',
-    eager: true,
+    nullable: true,
+  })
+  yellowpages?: YellowPages;
+}
+
+@ObjectType()
+@Entity()
+export class YellowPagesEmail {
+  @Field(() => Int, { description: 'id field for int' })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Field(() => EmailAddressResolver, { description: 'Email' })
+  @Column()
+  email: string;
+
+  @Field(() => YellowPages, { description: '' })
+  @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.email, {
+    onDelete: 'CASCADE',
+    nullable: true,
   })
   yellowpages?: YellowPages;
 }

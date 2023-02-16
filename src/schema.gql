@@ -14,9 +14,22 @@ type Author {
   profile: Profile
 }
 
+"""
+The `BigInt` scalar type represents non-fractional signed whole numeric values.
+"""
+scalar BigInt
+
 type CommentsResponse {
   page: NewsCommentConnection!
   pageData: PageData
+}
+
+input CreateDistrictInput {
+  """District name"""
+  name: String!
+
+  """Districts Province"""
+  province: Int!
 }
 
 input CreateNewsCategoryInput {
@@ -101,6 +114,10 @@ input CreateNotificationDeviceInput {
   userId: Int
 }
 
+input CreateProvinceInput {
+  name: String!
+}
+
 input CreatePublicToiletInput {
   """Public Toilet address"""
   address: String!
@@ -119,6 +136,20 @@ input CreatePublicToiletInput {
 
   """Public Toilet Feature Image"""
   singleImage: Upload
+
+  """Public Toilet State"""
+  state: State!
+}
+
+input CreatePublicToiletReviewInput {
+  """Review content"""
+  content: String!
+
+  """Public Toilet id"""
+  publicToilet: Int!
+
+  """Review rating"""
+  rating: Int!
 }
 
 input CreateTagInput {
@@ -159,6 +190,9 @@ input CreateUserLikesNewsReplyInput {
 }
 
 input CreateYellowPagesAddressInput {
+  """Address"""
+  address: String!
+
   """District Type"""
   district: Int!
 
@@ -166,7 +200,7 @@ input CreateYellowPagesAddressInput {
   province: Int!
 
   """Yellow pages id"""
-  yellowpages: Int!
+  yellowpages: Int
 }
 
 input CreateYellowPagesCategoryInput {
@@ -177,15 +211,32 @@ input CreateYellowPagesCategoryInput {
   name: String!
 }
 
+input CreateYellowPagesEmailInput {
+  """Email"""
+  email: EmailAddress!
+
+  """Yellow pages id"""
+  yellowpages: Int
+}
+
 input CreateYellowPagesInput {
+  """Address for yellow page address"""
+  address: [CreateYellowPagesAddressInput!]!
+
   """Yellow Pages category"""
   category: Int
 
   """Yellow Pages description"""
   description: String
 
+  """email for yellow pages"""
+  email: [CreateYellowPagesEmailInput!]!
+
   """Yellow Pages name"""
   name: String!
+
+  """Phone number for yellow pages"""
+  phone_number: [CreateYellowPagesPhoneNumberInput!]!
 
   """Yellow Pages State"""
   state: State
@@ -193,13 +244,13 @@ input CreateYellowPagesInput {
 
 input CreateYellowPagesPhoneNumberInput {
   """"""
-  is_emergency: Boolean!
+  is_emergency: Boolean = false
 
   """Phone number"""
-  phone_number: Float!
+  phone_number: BigInt!
 
   """Yellow pages id"""
-  yellowpages: Int!
+  yellowpages: Int
 }
 
 """
@@ -221,6 +272,16 @@ type District {
   yellowpagesaddress: [YellowPagesAddress!]!
 }
 
+"""
+A field whose value conforms to the standard internet email address format as specified in RFC822: https://www.w3.org/Protocols/rfc822/.
+"""
+scalar EmailAddress @specifiedBy(url: "https://www.w3.org/Protocols/rfc822/")
+
+input FilterDistrictInput {
+  """Districts Province"""
+  province: Int
+}
+
 input FilterNewsInput {
   """News category"""
   category: Int
@@ -232,17 +293,31 @@ input FilterNewsInput {
   title: String
 }
 
+input FilterYellowPagesInput {
+  """Yellow Pages category"""
+  category: Int
+  district: Int
+  is_emergency: Boolean
+  province: Int
+
+  """Search query for yellow pages"""
+  searchQuery: String
+}
+
 """GeoJSON Point"""
 scalar GeoJSONPointScalar
 
 type Mutation {
+  creatDistrict(createDistrictInput: CreateDistrictInput!): District!
   createNews(createNewsInput: CreateNewsInput!): News!
   createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
   createNewsComment(createNewsCommentInput: CreateNewsCommentInput!): NewsComment!
   createNewsReply(createNewsReplyInput: CreateNewsReplyInput!): NewsReply!
   createNewsTaggit(createNewsTaggitInput: CreateNewsTaggitInput!): NewsTaggit!
   createNotificationDevice(CreateNotificationDeviceInput: CreateNotificationDeviceInput!): NotificationDevice!
+  createProvince(createProvinceInput: CreateProvinceInput!): Province!
   createPublicToilet(createPublicToiletInput: CreatePublicToiletInput!): PublicToilet!
+  createPublicToiletReview(createPublicToiletReviewsInput: CreatePublicToiletReviewInput!): PublicToiletReview!
   createTag(createTagInput: CreateTagInput!): Tag!
   createUserInterests(createUserInterestsInput: CreateUserInterestsInput!): UserInterests!
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
@@ -251,33 +326,42 @@ type Mutation {
   createYellowPages(createYellowPagesInput: CreateYellowPagesInput!): YellowPages!
   createYellowPagesAddress(createYellowPagesAddressInput: CreateYellowPagesAddressInput!): YellowPagesAddress!
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
+  createYellowPagesEmail(createYellowPagesEmailInput: CreateYellowPagesEmailInput!): YellowPagesEmail!
   createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
+  removeDistrict(id: Int!): District!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
   removeNewsComment(id: Int!): NewsComment!
   removeNewsImage(id: Int!): NewsImage!
   removeNewsReply(id: Int!): NewsReply!
   removeNewsTaggit(id: Int!): NewsTaggit!
+  removeProvince(id: Int!): Province!
   removePublicToilet(id: Int!): PublicToilet!
+  removePublicToiletReview(publicToiletId: Int!): PublicToiletReview!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
   removeUserLikesNewsReply(replyId: Int!): UserLikesNewsReply!
   removeYellowPages(id: Int!): YellowPages!
   removeYellowPagesAddress(id: Int!): YellowPagesAddress!
   removeYellowPagesCategory(id: Int!): YellowPagesCatgory!
+  removeYellowPagesEmail(id: Int!): YellowPagesEmail!
   removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
+  updateDistrict(id: Int!, updateDistrictInput: UpdateDistrictInput!): District!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
   updateNewsComment(id: Int!, updateNewsCommentInput: UpdateNewsCommentInput!): NewsComment!
   updateNewsReply(id: Int!, updateNewsReplyInput: UpdateNewsReplyInput!): NewsReply!
+  updateProvince(id: Int!, updateProvinceInput: UpdateProvinceInput!): Province!
   updatePublicToilet(id: Int!, updatePublicToiletInput: UpdatePublicToiletInput!): PublicToilet!
+  updatePublicToiletReview(publicToiletId: Int!, updatePublicToiletReviewInput: UpdatePublicToiletReviewInput!): PublicToiletReview!
   updateUserLikesNewsComment(commentId: Int!, updateUserLikesNewsCommentInput: UpdateUserLikesNewsCommentInput!): UserLikesNewsComment!
   updateUserLikesNewsReply(replyId: Int!, updateUserLikesNewsReplyInput: UpdateUserLikesNewsReplyInput!): UserLikesNewsReply!
   updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
   updateYellowPagesAddress(id: Int!, updateYellowPagesAddressInput: UpdateYellowPagesAddressInput!): YellowPagesAddress!
   updateYellowPagesCategory(id: Int!, updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput!): YellowPagesCatgory!
+  updateYellowPagesEmail(id: Int!, updateYellowPagesEmailInput: UpdateYellowPagesEmailInput!): YellowPagesEmail!
   updateYellowPagesPhoneNumber(id: Int!, updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
 }
 
@@ -678,14 +762,28 @@ type PublicToilet {
   """Public Toilet publishedAt"""
   publishedAt: DateTime
 
+  """Public Toilet Review"""
+  review: [PublicToiletReview!]
+
   """Public Toilet main image."""
   singleImage: String
+
+  """Public Toilet state"""
+  state: State!
+
+  """Total Review Rating"""
+  totalReviewRating: TotalReviewRatings
 
   """Public Toilet updatedAt"""
   updatedAt: DateTime!
 
   """Public Toilet updatedBy"""
   updatedBy: Int!
+}
+
+type PublicToiletAdminResponse {
+  count: Int!
+  data: [PublicToilet!]!
 }
 
 type PublicToiletConnection {
@@ -710,7 +808,6 @@ type PublicToiletImage {
 
   """Public Toilet image"""
   image: String!
-  publicToilet: PublicToilet!
 
   """News image updatedAt"""
   updatedAt: DateTime!
@@ -731,7 +828,49 @@ type PublicToiletResponse {
   pageData: PageData
 }
 
+type PublicToiletReview {
+  """one wrote the review"""
+  author: Int!
+  authorDetail: Author!
+
+  """Review content"""
+  content: String!
+
+  """date of creation"""
+  createdAt: DateTime!
+  publicToiletId: Int!
+
+  """Review rating"""
+  rating: Int!
+
+  """date of update"""
+  updatedAt: DateTime!
+}
+
+type PublicToiletReviewConnection {
+  edges: [PublicToiletReviewEdge!]!
+  pageInfo: PublicToiletReviewPageInfo!
+}
+
+type PublicToiletReviewEdge {
+  cursor: String
+  node: PublicToiletReview
+}
+
+type PublicToiletReviewPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type PublicToiletReviewsResponse {
+  page: PublicToiletReviewConnection!
+  pageData: PageData
+}
+
 type Query {
+  districts(filterDistrictInput: FilterDistrictInput): [District!]!
   instrestingTags: [Tag!]!
   news(
     """Paginate after cursor"""
@@ -807,7 +946,10 @@ type Query {
     """Paginate last"""
     last: Float
   ): NotificationResponse!
+  provinceById(id: Int!): Province!
+  provinces: [Province!]!
   publicToiletById(id: Int!): PublicToilet!
+  publicToiletComment(publicToiletId: Int!): PublicToiletReview!
   publicToiletNearMe(
     """Paginate after cursor"""
     after: String
@@ -822,6 +964,20 @@ type Query {
     last: Float
     origin: GeoJSONPointScalar!
   ): PublicToiletResponse!
+  publicToiletReview(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+    publicToiletId: Int!
+  ): PublicToiletReviewsResponse!
   publicToilets(
     """Paginate after cursor"""
     after: String
@@ -835,6 +991,7 @@ type Query {
     """Paginate last"""
     last: Float
   ): PublicToiletResponse!
+  publicToiletsAdmin(skip: Int = 0, take: Int = 25): PublicToiletAdminResponse!
   tags: [Tag!]!
   yellowPages(
     """Paginate after cursor"""
@@ -842,6 +999,7 @@ type Query {
 
     """Paginate before cursor"""
     before: String
+    filterYellowPagesInput: FilterYellowPagesInput
 
     """Paginate first"""
     first: Float
@@ -851,7 +1009,7 @@ type Query {
   ): YellowPagesResponse!
   yellowPagesAddress: [YellowPagesAddress!]!
   yellowPagesAddressById(id: Int!): YellowPagesAddress!
-  yellowPagesAdmin(skip: Int = 0, take: Int = 25): [YellowPages!]!
+  yellowPagesAdmin(filterYellowPagesInput: FilterYellowPagesInput, skip: Int = 0, take: Int = 25): YellowPagesAdminResponse!
   yellowPagesById(id: Int!): YellowPages!
   yellowPagesCategories(
     """Paginate after cursor"""
@@ -868,6 +1026,8 @@ type Query {
   ): YellowPagesCategoryResponse!
   yellowPagesCategoryAdmin(skip: Int = 0, take: Int = 25): [YellowPagesCatgory!]!
   yellowPagesCategoryById(id: Int!): YellowPagesCatgory!
+  yellowPagesEmail: [YellowPagesEmail!]!
+  yellowPagesEmailById(id: Int!): YellowPagesEmail!
   yellowPagesPhoneNumber: [YellowPagesPhoneNumber!]!
   yellowPagesPhoneNumberById(id: Int!): YellowPagesPhoneNumber!
 }
@@ -906,6 +1066,23 @@ type Tag {
 
   """name of the tag"""
   name: String!
+}
+
+"""Total Reveiw and Rating"""
+type TotalReviewRatings {
+  """Total Rating"""
+  totalRating: Float!
+
+  """Total Reviewer"""
+  totalReview: Int!
+}
+
+input UpdateDistrictInput {
+  """District name"""
+  name: String
+
+  """Districts Province"""
+  province: Int
 }
 
 input UpdateNewsCategoryInput {
@@ -962,6 +1139,10 @@ input UpdateNewsReplyInput {
   content: String!
 }
 
+input UpdateProvinceInput {
+  name: String
+}
+
 input UpdatePublicToiletInput {
   """Public Toilet address"""
   address: String
@@ -980,6 +1161,17 @@ input UpdatePublicToiletInput {
 
   """Public Toilet Feature Image"""
   singleImage: Upload
+
+  """Public Toilet State"""
+  state: State
+}
+
+input UpdatePublicToiletReviewInput {
+  """Review content"""
+  content: String!
+
+  """Review rating"""
+  rating: Int!
 }
 
 input UpdateUserLikesNewsCommentInput {
@@ -993,6 +1185,9 @@ input UpdateUserLikesNewsReplyInput {
 }
 
 input UpdateYellowPagesAddressInput {
+  """Address"""
+  address: String
+
   """District Type"""
   district: Int
 
@@ -1011,15 +1206,32 @@ input UpdateYellowPagesCategoryInput {
   name: String
 }
 
+input UpdateYellowPagesEmailInput {
+  """Email"""
+  email: EmailAddress
+
+  """Yellow pages id"""
+  yellowpages: Int
+}
+
 input UpdateYellowPagesInput {
+  """Address for yellow page address"""
+  address: [CreateYellowPagesAddressInput!]
+
   """Yellow Pages category"""
   category: Int
 
   """Yellow Pages description"""
   description: String
 
+  """email for yellow pages"""
+  email: [CreateYellowPagesEmailInput!]
+
   """Yellow Pages name"""
   name: String
+
+  """Phone number for yellow pages"""
+  phone_number: [CreateYellowPagesPhoneNumberInput!]
 
   """Yellow Pages State"""
   state: State
@@ -1027,10 +1239,10 @@ input UpdateYellowPagesInput {
 
 input UpdateYellowPagesPhoneNumberInput {
   """"""
-  is_emergency: Boolean
+  is_emergency: Boolean = false
 
   """Phone number"""
-  phone_number: Float
+  phone_number: BigInt
 
   """Yellow pages id"""
   yellowpages: Int
@@ -1089,8 +1301,17 @@ type YellowPages {
   """Yellow Pages category"""
   category: YellowPagesCatgory
 
+  """date of creation"""
+  createdAt: DateTime!
+
+  """one who created"""
+  createdBy: Int!
+
   """Yellow Pages description"""
   description: String
+
+  """Yellow Pages email(s)"""
+  email: [YellowPagesEmail!]
 
   """id field for int"""
   id: Int!
@@ -1099,24 +1320,38 @@ type YellowPages {
   name: String!
 
   """Yellow Pages phone number(s)"""
-  phone_number: [YellowPagesPhoneNumber!]!
+  phone_number: [YellowPagesPhoneNumber!]
 
   """Yellow Pages state"""
   state: State!
+
+  """date of update"""
+  updatedAt: DateTime!
+
+  """one who updated"""
+  updatedBy: Int!
 }
 
 type YellowPagesAddress {
+  """Address"""
+  address: String!
+
   """District Type"""
-  district: District!
+  district: District
 
   """id field for int"""
   id: Int!
 
   """Province Type"""
-  province: Province!
+  province: Province
 
   """"""
   yellowpages: YellowPages!
+}
+
+type YellowPagesAdminResponse {
+  count: Int!
+  data: [YellowPages!]!
 }
 
 type YellowPagesCategoryResponse {
@@ -1177,6 +1412,17 @@ type YellowPagesEdge {
   node: YellowPages
 }
 
+type YellowPagesEmail {
+  """Email"""
+  email: EmailAddress!
+
+  """id field for int"""
+  id: Int!
+
+  """"""
+  yellowpages: YellowPages!
+}
+
 type YellowPagesPageInfo {
   endCursor: String
   hasNextPage: Boolean!
@@ -1192,7 +1438,7 @@ type YellowPagesPhoneNumber {
   is_emergency: Boolean!
 
   """Phone number"""
-  phone_number: Int!
+  phone_number: BigInt!
 
   """"""
   yellowpages: YellowPages!

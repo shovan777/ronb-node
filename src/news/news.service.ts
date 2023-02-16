@@ -166,11 +166,11 @@ export class NewsService {
     if (publishedOnly) {
       whereOptions.state = NewsState.PUBLISHED;
     }
-    if (filterNewsInput?.title){
-      whereOptions.title = Like(`%${filterNewsInput.title}%`)
+    if (filterNewsInput?.title) {
+      whereOptions.title = Like(`%${filterNewsInput.title}%`);
     }
     if (filterNewsInput?.language) {
-      whereOptions.language = filterNewsInput.language
+      whereOptions.language = filterNewsInput.language;
     }
     return this.newsRepository.findAndCount({
       relations: {
@@ -281,7 +281,6 @@ export class NewsService {
       }
 
       if (updateNewsInput.tags) {
-        console.log(updateNewsInput.tags);
         const tags = updateNewsInput.tags.map(async (tag) => {
           const tagData: Tag = await this.tagsService.findOneOrCreate(
             tag,
@@ -292,7 +291,6 @@ export class NewsService {
 
         const newsTags = tags.map(async (tag) => {
           const tagData = await tag;
-          console.log(tagData);
           const newsTaggit: NewsTaggit =
             await this.newsTaggitService.findOneOrCreate(tagData, news, user);
           return newsTaggit;

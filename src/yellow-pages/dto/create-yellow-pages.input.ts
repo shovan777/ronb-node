@@ -1,13 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import {
-  YellowPagesAddress,
-  District,
-  Province,
-  YellowPagesPhoneNumber,
-  YellowPages,
-  YellowPagesCatgory,
-} from '../entities/yellow-pages.entity';
-import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum'
+import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum';
+import { EmailAddressResolver, BigIntResolver } from 'graphql-scalars';
 
 @InputType()
 export class CreateYellowPagesCategoryInput {
@@ -15,7 +8,7 @@ export class CreateYellowPagesCategoryInput {
   name: string;
 
   @Field({ description: 'Yellow Pages Category description', nullable: true })
-  description?:string;
+  description?: string;
 }
 
 @InputType()
@@ -24,7 +17,7 @@ export class CreateYellowPagesInput {
   name: string;
 
   @Field({ description: 'Yellow Pages description', nullable: true })
-  description?:string;
+  description?: string;
 
   @Field(() => Int, {
     description: 'Yellow Pages category',
@@ -32,8 +25,26 @@ export class CreateYellowPagesInput {
   })
   category?: number;
 
-  @Field(()=> YellowPagesState, { description: 'Yellow Pages State', nullable: true })
-  state?: YellowPagesState
+  @Field(() => YellowPagesState, {
+    description: 'Yellow Pages State',
+    nullable: true,
+  })
+  state?: YellowPagesState;
+
+  @Field(() => [CreateYellowPagesAddressInput], {
+    description: 'Address for yellow page address',
+  })
+  address?: CreateYellowPagesAddressInput[];
+
+  @Field(() => [CreateYellowPagesPhoneNumberInput], {
+    description: 'Phone number for yellow pages',
+  })
+  phone_number?: CreateYellowPagesPhoneNumberInput[];
+
+  @Field(() => [CreateYellowPagesEmailInput], {
+    description: 'email for yellow pages',
+  })
+  email?: CreateYellowPagesEmailInput[];
 }
 
 @InputType()
@@ -44,7 +55,10 @@ export class CreateYellowPagesAddressInput {
   @Field(() => Int, { description: 'Province Type' })
   province: number;
 
-  @Field(() => Int, { description: 'Yellow pages id' })
+  @Field({ description: 'Address' })
+  address: string;
+
+  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
   yellowpages?: number;
 }
 
@@ -59,18 +73,27 @@ export class CreateDistrictInput {
   @Field({ description: 'District name' })
   name: string;
 
-  @Field(()=>Int,{ description:'Districts Province'})
+  @Field(() => Int, { description: 'Districts Province' })
   province: number;
 }
 
 @InputType()
 export class CreateYellowPagesPhoneNumberInput {
-  @Field({ description: 'Phone number' })
+  @Field(() => BigIntResolver ,{ description: 'Phone number' })
   phone_number: number;
 
-  @Field({ description: '' })
+  @Field({ description: '', defaultValue:false })
   is_emergency: boolean;
 
-  @Field(() => Int, { description: 'Yellow pages id' })
+  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
+  yellowpages?: number;
+}
+
+@InputType()
+export class CreateYellowPagesEmailInput {
+  @Field(() => EmailAddressResolver, { description: 'Email' })
+  email: string;
+
+  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
   yellowpages?: number;
 }
