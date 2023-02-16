@@ -332,6 +332,7 @@ type Mutation {
   removeNewsTaggit(id: Int!): NewsTaggit!
   removeProvince(id: Int!): Province!
   removePublicToilet(id: Int!): PublicToilet!
+  removePublicToiletImage(id: Int!): PublicToiletImage!
   removePublicToiletReview(publicToiletId: Int!): PublicToiletReview!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!

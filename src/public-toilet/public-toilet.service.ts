@@ -16,6 +16,7 @@ import { uploadFileStream } from '../common/utils/upload';
 import { PublishState as PublicToiletState } from 'src/common/enum/publish_state.enum';
 import { checkUserIsAuthor } from 'src/common/utils/checkUserAuthentication';
 import { checkIfObjectIsPublished } from 'src/common/utils/checkPublishedState';
+import { FilesService } from 'src/common/services/files.service';
 
 @Injectable()
 export class PublicToiletService {
@@ -24,6 +25,7 @@ export class PublicToiletService {
     private publicToiletRepository: Repository<PublicToilet>,
     @InjectRepository(PublicToiletImage)
     private publicToiletImageRepository: Repository<PublicToiletImage>,
+    private fileService: FilesService,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
 
@@ -242,6 +244,19 @@ export class PublicToiletService {
       return publicToilet;
     }
     return new NotFoundException(`PublicToilet with id ${id} not found`);
+  }
+
+  async removeImage(id: number) {
+    const image = await this.publicToiletImageRepository.findOne({
+      where: { id: id },
+    });
+    if (image) {
+      await this.publicToiletImageRepository.delete(image.id);
+      this.fileService.removeFile(image.image);
+      return image;
+    }
+
+    return new NotFoundException(`Image with id ${id} not found`);
   }
 
   async findImagesOfPublicToilet(id: number) {
