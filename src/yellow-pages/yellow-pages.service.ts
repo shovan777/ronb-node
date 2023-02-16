@@ -39,6 +39,7 @@ import {
   FilterYellowPagesInput,
 } from './dto/filter-yellowpages.input';
 import { uploadFileStream } from 'src/common/utils/upload';
+import { FilesService } from 'src/common/services/files.service';
 @Injectable()
 export class YellowPagesService {
   constructor(
@@ -56,8 +57,9 @@ export class YellowPagesService {
     private yellowPagesPhoneNumberRepository: Repository<YellowPagesPhoneNumber>,
     @InjectRepository(YellowPagesEmail)
     private yellowPagesEmailRepository: Repository<YellowPagesEmail>,
+    private fileService: FilesService,
   ) {}
-  uploadDir = process.env.MEDIA_ROOT;
+  uploadDir = `${process.env.MEDIA_ROOT}/yellowpages`;
 
   async findAll(
     limit: number,
@@ -169,7 +171,8 @@ export class YellowPagesService {
 
   async get_file_path(yellowpagesInput): Promise<string> {
     const imageFile: any = await yellowpagesInput.singleImage;
-    const file_name = imageFile.filename;
+    const img_ext = imageFile.filename.split(".").pop()
+    const file_name = `${yellowpagesInput.id.toString()}.${img_ext}`;
 
     const upload_dir = this.uploadDir;
     const file_path = await uploadFileStream(
@@ -193,15 +196,6 @@ export class YellowPagesService {
       email: null,
     };
 
-    if (yellowpagesInput.singleImage) {
-      const file_path: string = await this.get_file_path(yellowpagesInput);
-
-      yellowpagesInputData = {
-        ...yellowpagesInputData,
-        singleImage: file_path,
-      };
-    }
-
     if (yellowpagesInput.category) {
       const yellowPagesCategoryData: YellowPagesCatgory =
         await this.yellowPagesCategoryeRepository.findOneBy({
@@ -219,13 +213,27 @@ export class YellowPagesService {
       };
     }
 
-    const yellowpagesData = await this.yellowPagesRepository.save({
+    if (yellowpagesInput.state) {
+      yellowpagesInputData = {
+        ...yellowpagesInputData,
+        state: yellowpagesInput.state,
+      };
+    }
+
+    const yellowpagesData: YellowPages = await this.yellowPagesRepository.save({
       ...yellowpagesInputData,
       createdBy: user,
-      createdAt: new Date(),
       updatedBy: user,
-      updaedAt: new Date(),
     });
+
+    if (yellowpagesInput.singleImage) {
+      const file_path: string = await this.get_file_path({
+        ...yellowpagesInput,
+        id: yellowpagesData.id,
+      });
+      yellowpagesData.singleImage = file_path;
+      this.yellowPagesRepository.save(yellowpagesData);
+    }
 
     await Promise.all(
       yellowpagesInput.phone_number.map(async (phone_number) => {
@@ -236,7 +244,7 @@ export class YellowPagesService {
       }),
     );
 
-    if (yellowpagesInput.address){
+    if (yellowpagesInput.address) {
       await Promise.all(
         yellowpagesInput.address.map(async (address) => {
           const district: District = await this.districtRepository.findOne({
@@ -273,7 +281,7 @@ export class YellowPagesService {
       );
     }
 
-    if (yellowpagesInput.email){
+    if (yellowpagesInput.email) {
       await Promise.all(
         yellowpagesInput.email.map(async (email) => {
           await this.yellowPagesEmailRepository.save({
@@ -303,9 +311,6 @@ export class YellowPagesService {
     user: number,
   ): Promise<YellowPages> {
     const yellowpages: YellowPages = await this.findOne(id);
-    if (!yellowpages) {
-      throw new NotFoundException(`Yellow Pages with id ${id} not found`);
-    }
 
     let yellowPagesInputData: any = {
       ...updateYellowPagesInput,
@@ -317,12 +322,17 @@ export class YellowPagesService {
         updateYellowPagesInput,
       );
 
-      yellowPagesInputData = {
-        ...yellowPagesInputData,
-        singleImage: file_path,
-      };
-      yellowpages.singleImage = yellowPagesInputData.singleImage;
+      if (file_path) {
+        this.removeImage(id, user);
+
+        yellowPagesInputData = {
+          ...yellowPagesInputData,
+          singleImage: file_path,
+        };
+        yellowpages.singleImage = yellowPagesInputData.singleImage;
+      }
     }
+
     const category_id = updateYellowPagesInput.category;
 
     if (category_id) {
@@ -345,7 +355,6 @@ export class YellowPagesService {
     await this.yellowPagesRepository.update(id, {
       ...yellowPagesInputData,
       updatedBy: user,
-      updatedAt: new Date(),
       publishedAt:
         yellowpages.publishedAt ||
         (updateYellowPagesInput.state === YellowPagesPublishState.PUBLISHED
@@ -355,19 +364,23 @@ export class YellowPagesService {
     return await this.findOne(id);
   }
 
-  async remove(id: number, user: number) {
-    const yellowpages: YellowPages = await this.yellowPagesRepository.findOne({
-      where: { id: id },
-    });
-
-    if (!yellowpages) {
-      throw new NotFoundException(`Yellow Pages with id ${id} not found`);
+  async removeImage(id: number, user: number): Promise<YellowPages> {
+    const yellowpages: YellowPages = await this.findOne(id);
+    if (yellowpages.singleImage) {
+      this.fileService.removeFile(yellowpages.singleImage);
     }
+    return yellowpages;
+  }
+
+  async remove(id: number, user: number) {
+    const yellowpages: YellowPages = await this.findOne(id);
+
     if (
       yellowpages.state == YellowPagesPublishState.DRAFT &&
       yellowpages.createdBy == user
     ) {
       const removedYellowPages = this.yellowPagesRepository.remove(yellowpages);
+      this.removeImage(id, user);
       return {
         id,
         ...removedYellowPages,
@@ -392,8 +405,6 @@ export class YellowPagesCategoryService {
   ): Promise<YellowPagesCatgory> {
     return await this.yellowPagesCategoryRepository.save({
       ...yellowpagesCategoryInput,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       createdBy: user,
       updatedBy: user,
     });
@@ -440,16 +451,10 @@ export class YellowPagesCategoryService {
         ...updateYellowPagesCategoryInput,
       });
     }
-    throw new NotFoundException(
-      `Yellow Pages category with id ${id} not found`,
-    );
   }
 
   async remove(id: number): Promise<YellowPagesCatgory> {
-    const yellowpagesCategory: YellowPagesCatgory =
-      await this.yellowPagesCategoryRepository.findOne({
-        where: { id: id },
-      });
+    const yellowpagesCategory: YellowPagesCatgory = await this.findOne(id);
 
     if (yellowpagesCategory) {
       const removedYellowPagesCategory =
@@ -460,9 +465,6 @@ export class YellowPagesCategoryService {
         ...removedYellowPagesCategory,
       };
     }
-    throw new NotFoundException(
-      `Yellow Pages category with id ${id} not found`,
-    );
   }
 }
 
@@ -633,10 +635,6 @@ export class ProvinceService {
     updateProvinceInput: UpdateProvinceInput,
   ): Promise<Province> {
     const province: Province = await this.findOne(id);
-
-    if (!province) {
-      throw new NotFoundException(`Province with id ${id} not found`);
-    }
 
     await this.provinceRepository.update(id, updateProvinceInput);
     return await this.findOne(id);
@@ -812,11 +810,6 @@ export class YellowPagesPhoneNumberService {
     const yellowpagesPhoneNumber: YellowPagesPhoneNumber = await this.findOne(
       id,
     );
-    if (!yellowpagesPhoneNumber) {
-      throw new NotFoundException(
-        `Yellow Pages phone number with id ${id} not found`,
-      );
-    }
     if (updateYellowPagesPhoneNumberInput.yellowpages) {
       const yellowPages: YellowPages =
         await this.yellowPagesRepository.findOneBy({
@@ -838,10 +831,9 @@ export class YellowPagesPhoneNumberService {
   }
 
   async remove(id: number) {
-    const yellowPagesPhoneNumber: YellowPagesPhoneNumber =
-      await this.phoneNumberRepository.findOne({
-        where: { id: id },
-      });
+    const yellowPagesPhoneNumber: YellowPagesPhoneNumber = await this.findOne(
+      id,
+    );
 
     if (yellowPagesPhoneNumber) {
       const removedYellowPagesPhoneNumbers = this.phoneNumberRepository.remove(
@@ -918,9 +910,6 @@ export class YellowPagesEmailService {
     };
 
     const yellowPagesEmail: YellowPagesEmail = await this.findOne(id);
-    if (!yellowPagesEmail) {
-      throw new NotFoundException(`Yellow pages email with id ${id} not found`);
-    }
     if (updateYellowPagesEmailInput.yellowpages) {
       const yellowpages: YellowPages =
         await this.yellowPagesRepository.findOneBy({
@@ -942,14 +931,7 @@ export class YellowPagesEmailService {
   }
 
   async remove(id: number) {
-    const yellowPagesEmail: YellowPagesEmail =
-      await this.emailRepository.findOne({
-        where: { id: id },
-      });
-
-    if (!yellowPagesEmail) {
-      throw new NotFoundException(`Yellow pages email with id ${id} not found`);
-    }
+    const yellowPagesEmail: YellowPagesEmail = await this.findOne(id);
     const removedYellowPagesEmail =
       this.emailRepository.remove(yellowPagesEmail);
 

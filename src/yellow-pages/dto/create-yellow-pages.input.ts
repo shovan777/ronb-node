@@ -88,7 +88,7 @@ export class CreateYellowPagesPhoneNumberInput {
   @Field(() => BigIntResolver, { description: 'Phone number' })
   phone_number: number;
 
-  @Field({ description: '', defaultValue: false })
+  @Field({ description: 'Emergency number if set to true', defaultValue: false })
   is_emergency: boolean;
 
   @Field(() => Int, { description: 'Yellow pages id', nullable: true })

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { FilesService } from 'src/common/services/files.service';
 import {
   YellowPagesAddress,
   YellowPagesPhoneNumber,
@@ -43,7 +44,8 @@ import {
     YellowPagesPhoneNumberResolver,
     YellowPagesPhoneNumberService,
     YellowPagesEmailResolver,
-    YellowPagesEmailService
+    YellowPagesEmailService,
+    FilesService,
   ],
   imports: [
     TypeOrmModule.forFeature([

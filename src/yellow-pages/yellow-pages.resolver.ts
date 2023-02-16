@@ -142,6 +142,15 @@ export class YellowPagesResolver {
   }
 
   @Mutation(() => YellowPages)
+  async removeYellowPagesImage(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<YellowPages> {
+    checkUserAuthenticated(user);
+    return this.yellowPagesService.removeImage(id, user);
+  }
+
+  @Mutation(() => YellowPages)
   async removeYellowPages(
     @Args('id', { type: () => Int }) id: number,
     @User() user: number,

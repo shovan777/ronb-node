@@ -244,7 +244,7 @@ input CreateYellowPagesInput {
 }
 
 input CreateYellowPagesPhoneNumberInput {
-  """"""
+  """Emergency number if set to true"""
   is_emergency: Boolean = false
 
   """Phone number"""
@@ -346,6 +346,7 @@ type Mutation {
   removeYellowPagesAddress(id: Int!): YellowPagesAddress!
   removeYellowPagesCategory(id: Int!): YellowPagesCatgory!
   removeYellowPagesEmail(id: Int!): YellowPagesEmail!
+  removeYellowPagesImage(id: Int!): YellowPages!
   removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
@@ -1236,7 +1237,7 @@ input UpdateYellowPagesInput {
 }
 
 input UpdateYellowPagesPhoneNumberInput {
-  """"""
+  """Emergency number if set to true"""
   is_emergency: Boolean = false
 
   """Phone number"""
