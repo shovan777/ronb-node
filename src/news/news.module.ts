@@ -2,12 +2,14 @@ import { forwardRef, Module } from '@nestjs/common';
 import {
   NewsCategoryService,
   NewsService,
+  RecommendationDataService,
   UserInterestsService,
   UserLikesNewsService,
 } from './news.service';
 import {
   NewsCategoryResolver,
   NewsResolver,
+  RecommendationDataResolver,
   UserInterestsResolver,
   UserLikesNewsResolver,
 } from './news.resolver';
@@ -36,6 +38,8 @@ import { FilesService } from 'src/common/services/files.service';
     FilesService,
     UserInterestsResolver,
     UserInterestsService,
+    RecommendationDataResolver,
+    RecommendationDataService,
   ],
   imports: [
     forwardRef(() => TagsModule),

@@ -18,6 +18,7 @@ import {
   NewsCategory,
   NewsImage,
   NewsState,
+  RecommendationData,
   UserInterests,
   UserLikesNews,
 } from './entities/news.entity';
@@ -527,5 +528,30 @@ export class UserInterestsService {
       ...userInterestsInput,
       userId: user,
     });
+  }
+}
+
+@Injectable()
+export class RecommendationDataService {
+  constructor(
+    @InjectRepository(News)
+    private newsRepository: Repository<News>,
+    @InjectRepository(UserInterests)
+    private userInterestsRepository: Repository<UserInterests>,
+  ) {}
+
+  async getRecommendationData(): Promise<RecommendationData> {
+    // const userInterestsIds = userInterests.map((interest) => interest.category);
+    // const news = await this.newsRepository.find({
+    //   where: { category: In(userInterestsIds) },
+    //   relations: ['category', 'images'],
+    // });
+    const recommendationData: RecommendationData = {
+      userData: 'user data',
+      newsData: 'news data',
+      ratingData: 'rating data',
+    };
+    return recommendationData;
+    // return news;
   }
 }

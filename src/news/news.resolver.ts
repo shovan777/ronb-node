@@ -10,6 +10,7 @@ import {
 import {
   NewsCategoryService,
   NewsService,
+  RecommendationDataService,
   UserInterestsService,
   UserLikesNewsService,
 } from './news.service';
@@ -17,6 +18,7 @@ import {
   News,
   NewsCategory,
   NewsImage,
+  RecommendationData,
   UserInterests,
   UserLikesNews,
 } from './entities/news.entity';
@@ -333,4 +335,16 @@ export class UserInterestsResolver {
   //   checkUserAuthenticated(user);
   //   return await this.userInterestsService.remove(newsCategoryId, user);
   // }
+}
+
+@Resolver(() => RecommendationData)
+export class RecommendationDataResolver {
+  constructor(
+    private readonly recommendationDataService: RecommendationDataService,
+  ) {}
+
+  @Query(() => RecommendationData, { name: 'recommendationData' })
+  async getData(): Promise<RecommendationData> {
+    return await this.recommendationDataService.getRecommendationData();
+  }
 }

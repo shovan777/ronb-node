@@ -335,3 +335,15 @@ export class UserInterests {
 //   @Field({ description: 'News source updatedAt' })
 //   @UpdateDateColumn()
 //   updatedAt: Date;
+
+@ObjectType()
+export class RecommendationData {
+  @Field({ description: 'Url of the user data file' })
+  userData: string;
+
+  @Field({ description: 'Url of the news data file' })
+  newsData: string;
+
+  @Field({ description: 'Url of the rating data file' })
+  ratingData: string;
+}
