@@ -232,7 +232,7 @@ export class YellowPagesService {
         id: yellowpagesData.id,
       });
       yellowpagesData.singleImage = file_path;
-      this.yellowPagesRepository.save(yellowpagesData);
+      await this.yellowPagesRepository.save(yellowpagesData);
     }
 
     await Promise.all(
@@ -314,24 +314,7 @@ export class YellowPagesService {
 
     let yellowPagesInputData: any = {
       ...updateYellowPagesInput,
-      singleImage: null,
     };
-
-    if (updateYellowPagesInput.singleImage) {
-      const file_path: string = await this.get_file_path(
-        updateYellowPagesInput,
-      );
-
-      if (file_path) {
-        this.removeImage(id, user);
-
-        yellowPagesInputData = {
-          ...yellowPagesInputData,
-          singleImage: file_path,
-        };
-        yellowpages.singleImage = yellowPagesInputData.singleImage;
-      }
-    }
 
     const category_id = updateYellowPagesInput.category;
 
@@ -352,7 +335,7 @@ export class YellowPagesService {
       };
     }
 
-    await this.yellowPagesRepository.update(id, {
+    const yellowPagesUpdate = await this.yellowPagesRepository.update(id, {
       ...yellowPagesInputData,
       updatedBy: user,
       publishedAt:
@@ -361,13 +344,29 @@ export class YellowPagesService {
           ? new Date()
           : null),
     });
+
+    if (updateYellowPagesInput.singleImage) {
+      const file_path: string = await this.get_file_path({
+        ...updateYellowPagesInput,
+        id: yellowpages.id,
+      });
+
+      if (file_path) {
+        await this.removeImage(id, user);
+        yellowpages.singleImage = file_path;
+        await this.yellowPagesRepository.save(yellowpages);
+      }
+    }
+
     return await this.findOne(id);
   }
 
   async removeImage(id: number, user: number): Promise<YellowPages> {
     const yellowpages: YellowPages = await this.findOne(id);
     if (yellowpages.singleImage) {
-      this.fileService.removeFile(yellowpages.singleImage);
+      await this.fileService.removeFile(yellowpages.singleImage);
+      yellowpages.singleImage = null;
+      await this.yellowPagesRepository.save(yellowpages);
     }
     return yellowpages;
   }
