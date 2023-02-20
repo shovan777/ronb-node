@@ -172,7 +172,8 @@ export class YellowPagesService {
   async get_file_path(yellowpagesInput): Promise<string> {
     const imageFile: any = await yellowpagesInput.singleImage;
     const img_ext = imageFile.filename.split('.').pop();
-    const file_name = `${yellowpagesInput.id}.${img_ext}`;
+    const original_filename = imageFile.filename.split('.')[0]
+    const file_name = `${yellowpagesInput.id}-${original_filename}-${new Date()}.${img_ext}`;
 
     const upload_dir = this.uploadDir;
     const file_path = await uploadFileStream(
