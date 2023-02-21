@@ -980,7 +980,7 @@ type Query {
     last: Float
     publicToiletId: Int!
   ): PublicToiletReviewsResponse!
-  publicToiletReviewUser(publicToiletId: Int!): PublicToiletReview!
+  publicToiletReviewUser(publicToiletId: Int!): PublicToiletReview
   publicToilets(
     """Paginate after cursor"""
     after: String

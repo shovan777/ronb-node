@@ -102,13 +102,25 @@ export class PublicToiletReviewsResolver {
     };
   }
 
-  @Query(() => PublicToiletReview, { name: 'publicToiletReviewUser' })
+  @Query(() => PublicToiletReview, {
+    name: 'publicToiletReviewUser',
+    nullable: true,
+  })
   @MakePublic()
-  findOne(
+  async findOne(
     @Args('publicToiletId', { type: () => Int }) publicToiletId: number,
     @User() user: number,
-  ): Promise<PublicToiletReview> {
-    return this.publicToiletReviewsService.findOne(publicToiletId, user);
+  ): Promise<any> {
+    let publicToiletReview = null;
+    try {
+      publicToiletReview = await this.publicToiletReviewsService.findOne(
+        publicToiletId,
+        user,
+      );
+    } catch {
+      return null;
+    }
+    return publicToiletReview;
   }
 
   // Resolver
