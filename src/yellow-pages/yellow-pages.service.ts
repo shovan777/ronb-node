@@ -172,8 +172,10 @@ export class YellowPagesService {
   async get_file_path(yellowpagesInput): Promise<string> {
     const imageFile: any = await yellowpagesInput.singleImage;
     const img_ext = imageFile.filename.split('.').pop();
-    const original_filename = imageFile.filename.split('.')[0]
-    const file_name = `${yellowpagesInput.id}-${original_filename}-${new Date()}.${img_ext}`;
+    const original_filename = imageFile.filename.split('.')[0];
+    const file_name = `${
+      yellowpagesInput.id
+    }-${original_filename}-${new Date()}.${img_ext}`;
 
     const upload_dir = this.uploadDir;
     const file_path = await uploadFileStream(
@@ -336,7 +338,23 @@ export class YellowPagesService {
       };
     }
 
-    const yellowPagesUpdate = await this.yellowPagesRepository.update(id, {
+    if (updateYellowPagesInput.singleImage) {
+      const file_path: string = await this.get_file_path({
+        ...updateYellowPagesInput,
+        id: yellowpages.id,
+      });
+
+      if (file_path) {
+        await this.removeImage(id, user);
+        yellowPagesInputData = {
+          ...yellowPagesInputData,
+          singleImage: file_path
+        }
+        yellowpages.singleImage = file_path;
+      }
+    }
+
+    await this.yellowPagesRepository.update(id, {
       ...yellowPagesInputData,
       updatedBy: user,
       publishedAt:
@@ -346,24 +364,14 @@ export class YellowPagesService {
           : null),
     });
 
-    if (updateYellowPagesInput.singleImage) {
-      const file_path: string = await this.get_file_path({
-        ...updateYellowPagesInput,
-        id: yellowpages.id,
-      });
-
-      if (file_path) {
-        await this.removeImage(id, user);
-        yellowpages.singleImage = file_path;
-        await this.yellowPagesRepository.save(yellowpages);
-      }
-    }
-
+ 
     return await this.findOne(id);
   }
 
   async removeImage(id: number, user: number): Promise<YellowPages> {
-    const yellowpages: YellowPages = await this.findOne(id);
+    const yellowpages: YellowPages = await this.yellowPagesRepository.findOne({
+      where: { id: id },
+    });
     if (yellowpages.singleImage) {
       await this.fileService.removeFile(yellowpages.singleImage);
       yellowpages.singleImage = null;
