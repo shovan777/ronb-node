@@ -26,7 +26,8 @@ jobs:
     name: Build and push Docker image
     runs-on: ubuntu-latest
     outputs:
-      img_tag: ${{steps.meta.outputs.tags}}      
+      img_tag: ${{steps.meta.outputs.tags}}
+      json_tag: ${{steps.meta.outputs.json}}      
     environment: aws
     permissions:
       contents: read
@@ -71,8 +72,9 @@ jobs:
     steps:
       - name: Deploy to aws EC2 instance via SSH action
         uses: appleboy/ssh-action@v0.1.3
-        env: 
-            TAG: ${{needs.build_and_push.outputs.img_tag[0]}}
+        env:
+            TAG: ${{fromJSON(needs.build_and_push.outputs.json_tag).tags[0]}}
+            # TAG: ${{needs.build_and_push.outputs.img_tag}}
             #${{ github.sha }}_${{ github.event.inputs.version }}
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -81,6 +83,7 @@ jobs:
           envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG
           script: |
             cd ronb-platform
+            echo $TAG
             export NEST_TAG=$(echo $TAG)
             echo NEST_IMAGE=$NEST_TAG > .env.nestimg
             cat .env.django .env.nestimg .env.dashboard > .env
