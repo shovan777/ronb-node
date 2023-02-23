@@ -19,4 +19,13 @@ export class FilterYellowPagesInput extends PartialType(
 
   @Field(() => Int, { nullable: true })
   district?: number;
+
+  @Field(() => Boolean, { nullable: true })
+  is_emergency: boolean;
+
+  @Field(() => String, {
+    description: 'Search query for yellow pages',
+    nullable: true,
+  })
+  searchQuery?: string;
 }

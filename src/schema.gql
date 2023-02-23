@@ -221,7 +221,7 @@ input CreateYellowPagesEmailInput {
 
 input CreateYellowPagesInput {
   """Address for yellow page address"""
-  address: [CreateYellowPagesAddressInput!]!
+  address: [CreateYellowPagesAddressInput!]
 
   """Yellow Pages category"""
   category: Int
@@ -230,20 +230,21 @@ input CreateYellowPagesInput {
   description: String
 
   """email for yellow pages"""
-  email: [CreateYellowPagesEmailInput!]!
+  email: [CreateYellowPagesEmailInput!]
 
   """Yellow Pages name"""
   name: String!
 
   """Phone number for yellow pages"""
   phone_number: [CreateYellowPagesPhoneNumberInput!]!
+  singleImage: Upload
 
   """Yellow Pages State"""
   state: State
 }
 
 input CreateYellowPagesPhoneNumberInput {
-  """"""
+  """Emergency number if set to true"""
   is_emergency: Boolean = false
 
   """Phone number"""
@@ -297,7 +298,11 @@ input FilterYellowPagesInput {
   """Yellow Pages category"""
   category: Int
   district: Int
+  is_emergency: Boolean
   province: Int
+
+  """Search query for yellow pages"""
+  searchQuery: String
 }
 
 """GeoJSON Point"""
@@ -322,6 +327,7 @@ type Mutation {
   createYellowPages(createYellowPagesInput: CreateYellowPagesInput!): YellowPages!
   createYellowPagesAddress(createYellowPagesAddressInput: CreateYellowPagesAddressInput!): YellowPagesAddress!
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
+  createYellowPagesEmail(createYellowPagesEmailInput: CreateYellowPagesEmailInput!): YellowPagesEmail!
   createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
   removeDistrict(id: Int!): District!
   removeNews(id: Int!): News!
@@ -340,6 +346,8 @@ type Mutation {
   removeYellowPages(id: Int!): YellowPages!
   removeYellowPagesAddress(id: Int!): YellowPagesAddress!
   removeYellowPagesCategory(id: Int!): YellowPagesCatgory!
+  removeYellowPagesEmail(id: Int!): YellowPagesEmail!
+  removeYellowPagesImage(id: Int!): YellowPages!
   removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
@@ -356,6 +364,7 @@ type Mutation {
   updateYellowPages(id: Int!, updateYellowPagesInput: UpdateYellowPagesInput!): YellowPages!
   updateYellowPagesAddress(id: Int!, updateYellowPagesAddressInput: UpdateYellowPagesAddressInput!): YellowPagesAddress!
   updateYellowPagesCategory(id: Int!, updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput!): YellowPagesCatgory!
+  updateYellowPagesEmail(id: Int!, updateYellowPagesEmailInput: UpdateYellowPagesEmailInput!): YellowPagesEmail!
   updateYellowPagesPhoneNumber(id: Int!, updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
 }
 
@@ -1030,6 +1039,8 @@ type Query {
   ): YellowPagesCategoryResponse!
   yellowPagesCategoryAdmin(skip: Int = 0, take: Int = 25): [YellowPagesCatgory!]!
   yellowPagesCategoryById(id: Int!): YellowPagesCatgory!
+  yellowPagesEmail: [YellowPagesEmail!]!
+  yellowPagesEmailById(id: Int!): YellowPagesEmail!
   yellowPagesPhoneNumber: [YellowPagesPhoneNumber!]!
   yellowPagesPhoneNumberById(id: Int!): YellowPagesPhoneNumber!
 }
@@ -1208,6 +1219,14 @@ input UpdateYellowPagesCategoryInput {
   name: String
 }
 
+input UpdateYellowPagesEmailInput {
+  """Email"""
+  email: EmailAddress
+
+  """Yellow pages id"""
+  yellowpages: Int
+}
+
 input UpdateYellowPagesInput {
   """Address for yellow page address"""
   address: [CreateYellowPagesAddressInput!]
@@ -1226,13 +1245,14 @@ input UpdateYellowPagesInput {
 
   """Phone number for yellow pages"""
   phone_number: [CreateYellowPagesPhoneNumberInput!]
+  singleImage: Upload
 
   """Yellow Pages State"""
   state: State
 }
 
 input UpdateYellowPagesPhoneNumberInput {
-  """"""
+  """Emergency number if set to true"""
   is_emergency: Boolean = false
 
   """Phone number"""
@@ -1315,6 +1335,12 @@ type YellowPages {
 
   """Yellow Pages phone number(s)"""
   phone_number: [YellowPagesPhoneNumber!]
+
+  """Yellow Pages publishedAt"""
+  publishedAt: DateTime
+
+  """Yellow Pages main image"""
+  singleImage: String
 
   """Yellow Pages state"""
   state: State!
