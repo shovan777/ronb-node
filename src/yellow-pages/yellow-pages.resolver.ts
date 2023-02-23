@@ -1,18 +1,32 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Int,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { User } from 'src/common/decorators/user.decorator';
 import ConnectionArgs from 'src/common/pagination/types/connection.args';
 import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
 import {
+  CreateDistrictInput,
+  CreateProvinceInput,
   CreateYellowPagesAddressInput,
   CreateYellowPagesCategoryInput,
+  CreateYellowPagesEmailInput,
   CreateYellowPagesInput,
   CreateYellowPagesPhoneNumberInput,
 } from './dto/create-yellow-pages.input';
 import { FetchPaginationArgs } from '../common/pagination/fetch-pagination-input';
 import {
+  UpdateDistrictInput,
+  UpdateProvinceInput,
   UpdateYellowPagesAddressInput,
   UpdateYellowPagesCategoryInput,
+  UpdateYellowPagesEmailInput,
   UpdateYellowPagesInput,
   UpdateYellowPagesPhoneNumberInput,
 } from './dto/update-yellow-pages.input';
@@ -21,25 +35,35 @@ import {
   YellowPages,
   YellowPagesPhoneNumber,
   YellowPagesCatgory,
+  Province,
+  District,
+  YellowPagesEmail,
 } from './entities/yellow-pages.entity';
 import {
   YellowPagesResponse,
   YellowPagesCategoryResponse,
+  YellowPagesAdminResponse,
 } from './yellow-pages.response';
 import {
   YellowPagesService,
   YellowPagesAddressService,
   YellowPagesPhoneNumberService,
   YellowPagesCategoryService,
+  ProvinceService,
+  DistrictService,
+  YellowPagesEmailService,
 } from './yellow-pages.service';
-import { ErrorLoggerInterceptor } from 'src/common/interceptors/errorlogger.interceptor';
 import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { MakePublic } from 'src/common/decorators/public.decorator';
+import {
+  FilterDistrictInput,
+  FilterYellowPagesInput,
+} from './dto/filter-yellowpages.input';
 
-@Resolver()
+@Resolver(() => YellowPages)
 @Roles(Role.Admin, Role.SuperAdmin)
 @UseGuards(RolesGuard)
 export class YellowPagesResolver {
@@ -53,18 +77,22 @@ export class YellowPagesResolver {
     @User() user: number,
   ) {
     checkUserAuthenticated(user);
-    return await this.yellowPagesService.create(createYellowPagesInput);
+    return await this.yellowPagesService.create(createYellowPagesInput, user);
   }
 
   @Query(() => YellowPagesResponse, { name: 'yellowPages' })
   @MakePublic()
   async getAllYellowPages(
     @Args() args: ConnectionArgs,
+    @Args('filterYellowPagesInput', { nullable: true })
+    filterYellowPagesInput?: FilterYellowPagesInput,
   ): Promise<YellowPagesResponse> {
     const { limit, offset } = args.pagingParams();
-    const [yellowPages, count] = await this.yellowPagesService.findAll(
+    const [yellowPages, count] = await this.yellowPagesService.findAllSearch(
       limit,
       offset,
+      filterYellowPagesInput,
+      true,
     );
 
     const page = connectionFromArraySlice(yellowPages, args, {
@@ -75,13 +103,20 @@ export class YellowPagesResolver {
     return { page, pageData: { count, limit, offset } };
   }
 
-  @Query(() => [YellowPages], { name: 'yellowPagesAdmin' })
+  @Query(() => YellowPagesAdminResponse, { name: 'yellowPagesAdmin' })
   // @UseGuards(AdminGuard)
   @Roles(Role.Writer)
   async getAllYellowPagesAdmin(
     @Args() args: FetchPaginationArgs,
-  ): Promise<any> {
-    return this.yellowPagesService.adminFindAll(args);
+    @Args('filterYellowPagesInput', { nullable: true })
+    filterYellowPagesInput?: FilterYellowPagesInput,
+  ): Promise<YellowPagesAdminResponse> {
+    const [yellowpages, count] = await this.yellowPagesService.findAllSearch(
+      args.take,
+      args.skip,
+      filterYellowPagesInput,
+    );
+    return { data: yellowpages, count };
   }
 
   @Query(() => YellowPages, { name: 'yellowPagesById' })
@@ -99,7 +134,20 @@ export class YellowPagesResolver {
     user: number,
   ) {
     checkUserAuthenticated(user);
-    return await this.yellowPagesService.update(id, updateYellowPagesInput);
+    return await this.yellowPagesService.update(
+      id,
+      updateYellowPagesInput,
+      user,
+    );
+  }
+
+  @Mutation(() => YellowPages)
+  async removeYellowPagesImage(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<YellowPages> {
+    checkUserAuthenticated(user);
+    return this.yellowPagesService.removeImage(id, user);
   }
 
   @Mutation(() => YellowPages)
@@ -108,7 +156,7 @@ export class YellowPagesResolver {
     @User() user: number,
   ): Promise<YellowPages> {
     checkUserAuthenticated(user);
-    return this.yellowPagesService.remove(id);
+    return this.yellowPagesService.remove(id, user);
   }
 }
 
@@ -191,7 +239,7 @@ export class YellowPagesCategoryResolver {
   }
 }
 
-@Resolver()
+@Resolver(() => YellowPagesAddress)
 @Roles(Role.Admin, Role.SuperAdmin)
 @UseGuards(RolesGuard)
 export class YellowPagesAddressResolver {
@@ -224,6 +272,20 @@ export class YellowPagesAddressResolver {
     return this.yellowPagesAddressService.findOne(id);
   }
 
+  @ResolveField(() => District)
+  @MakePublic()
+  async district(@Parent() yellowPagesAddress: YellowPagesAddress) {
+    const { id } = yellowPagesAddress;
+    return await this.yellowPagesAddressService.findDistrictofAddress(id);
+  }
+
+  @ResolveField(() => Province)
+  @MakePublic()
+  async province(@Parent() yellowPagesAddress: YellowPagesAddress) {
+    const { id } = yellowPagesAddress;
+    return await this.yellowPagesAddressService.findProvinceofAddress(id);
+  }
+
   @Mutation(() => YellowPagesAddress)
   async updateYellowPagesAddress(
     @Args('id', { type: () => Int }) id: number,
@@ -245,6 +307,106 @@ export class YellowPagesAddressResolver {
   ): Promise<YellowPagesAddress> {
     checkUserAuthenticated(user);
     return this.yellowPagesAddressService.remove(id);
+  }
+}
+
+@Resolver()
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
+export class ProvinceResolver {
+  constructor(private readonly provinceService: ProvinceService) {}
+
+  @Query(() => [Province], { name: 'provinces' })
+  @MakePublic()
+  async getAllProvince(): Promise<Province[]> {
+    return this.provinceService.findAll();
+  }
+
+  @Query(() => Province, { name: 'provinceById' })
+  @MakePublic()
+  async findOne(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<Province> {
+    return this.provinceService.findOne(id);
+  }
+
+  @Mutation(() => Province)
+  @Roles(Role.Writer)
+  async createProvince(
+    @Args('createProvinceInput') createProvinceInput: CreateProvinceInput,
+    @User() user: number,
+  ): Promise<Province> {
+    checkUserAuthenticated(user);
+    return this.provinceService.create(createProvinceInput);
+  }
+
+  @Mutation(() => Province)
+  @Roles(Role.Writer)
+  async updateProvince(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('updateProvinceInput') updateProvinceInput: UpdateProvinceInput,
+    @User() user: number,
+  ): Promise<Province> {
+    checkUserAuthenticated(user);
+    return this.provinceService.update(id, updateProvinceInput);
+  }
+
+  @Mutation(() => Province)
+  @Roles(Role.Writer)
+  async removeProvince(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<Province> {
+    checkUserAuthenticated(user);
+    return this.provinceService.remove(id);
+  }
+}
+
+@Resolver(() => District)
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
+export class DistrictResolver {
+  constructor(private readonly districtService: DistrictService) {}
+
+  @Mutation(() => District)
+  @Roles(Role.Writer)
+  async creatDistrict(
+    @Args('createDistrictInput') createDistrictInput: CreateDistrictInput,
+    @User() user: number,
+  ): Promise<District> {
+    checkUserAuthenticated(user);
+    return await this.districtService.create(createDistrictInput);
+  }
+
+  @Query(() => [District], { name: 'districts' })
+  @MakePublic()
+  async findAll(
+    @Args('filterDistrictInput', { nullable: true })
+    filterDistrictInput: FilterDistrictInput,
+  ): Promise<District[]> {
+    console.log('api req from font-end');
+    return await this.districtService.findAll(filterDistrictInput);
+  }
+
+  @Mutation(() => District)
+  @Roles(Role.Writer)
+  async updateDistrict(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('updateDistrictInput') updateDistrictInput: UpdateDistrictInput,
+    @User() user: number,
+  ): Promise<District> {
+    checkUserAuthenticated(user);
+    return this.districtService.update(id, updateDistrictInput);
+  }
+
+  @Mutation(() => District)
+  @Roles(Role.Writer)
+  async removeDistrict(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<District> {
+    checkUserAuthenticated(user);
+    return this.districtService.remove(id);
   }
 }
 
@@ -302,5 +464,62 @@ export class YellowPagesPhoneNumberResolver {
   ): Promise<YellowPagesPhoneNumber> {
     checkUserAuthenticated(user);
     return this.yellowPagesPhoneNumberService.remove(id);
+  }
+}
+
+@Resolver()
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
+export class YellowPagesEmailResolver {
+  constructor(
+    private readonly yellowPagesEmailService: YellowPagesEmailService,
+  ) {}
+
+  @Mutation(() => YellowPagesEmail)
+  @Roles(Role.Writer)
+  async createYellowPagesEmail(
+    @Args('createYellowPagesEmailInput')
+    createYellowPagesEmailInput: CreateYellowPagesEmailInput,
+    @User() user: number,
+  ): Promise<YellowPagesEmail> {
+    checkUserAuthenticated(user);
+    return await this.yellowPagesEmailService.create(
+      createYellowPagesEmailInput,
+    );
+  }
+
+  @Query(() => [YellowPagesEmail], { name: 'yellowPagesEmail' })
+  @MakePublic()
+  async findAll(): Promise<YellowPagesEmail[]> {
+    return await this.yellowPagesEmailService.findAll();
+  }
+
+  @Query(() => YellowPagesEmail, { name: 'yellowPagesEmailById' })
+  @MakePublic()
+  async findOne(@Args('id', { type: () => Int }) id: number) {
+    return this.yellowPagesEmailService.findOne(id);
+  }
+
+  @Mutation(() => YellowPagesEmail)
+  async updateYellowPagesEmail(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('updateYellowPagesEmailInput')
+    updateYellowPagesEmailInput: UpdateYellowPagesEmailInput,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return await this.yellowPagesEmailService.update(
+      id,
+      updateYellowPagesEmailInput,
+    );
+  }
+
+  @Mutation(() => YellowPagesEmail)
+  async removeYellowPagesEmail(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return this.yellowPagesEmailService.remove(id);
   }
 }

@@ -12,6 +12,8 @@ import {
 import {Point} from 'geojson';
 import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
 import { GeoJSONPointScalar } from 'src/common/scalars/geojson/Point.scalar';
+import { PublicToiletReview } from 'src/reviews/entities/reviews.entity';
+import { PublishState as PublicToiletState } from 'src/common/enum/publish_state.enum';
 
 @ObjectType()
 @Entity()
@@ -69,6 +71,20 @@ export class PublicToilet {
   @Field(() => [PublicToiletImage], { description: 'Public Toilet image', nullable: true })
   @OneToMany(() => PublicToiletImage, (publicToiletImage) => publicToiletImage.publicToilet, { nullable: true })
   images?: PublicToiletImage[];
+
+  @Field(() => [PublicToiletReview], { description: 'Public Toilet Review', nullable: true })
+  @OneToMany(() => PublicToiletReview, (review) => review.publicToilet, {
+    nullable: true,
+  })
+  review?: PublicToiletReview[];
+
+  @Field(() => PublicToiletState, { description: 'Public Toilet state' })
+  @Column({
+    type: 'enum',
+    enum: PublicToiletState,
+    default: PublicToiletState.DRAFT,
+  })
+  state: PublicToiletState;
 }
 
 
@@ -79,7 +95,7 @@ export class PublicToiletImage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => PublicToilet)
+  // @Field(() => PublicToilet)
   @ManyToOne(() => PublicToilet, (publicToilet) => publicToilet.images)
   publicToilet: PublicToilet;
 

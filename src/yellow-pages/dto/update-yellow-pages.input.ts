@@ -7,46 +7,24 @@ import {
   YellowPages,
   YellowPagesCatgory,
 } from '../entities/yellow-pages.entity';
-import { CreateYellowPagesInput } from './create-yellow-pages.input';
+import { CreateDistrictInput, CreateProvinceInput, CreateYellowPagesAddressInput, CreateYellowPagesCategoryInput, CreateYellowPagesEmailInput, CreateYellowPagesInput, CreateYellowPagesPhoneNumberInput } from './create-yellow-pages.input';
 
 @InputType()
-export class UpdateYellowPagesInput {
-  @Field({ description: 'Yellow Pages name' , nullable:true})
-  name?: string;
-
-  @Field(() => Int, {
-    description: 'Yellow Pages category',
-    nullable: true,
-  })
-  category?: number;
-}
+export class UpdateYellowPagesInput extends PartialType(CreateYellowPagesInput){}
+@InputType()
+export class UpdateYellowPagesAddressInput extends PartialType(CreateYellowPagesAddressInput){}
 
 @InputType()
-export class UpdateYellowPagesAddressInput {
-  @Field(() => District, { description: 'District Type', nullable: true })
-  district?: District;
-
-  @Field(() => Province, { description: 'Province Type', nullable: true })
-  province?: Province;
-
-  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
-  yellowpages?: number;
-}
+export class UpdateDistrictInput extends PartialType(CreateDistrictInput){}
 
 @InputType()
-export class UpdateYellowPagesPhoneNumberInput {
-  @Field({ description: 'Phone number', nullable: true })
-  phone_number?: number;
-
-  @Field({ description: '', nullable: true })
-  is_emergency?: boolean;
-
-  @Field(() => Int, { description: 'Yellow pages id', nullable: true })
-  yellowpages?: number;
-}
+export class UpdateProvinceInput extends PartialType(CreateProvinceInput){}
 
 @InputType()
-export class UpdateYellowPagesCategoryInput {
-  @Field({ description: 'Yellow Pages name' })
-  name?: string;
-}
+export class UpdateYellowPagesPhoneNumberInput extends PartialType(CreateYellowPagesPhoneNumberInput){}
+
+@InputType()
+export class UpdateYellowPagesEmailInput extends PartialType(CreateYellowPagesEmailInput){}
+
+@InputType()
+export class UpdateYellowPagesCategoryInput extends PartialType(CreateYellowPagesCategoryInput){}
