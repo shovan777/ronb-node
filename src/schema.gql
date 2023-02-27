@@ -281,6 +281,9 @@ scalar EmailAddress @specifiedBy(url: "https://www.w3.org/Protocols/rfc822/")
 input FilterDistrictInput {
   """Districts Province"""
   province: Int
+
+  """Search query for district"""
+  searchQuery: String
 }
 
 input FilterNewsInput {
