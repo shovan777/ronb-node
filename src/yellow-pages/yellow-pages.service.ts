@@ -348,8 +348,8 @@ export class YellowPagesService {
         await this.removeImage(id, user);
         yellowPagesInputData = {
           ...yellowPagesInputData,
-          singleImage: file_path
-        }
+          singleImage: file_path,
+        };
         yellowpages.singleImage = file_path;
       }
     }
@@ -364,7 +364,6 @@ export class YellowPagesService {
           : null),
     });
 
- 
     return await this.findOne(id);
   }
 
@@ -696,13 +695,29 @@ export class DistrictService {
   }
 
   async findAll(filterDistrictInput: FilterDistrictInput): Promise<District[]> {
-    const whereOptions: any = {};
+    const sqlQuery = this.districtRepository
+      .createQueryBuilder('district')
+      .leftJoinAndSelect('district.province', 'province');
+
     if (filterDistrictInput.province) {
-      whereOptions.province = filterDistrictInput.province;
+      sqlQuery.andWhere('district.province = :province', {
+        province: filterDistrictInput.province,
+      });
     }
-    return this.districtRepository.find({
-      where: { province: { id: filterDistrictInput.province } },
-    });
+
+    if (filterDistrictInput.searchQuery) {
+      const formattedQuery = filterDistrictInput.searchQuery
+        .trim()
+        .replace(/ /g, ' & ');
+      sqlQuery.andWhere(
+        `to_tsvector(coalesce(district.name, ' ')) || to_tsvector(coalesce(province.name, ' ')) @@ to_tsquery(:query)`,
+        {
+          query: `${formattedQuery}:*`,
+        },
+      );
+    }
+    const queryOut = await sqlQuery.getMany();
+    return queryOut;
   }
 
   async update(

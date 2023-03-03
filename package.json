@@ -23,7 +23,8 @@
     "migration:run:dev": "npm run typeorm -- migration:run -d src/config/datasource.ts",
     "migration:revert:dev": "npm run typeorm -- migration:revert -d src/config/datasource.ts",
     "migration:run": "npx typeorm migration:run -d dist/config/datasource.js",
-    "migration:revert": "npx typeorm migration:revert -d dist/config/datasource.js"
+    "migration:revert": "npx typeorm migration:revert -d dist/config/datasource.js",
+    "loadAddress": "node src/config/loadAddress.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.154.0",
@@ -43,6 +44,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cookie-parser": "^1.4.6",
+    "csv-parser": "^3.0.0",
     "dotenv": "^16.0.1",
     "firebase-admin": "^11.0.1",
     "fs-capacitor": "^6.2.0",
@@ -54,7 +56,8 @@
     "graphql-type-json": "^0.3.2",
     "graphql-upload": "^13.0.0",
     "mongoose": "^6.5.1",
-    "pg": "^8.7.3",
+    "pg": "^8.9.0",
+    "pg-format": "^1.0.4",
     "redis": "^4.2.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
