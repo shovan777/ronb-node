@@ -221,7 +221,7 @@ input CreateYellowPagesEmailInput {
 
 input CreateYellowPagesInput {
   """Address for yellow page address"""
-  address: [CreateYellowPagesAddressInput!]!
+  address: [CreateYellowPagesAddressInput!]
 
   """Yellow Pages category"""
   category: Int
@@ -230,20 +230,21 @@ input CreateYellowPagesInput {
   description: String
 
   """email for yellow pages"""
-  email: [CreateYellowPagesEmailInput!]!
+  email: [CreateYellowPagesEmailInput!]
 
   """Yellow Pages name"""
   name: String!
 
   """Phone number for yellow pages"""
   phone_number: [CreateYellowPagesPhoneNumberInput!]!
+  singleImage: Upload
 
   """Yellow Pages State"""
   state: State
 }
 
 input CreateYellowPagesPhoneNumberInput {
-  """"""
+  """Emergency number if set to true"""
   is_emergency: Boolean = false
 
   """Phone number"""
@@ -280,6 +281,9 @@ scalar EmailAddress @specifiedBy(url: "https://www.w3.org/Protocols/rfc822/")
 input FilterDistrictInput {
   """Districts Province"""
   province: Int
+
+  """Search query for district"""
+  searchQuery: String
 }
 
 input FilterNewsInput {
@@ -337,6 +341,7 @@ type Mutation {
   removeNewsTaggit(id: Int!): NewsTaggit!
   removeProvince(id: Int!): Province!
   removePublicToilet(id: Int!): PublicToilet!
+  removePublicToiletImage(id: Int!): PublicToiletImage!
   removePublicToiletReview(publicToiletId: Int!): PublicToiletReview!
   removeUserLikesNews(newsId: Int!): UserLikesNews!
   removeUserLikesNewsComment(commentId: Int!): UserLikesNewsComment!
@@ -345,6 +350,7 @@ type Mutation {
   removeYellowPagesAddress(id: Int!): YellowPagesAddress!
   removeYellowPagesCategory(id: Int!): YellowPagesCatgory!
   removeYellowPagesEmail(id: Int!): YellowPagesEmail!
+  removeYellowPagesImage(id: Int!): YellowPages!
   removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
@@ -933,6 +939,19 @@ type Query {
     newsCommentId: Int!
   ): RepliesResponse!
   newsTaggit: [NewsTaggit!]!
+  notificationAll(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): NotificationResponse!
   notificationUser(
     """Paginate after cursor"""
     after: String
@@ -949,7 +968,6 @@ type Query {
   provinceById(id: Int!): Province!
   provinces: [Province!]!
   publicToiletById(id: Int!): PublicToilet!
-  publicToiletComment(publicToiletId: Int!): PublicToiletReview!
   publicToiletNearMe(
     """Paginate after cursor"""
     after: String
@@ -978,6 +996,7 @@ type Query {
     last: Float
     publicToiletId: Int!
   ): PublicToiletReviewsResponse!
+  publicToiletReviewUser(publicToiletId: Int!): PublicToiletReview
   publicToilets(
     """Paginate after cursor"""
     after: String
@@ -994,6 +1013,7 @@ type Query {
   publicToiletsAdmin(skip: Int = 0, take: Int = 25): PublicToiletAdminResponse!
   recommendationData: RecommendationData!
   tags: [Tag!]!
+  userInterests: [UserInterests!]!
   yellowPages(
     """Paginate after cursor"""
     after: String
@@ -1244,13 +1264,14 @@ input UpdateYellowPagesInput {
 
   """Phone number for yellow pages"""
   phone_number: [CreateYellowPagesPhoneNumberInput!]
+  singleImage: Upload
 
   """Yellow Pages State"""
   state: State
 }
 
 input UpdateYellowPagesPhoneNumberInput {
-  """"""
+  """Emergency number if set to true"""
   is_emergency: Boolean = false
 
   """Phone number"""
@@ -1333,6 +1354,12 @@ type YellowPages {
 
   """Yellow Pages phone number(s)"""
   phone_number: [YellowPagesPhoneNumber!]
+
+  """Yellow Pages publishedAt"""
+  publishedAt: DateTime
+
+  """Yellow Pages main image"""
+  singleImage: String
 
   """Yellow Pages state"""
   state: State!

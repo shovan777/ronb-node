@@ -1,6 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum';
 import { EmailAddressResolver, BigIntResolver } from 'graphql-scalars';
+import { Upload } from 'src/common/scalars/upload.scalar';
 
 @InputType()
 export class CreateYellowPagesCategoryInput {
@@ -19,6 +20,9 @@ export class CreateYellowPagesInput {
   @Field({ description: 'Yellow Pages description', nullable: true })
   description?: string;
 
+  @Field({ nullable: true })
+  singleImage?: Upload;
+
   @Field(() => Int, {
     description: 'Yellow Pages category',
     nullable: true,
@@ -33,6 +37,7 @@ export class CreateYellowPagesInput {
 
   @Field(() => [CreateYellowPagesAddressInput], {
     description: 'Address for yellow page address',
+    nullable: true,
   })
   address?: CreateYellowPagesAddressInput[];
 
@@ -43,6 +48,7 @@ export class CreateYellowPagesInput {
 
   @Field(() => [CreateYellowPagesEmailInput], {
     description: 'email for yellow pages',
+    nullable: true,
   })
   email?: CreateYellowPagesEmailInput[];
 }
@@ -79,10 +85,13 @@ export class CreateDistrictInput {
 
 @InputType()
 export class CreateYellowPagesPhoneNumberInput {
-  @Field(() => BigIntResolver ,{ description: 'Phone number' })
+  @Field(() => BigIntResolver, { description: 'Phone number' })
   phone_number: number;
 
-  @Field({ description: '', defaultValue:false })
+  @Field({
+    description: 'Emergency number if set to true',
+    defaultValue: false,
+  })
   is_emergency: boolean;
 
   @Field(() => Int, { description: 'Yellow pages id', nullable: true })

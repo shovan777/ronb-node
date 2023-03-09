@@ -315,10 +315,7 @@ export class UserInterestsResolver {
     createUserInterestsInput: CreateUserInterestsInput,
   ) {
     checkUserAuthenticated(user);
-    return await this.userInterestsService.create(
-      createUserInterestsInput,
-      user,
-    );
+    return this.userInterestsService.create(createUserInterestsInput, user);
   }
 
   @Query(() => [Tag], { name: 'instrestingTags' })
@@ -327,6 +324,11 @@ export class UserInterestsResolver {
     return await this.tagService.findInsterestingTags(user);
   }
 
+  @Query(() => [UserInterests], { name: 'userInterests' })
+  async findAllUserInterests(@User() user: number) {
+    checkUserAuthenticated(user);
+    return await this.userInterestsService.findAll(user);
+  }
   // @Mutation(() => UserInterests)
   // async removeUserInterests(
   //   @User() user: number,

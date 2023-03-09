@@ -8,7 +8,13 @@ import {
 @InputType()
 export class FilterDistrictInput extends PartialType(
   PickType(CreateDistrictInput, ['province']),
-) {}
+) {
+  @Field(() => String, {
+    description: 'Search query for district',
+    nullable: true,
+  })
+  searchQuery?: string;
+}
 
 @InputType()
 export class FilterYellowPagesInput extends PartialType(
