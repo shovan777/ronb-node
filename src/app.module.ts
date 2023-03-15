@@ -17,6 +17,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { YellowPagesModule } from './yellow-pages/yellow-pages.module';
 import { UsersModule } from './users/users.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { BloodBankModule } from './blood-bank/blood-bank.module';
 
 @Module({
   imports: [
@@ -98,6 +99,7 @@ import { ReviewsModule } from './reviews/reviews.module';
       },
     }),
     CommentsModule,
+    BloodBankModule,
   ],
   controllers: [AppController],
   providers: [FilesService, AppService],

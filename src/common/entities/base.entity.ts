@@ -4,6 +4,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -93,3 +95,37 @@ export class ReactCount {
 
 // @ObjectType()
 // export class ReactCountsAgain extends ReactCountsObj {}
+
+@ObjectType()
+@Entity()
+export class Province {
+  @Field(() => Int, { description: 'id field for int' })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Field({ description: 'Province name' })
+  @Column()
+  name: string;
+
+  @Field(() => [District], {
+    description: 'Province Districts',
+  })
+  @OneToMany(() => District, (district) => district.province, { eager: true })
+  districts: District[];
+}
+
+@ObjectType()
+@Entity()
+export class District {
+  @Field(() => Int, { description: 'id field for int' })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Field({ description: 'District Name' })
+  @Column()
+  name: string;
+
+  @Field(() => Province, { description: 'Districts Province', nullable: true })
+  @ManyToOne(() => Province, (province) => province.districts)
+  province: Province;
+}
