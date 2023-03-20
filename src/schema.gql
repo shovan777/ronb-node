@@ -14,14 +14,130 @@ type Author {
   profile: Profile
 }
 
+type BaseDistrict {
+  """id field for int"""
+  id: Int!
+
+  """District Name"""
+  name: String!
+
+  """Districts Province"""
+  province: BaseProvince
+}
+
+type BaseProvince {
+  """Province Districts"""
+  districts: [BaseDistrict!]!
+
+  """id field for int"""
+  id: Int!
+
+  """Province name"""
+  name: String!
+}
+
 """
 The `BigInt` scalar type represents non-fractional signed whole numeric values.
 """
 scalar BigInt
 
+enum BloodGroup {
+  AB_NEG
+  AB_POS
+  A_NEG
+  A_POS
+  B_NEG
+  B_POS
+  DONT_KNOW
+  O_NEG
+  O_POS
+}
+
+type BloodRequest {
+  acceptors: [Int!]
+  address: BloodRequestAddress!
+
+  """amount needed in this blood request"""
+  amount: Float!
+
+  """Type of blood group"""
+  bloodGroup: BloodGroup!
+
+  """date of creation"""
+  createdAt: DateTime!
+
+  """one who created"""
+  createdBy: Int!
+
+  """Donation date"""
+  donationDate: DateTime!
+
+  """id field for int"""
+  id: Int!
+
+  """Phone number"""
+  phoneNumber: BigInt!
+
+  """Blood request state"""
+  state: State!
+
+  """date of update"""
+  updatedAt: DateTime!
+
+  """one who updated"""
+  updatedBy: Int!
+}
+
+type BloodRequestAddress {
+  """Address"""
+  address: String!
+
+  """District Type"""
+  district: BaseDistrict
+
+  """id field for int"""
+  id: Int!
+
+  """Province Type"""
+  province: BaseProvince
+}
+
 type CommentsResponse {
   page: NewsCommentConnection!
   pageData: PageData
+}
+
+input CreateBloodRequestAddressInput {
+  """Address"""
+  address: String!
+
+  """District Type"""
+  district: Int!
+
+  """Province Type"""
+  province: Int!
+}
+
+input CreateBloodRequestInput {
+  acceptors: [Int!]
+
+  """Address for yellow page address"""
+  address: CreateBloodRequestAddressInput
+
+  """Amount of blood"""
+  amount: Int
+
+  """Blood group type"""
+  bloodGroup: BloodGroup!
+
+  """Donation date"""
+  donationDate: DateTime
+
+  """Phone number"""
+  phoneNumber: BigInt
+
+  """Yellow Pages State"""
+  state: State
 }
 
 input CreateDistrictInput {
@@ -313,6 +429,7 @@ scalar GeoJSONPointScalar
 
 type Mutation {
   creatDistrict(createDistrictInput: CreateDistrictInput!): District!
+  createBloodRequest(createBloodBankInput: CreateBloodRequestInput!): BloodRequest!
   createNews(createNewsInput: CreateNewsInput!): News!
   createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
   createNewsComment(createNewsCommentInput: CreateNewsCommentInput!): NewsComment!
@@ -332,6 +449,7 @@ type Mutation {
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
   createYellowPagesEmail(createYellowPagesEmailInput: CreateYellowPagesEmailInput!): YellowPagesEmail!
   createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
+  removeBloodRequest: BloodRequest!
   removeDistrict(id: Int!): District!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
@@ -354,6 +472,7 @@ type Mutation {
   removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
+  updateBloodRequest: BloodRequest!
   updateDistrict(id: Int!, updateDistrictInput: UpdateDistrictInput!): District!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
@@ -872,6 +991,8 @@ type PublicToiletReviewsResponse {
 }
 
 type Query {
+  bloodRequestById: BloodRequest!
+  bloodRequests: [BloodRequest!]!
   districts(filterDistrictInput: FilterDistrictInput): [District!]!
   instrestingTags: [Tag!]!
   news(

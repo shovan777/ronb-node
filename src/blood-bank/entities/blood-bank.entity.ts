@@ -2,19 +2,20 @@ import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { BigIntResolver } from 'graphql-scalars';
 import {
   CreatorBaseEntity,
-  District,
-  Province,
+  BaseDistrict as District,
+  BaseProvince as Province,
 } from 'src/common/entities/base.entity';
 import { PublishState as BloodRequestState } from 'src/common/enum/publish_state.enum';
 import { BloodGroup } from 'src/common/enum/bloodGroup.enum';
 import {
   Column,
   Entity,
-  Index,
+  JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ArrayUnique } from 'class-validator';
 
 @ObjectType()
 @Entity()
@@ -40,12 +41,6 @@ export class BloodRequestAddress {
   @Field({ description: 'Address' })
   @Column()
   address: string;
-
-  @Field(() => BloodRequest, { description: '' })
-  @OneToOne(() => BloodRequest, (yellowpages) => yellowpages.address, {
-    onDelete: 'CASCADE',
-  })
-  bloodRequest?: BloodRequest;
 }
 
 @ObjectType()
@@ -59,17 +54,18 @@ export class BloodRequest extends CreatorBaseEntity {
   bloodGroup: BloodGroup;
 
   @Field(() => Float, { description: 'amount needed in this blood request' })
-  @Column('decimal', { precision: 1, scale: 2 })
+  @Column('decimal', { precision: 3, scale: 2 })
   amount: number;
 
   @Field(() => BigIntResolver, { description: 'Phone number' })
   @Column({ type: 'bigint' })
   phoneNumber: number;
 
-  @Field(() => [BloodRequestAddress])
-  @OneToOne(() => BloodRequestAddress, (address) => address.bloodRequest, {
+  @Field(() => BloodRequestAddress)
+  @OneToOne(() => BloodRequestAddress, {
     cascade: true,
   })
+  @JoinColumn()
   address: BloodRequestAddress;
 
   @Field({ description: 'Donation date' })
@@ -84,8 +80,8 @@ export class BloodRequest extends CreatorBaseEntity {
   })
   state: BloodRequestState;
 
-  @Field({ nullable: true })
-  @Column({ type: 'int', array: true, nullable: true })
-  @Index('unique_acceptors', { unique: true })
-  acceptors: number[];
+  @Field(() => [Int], { nullable: true })
+  @Column('int',{ array: true, nullable: true })
+  @ArrayUnique()
+  acceptors?: number[];
 }

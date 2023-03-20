@@ -98,7 +98,7 @@ export class ReactCount {
 
 @ObjectType()
 @Entity()
-export class Province {
+export class BaseProvince {
   @Field(() => Int, { description: 'id field for int' })
   @PrimaryGeneratedColumn()
   id: number;
@@ -107,16 +107,18 @@ export class Province {
   @Column()
   name: string;
 
-  @Field(() => [District], {
+  @Field(() => [BaseDistrict], {
     description: 'Province Districts',
   })
-  @OneToMany(() => District, (district) => district.province, { eager: true })
-  districts: District[];
+  @OneToMany(() => BaseDistrict, (district) => district.province, {
+    eager: true,
+  })
+  districts: BaseDistrict[];
 }
 
 @ObjectType()
 @Entity()
-export class District {
+export class BaseDistrict {
   @Field(() => Int, { description: 'id field for int' })
   @PrimaryGeneratedColumn()
   id: number;
@@ -125,7 +127,10 @@ export class District {
   @Column()
   name: string;
 
-  @Field(() => Province, { description: 'Districts Province', nullable: true })
-  @ManyToOne(() => Province, (province) => province.districts)
-  province: Province;
+  @Field(() => BaseProvince, {
+    description: 'Districts Province',
+    nullable: true,
+  })
+  @ManyToOne(() => BaseProvince, (province) => province.districts)
+  province: BaseProvince;
 }
