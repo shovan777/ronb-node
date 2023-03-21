@@ -48,17 +48,6 @@ input CreateNewsCommentInput {
   news: Int!
 }
 
-input CreateNewsEngagementInput {
-  """News engagement duration"""
-  engagementDuration: String!
-
-  """News engagement date"""
-  engagmentDate: DateTime!
-
-  """News engaged by the user"""
-  newsId: Int!
-}
-
 input CreateNewsInput {
   """News category"""
   category: Int
@@ -338,7 +327,6 @@ type Mutation {
   createUserLikesNews(createUserLikesNewsInput: CreateUserLikesNewsInput!): UserLikesNews!
   createUserLikesNewsComment(createUserLikesNewsCommentInput: CreateUserLikesNewsCommentInput!): UserLikesNewsComment!
   createUserLikesNewsReply(createUserLikesNewsReplyInput: CreateUserLikesNewsReplyInput!): UserLikesNewsReply!
-  createUserNewsEngagement(createUserNewsEngagementInput: CreateNewsEngagementInput!): UserNewsEngagement!
   createYellowPages(createYellowPagesInput: CreateYellowPagesInput!): YellowPages!
   createYellowPagesAddress(createYellowPagesAddressInput: CreateYellowPagesAddressInput!): YellowPagesAddress!
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
@@ -1026,7 +1014,6 @@ type Query {
   recommendationData: RecommendationData!
   tags: [Tag!]!
   userInterests: [UserInterests!]!
-  userNewsEngagements: [UserNewsEngagement!]!
   yellowPages(
     """Paginate after cursor"""
     after: String
@@ -1329,20 +1316,6 @@ type UserLikesNewsReply {
   react: UserReacts!
 
   """id field for int"""
-  userId: Int!
-}
-
-type UserNewsEngagement {
-  """Engagement duration in seconds"""
-  engagementDuration: String
-
-  """Engagement date"""
-  engagmentDate: DateTime!
-
-  """news user is engaged to"""
-  news: News!
-
-  """id field for user"""
   userId: Int!
 }
 
