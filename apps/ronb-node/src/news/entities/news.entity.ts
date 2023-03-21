@@ -246,7 +246,7 @@ export class UserNewsEngagement {
     onDelete: 'CASCADE',
     nullable: false,
   })
-  public  news: News;
+  public news: News;
 
   @Field(() => Date, { description: 'Engagement date' })
   @Column({ type: 'timestamptz', nullable: true })
