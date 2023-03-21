@@ -449,7 +449,7 @@ type Mutation {
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
   createYellowPagesEmail(createYellowPagesEmailInput: CreateYellowPagesEmailInput!): YellowPagesEmail!
   createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
-  removeBloodRequest: BloodRequest!
+  removeBloodRequest(id: Int!): BloodRequest!
   removeDistrict(id: Int!): District!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
@@ -472,7 +472,7 @@ type Mutation {
   removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
-  updateBloodRequest: BloodRequest!
+  updateBloodRequest(id: Int!, updateBloodRequestInput: UpdateBloodRequestInput!): BloodRequest!
   updateDistrict(id: Int!, updateDistrictInput: UpdateDistrictInput!): District!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
@@ -991,10 +991,11 @@ type PublicToiletReviewsResponse {
 }
 
 type Query {
-  bloodRequestById: BloodRequest!
+  bloodRequestById(id: Int!): BloodRequest!
   bloodRequests: [BloodRequest!]!
   districts(filterDistrictInput: FilterDistrictInput): [District!]!
   instrestingTags: [Tag!]!
+  mybloodRequests: [BloodRequest!]!
   news(
     """Paginate after cursor"""
     after: String
@@ -1212,6 +1213,28 @@ type TotalReviewRatings {
 
   """Total Reviewer"""
   totalReview: Int!
+}
+
+input UpdateBloodRequestInput {
+  acceptors: [Int!]
+
+  """Address for yellow page address"""
+  address: CreateBloodRequestAddressInput
+
+  """Amount of blood"""
+  amount: Int
+
+  """Blood group type"""
+  bloodGroup: BloodGroup
+
+  """Donation date"""
+  donationDate: DateTime
+
+  """Phone number"""
+  phoneNumber: BigInt
+
+  """Yellow Pages State"""
+  state: State
 }
 
 input UpdateDistrictInput {
