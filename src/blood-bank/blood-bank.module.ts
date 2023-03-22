@@ -7,6 +7,7 @@ import {
   BloodRequestAddress,
 } from './entities/blood-bank.entity';
 import { BaseDistrict, BaseProvince } from 'src/common/entities/base.entity';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   providers: [BloodBankService, BloodBankResolver],
@@ -17,6 +18,7 @@ import { BaseDistrict, BaseProvince } from 'src/common/entities/base.entity';
       BaseDistrict,
       BaseProvince,
     ]),
+    UsersModule,
   ],
   exports: [BloodBankService],
 })

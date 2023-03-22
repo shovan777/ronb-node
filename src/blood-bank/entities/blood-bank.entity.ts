@@ -81,7 +81,7 @@ export class BloodRequest extends CreatorBaseEntity {
   state: BloodRequestState;
 
   @Field(() => [Int], { nullable: true })
-  @Column('int',{ array: true, nullable: true })
+  @Column('int', { array: true, nullable: true })
   @ArrayUnique()
   acceptors?: number[];
 }

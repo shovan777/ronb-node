@@ -8,7 +8,8 @@ export const getAuthor = async (service, id: number): Promise<Author> => {
         name: `${user.first_name} ${user.last_name}`,
         profile: {
           id: user.profile?.id,
-          bloodGroup: user.profile?.bloodGroup,
+          bloodGroup: user.profile?.blood_group,
+          bloodGroupApproval: user.profile?.blood_group_approval,
           image: user.profile?.image,
         },
       };

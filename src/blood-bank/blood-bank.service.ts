@@ -1,5 +1,6 @@
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,7 +8,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BaseDistrict, BaseProvince } from 'src/common/entities/base.entity';
 import { BloodGroup } from 'src/common/enum/bloodGroup.enum';
 import { PublishState as BloodRequestState } from 'src/common/enum/publish_state.enum';
-import { Not, Repository } from 'typeorm';
+import { Author } from 'src/users/entitiy/users.entity';
+import { getAuthor } from 'src/users/users.resolver';
+import { UsersService } from 'src/users/users.service';
+import { MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { CreateBloodRequestInput } from './dto/create-blood-bank.input';
 import { UpdateBloodRequestInput } from './dto/update-blood-bank.input';
 import {
@@ -26,33 +30,58 @@ export class BloodBankService {
     private districtRepository: Repository<BaseDistrict>,
     @InjectRepository(BaseProvince)
     private provinceRepository: Repository<BaseProvince>,
+    @Inject(UsersService)
+    private readonly userService: UsersService,
   ) {}
 
   async findAll(user): Promise<BloodRequest[]> {
-    const whereOptions: any = {
-      bloodGroup: BloodGroup.A_NEG, //TODO: Here user bloodgroup should be of the logged in user
-      createdBy: Not(user),
-    };
+    const userDetails: Author = await getAuthor(this.userService, user);
 
-    return this.bloodRequestRepository.find({
-      relations: ['address'],
-      where: {
-        ...whereOptions,
-      },
-    });
+    if (userDetails.profile.bloodGroupApproval) {
+      let whereOptions: any = {
+        createdBy: Not(user),
+        state: BloodRequestState.PUBLISHED,
+        donationDate: MoreThanOrEqual(new Date()),
+      };
+
+      if (userDetails.profile.bloodGroup == BloodGroup.DONT_KNOW) {
+        whereOptions = {
+          ...whereOptions,
+        };
+      } else {
+        whereOptions = {
+          ...whereOptions,
+          bloodGroup: userDetails.profile.bloodGroup,
+        };
+      }
+      return this.bloodRequestRepository.find({
+        relations: ['address'],
+        where: {
+          ...whereOptions,
+        },
+      });
+    }
+
+    throw new ForbiddenException(
+      `User has not accepted the approval for blood donation.`,
+    );
   }
 
   async findMyRequest(user): Promise<BloodRequest[]> {
-    console.log(
-      '🚀 ~ file: blood-bank.service.ts:46 ~ BloodBankService ~ findMyRequest ~ user:',
-      user,
+    const userDetails = await this.userService.findOne(user);
+
+    if (userDetails.profile.blood_group_approval) {
+      return this.bloodRequestRepository.find({
+        relations: ['address'],
+        where: {
+          createdBy: user,
+        },
+      });
+    }
+
+    throw new ForbiddenException(
+      `User has not accepted the approval for blood donation.`,
     );
-    return this.bloodRequestRepository.find({
-      relations: ['address'],
-      where: {
-        createdBy: user,
-      },
-    });
   }
 
   async findOne(id: number): Promise<BloodRequest> {
@@ -62,7 +91,7 @@ export class BloodBankService {
         relations: ['address'],
       });
     if (!bloodRequest) {
-      throw new NotFoundException(`Blood request with id ${id} not found`);
+      throw new NotFoundException(`Blood request with id ${id} not found.`);
     }
     return bloodRequest;
   }
@@ -82,7 +111,7 @@ export class BloodBankService {
       });
       if (!district) {
         throw new NotFoundException(
-          `District with id ${bloodBankInput.address.district} not found`,
+          `District with id ${bloodBankInput.address.district} not found.`,
         );
       }
       const province = await this.provinceRepository.findOneBy({
@@ -90,7 +119,7 @@ export class BloodBankService {
       });
       if (!province) {
         throw new NotFoundException(
-          `Province with id ${bloodBankInput.address.province} not found`,
+          `Province with id ${bloodBankInput.address.province} not found.`,
         );
       }
 
@@ -129,23 +158,26 @@ export class BloodBankService {
     const bloodRequest: BloodRequest = await this.findOne(id);
 
     if (!bloodRequest)
-      throw new NotFoundException(`Blood request with id ${id} not found`);
-
-    let bloodRequestInputData: any = {
-      ...updateBloodRequestInput,
-    };
+      throw new NotFoundException(`Blood request with id ${id} not found.`);
 
     if (bloodRequest.createdBy == user) {
-      await this.bloodRequestRepository.update(id, {
-        ...bloodRequestInputData,
-      });
+      if (bloodRequest.state == BloodRequestState.DRAFT) {
+        let bloodRequestInputData: any = {
+          ...updateBloodRequestInput,
+        };
+        await this.bloodRequestRepository.update(id, {
+          ...bloodRequestInputData,
+        });
+        return await this.findOne(id);
+      }
+      throw new ForbiddenException(
+        `Blood request cannot be edited once it is published.`,
+      );
     } else {
       throw new ForbiddenException(
         `User is not authorized to update the blood request with id ${id}.`,
       );
     }
-
-    return await this.findOne(id);
   }
 
   async remove(id: number, user: number) {
@@ -154,16 +186,18 @@ export class BloodBankService {
     if (!bloodRequest)
       throw new NotFoundException(`Blood request with id ${id} not found.`);
 
-    if (
-      bloodRequest.state == BloodRequestState.DRAFT &&
-      bloodRequest.createdBy == user
-    ) {
-      const removedBloodRequest =
-        this.bloodRequestRepository.remove(bloodRequest);
-      return {
-        id,
-        ...removedBloodRequest,
-      };
+    if (bloodRequest.createdBy == user) {
+      if (bloodRequest.state == BloodRequestState.DRAFT) {
+        const removedBloodRequest =
+          this.bloodRequestRepository.remove(bloodRequest);
+        return {
+          id,
+          ...removedBloodRequest,
+        };
+      }
+      throw new ForbiddenException(
+        `Blood request cannot be edited once it is published.`,
+      );
     } else {
       throw new ForbiddenException(
         `User is not authorized to delete the blood request with id ${id}.`,

@@ -834,6 +834,9 @@ type Profile {
   """User Blood Group"""
   bloodGroup: String
 
+  """Has user approved for blood donation or not"""
+  bloodGroupApproval: Boolean!
+
   """Profile id"""
   id: Int!
 

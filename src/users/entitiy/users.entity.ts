@@ -1,5 +1,5 @@
-import { Field, Int, ObjectType } from "@nestjs/graphql";
-import { pathFinderMiddleware } from "src/common/middlewares/pathfinder.middleware";
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { pathFinderMiddleware } from 'src/common/middlewares/pathfinder.middleware';
 
 @ObjectType({ description: 'Profile of the user' })
 export class Profile {
@@ -8,6 +8,11 @@ export class Profile {
 
   @Field(() => String, { description: 'User Blood Group', nullable: true })
   bloodGroup?: string;
+
+  @Field(() => Boolean, {
+    description: 'Has user approved for blood donation or not',
+  })
+  bloodGroupApproval: true;
 
   @Field(() => String, {
     description: 'Url of the profile picture',
@@ -28,6 +33,9 @@ export class Author {
   // @Field({ description: 'User lastname' })
   // lastName: string;
 
-  @Field(() => Profile, { description: 'User profile information', nullable:true })
+  @Field(() => Profile, {
+    description: 'User profile information',
+    nullable: true,
+  })
   profile: Profile;
 }
