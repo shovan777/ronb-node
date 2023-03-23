@@ -5,7 +5,7 @@ import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication
 import { BloodBankService } from './blood-bank.service';
 import { CreateBloodRequestInput } from './dto/create-blood-bank.input';
 import { UpdateBloodRequestInput } from './dto/update-blood-bank.input';
-import { BloodRequest } from './entities/blood-bank.entity';
+import { Acceptors, BloodRequest } from './entities/blood-bank.entity';
 
 @Resolver()
 @MakePublic()
@@ -56,5 +56,19 @@ export class BloodBankResolver {
   ): Promise<BloodRequest> {
     checkUserAuthenticated(user);
     return this.bloodRequestService.remove(id, user);
+  }
+
+  @Mutation(() => BloodRequest)
+  async acceptBloodRequest(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<BloodRequest> {
+    checkUserAuthenticated(user);
+    return this.bloodRequestService.acceptRequest(id, user);
+  }
+
+  @Query(() => [Acceptors], { name: 'getAcceptors' })
+  async getAcceptors(@Args('id', { type: () => Int }) id: number) {
+    return this.bloodRequestService.getAcceptors(id);
   }
 }

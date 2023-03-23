@@ -16,6 +16,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ArrayUnique } from 'class-validator';
+import { Author } from 'src/users/entitiy/users.entity';
 
 @ObjectType()
 @Entity()
@@ -85,3 +86,6 @@ export class BloodRequest extends CreatorBaseEntity {
   @ArrayUnique()
   acceptors?: number[];
 }
+
+@ObjectType({ description: 'Acceptors of blood request' })
+export class Acceptors extends Author {}

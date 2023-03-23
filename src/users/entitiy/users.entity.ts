@@ -14,6 +14,12 @@ export class Profile {
   })
   bloodGroupApproval: true;
 
+  @Field(() => Int, { description: 'Age of the user' })
+  age: number;
+
+  @Field(() => String, { description: 'Date of birth of the user' })
+  dateOfBirth?: string;
+
   @Field(() => String, {
     description: 'Url of the profile picture',
     nullable: true,
@@ -26,6 +32,9 @@ export class Profile {
 export class Author {
   @Field(() => Int, { description: 'User id' })
   id: number;
+
+  @Field(() => String, { description: 'Username' })
+  username: string;
 
   @Field({ description: 'User name' })
   name: string;
