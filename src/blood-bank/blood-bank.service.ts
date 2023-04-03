@@ -90,7 +90,7 @@ export class BloodBankService {
     const bloodRequest: BloodRequest =
       await this.bloodRequestRepository.findOne({
         where: { id: id },
-        relations: ['address'],
+        relations: ['address', 'address.province', 'address.district'],
       });
     if (!bloodRequest) {
       throw new NotFoundException(`Blood request with id ${id} not found.`);
@@ -98,58 +98,63 @@ export class BloodBankService {
     return bloodRequest;
   }
 
+  async findAndSaveAddress(
+    bloodRequestInput: any,
+  ): Promise<BloodRequestAddress> {
+    const district = await this.districtRepository.findOne({
+      where: { id: bloodRequestInput.district },
+    });
+    if (!district) {
+      throw new NotFoundException(
+        `District with id ${bloodRequestInput.district} not found.`,
+      );
+    }
+    const province = await this.provinceRepository.findOneBy({
+      id: bloodRequestInput.province,
+    });
+    if (!province) {
+      throw new NotFoundException(
+        `Province with id ${bloodRequestInput.province} not found.`,
+      );
+    }
+
+    let addressInput = {
+      district: district,
+      province: province,
+      address: bloodRequestInput.address,
+    };
+    return await this.bloodRequestAddressRepository.save({
+      ...addressInput,
+    });
+  }
+
   async create(
     bloodBankInput: CreateBloodRequestInput,
     user: number,
   ): Promise<BloodRequest> {
-    let bloodbankInputData: any = {
+    let bloodRequestData: any = {
       ...bloodBankInput,
       address: null,
     };
 
     if (bloodBankInput.address) {
-      const district = await this.districtRepository.findOne({
-        where: { id: bloodBankInput.address.district },
-      });
-      if (!district) {
-        throw new NotFoundException(
-          `District with id ${bloodBankInput.address.district} not found.`,
-        );
-      }
-      const province = await this.provinceRepository.findOneBy({
-        id: bloodBankInput.address.province,
-      });
-      if (!province) {
-        throw new NotFoundException(
-          `Province with id ${bloodBankInput.address.province} not found.`,
-        );
-      }
+      const savedAddress = await this.findAndSaveAddress(
+        bloodBankInput.address,
+      );
 
-      let addressInput = {
-        district: district,
-        province: province,
-        address: bloodBankInput.address.address,
-      };
-
-      const address = await this.bloodRequestAddressRepository.save({
-        ...addressInput,
-      });
-
-      bloodbankInputData = {
+      bloodRequestData = {
         ...bloodBankInput,
-        address: address,
+        address: savedAddress,
       };
     }
 
-    const bloodBankData = await this.bloodRequestRepository.save({
-      ...bloodbankInputData,
+    const toSaveData = this.bloodRequestRepository.create({
+      ...bloodRequestData,
       createdBy: user,
       updatedBy: user,
-    });
+    } as Object);
 
-    return this.bloodRequestRepository.findOne({
-      where: { id: bloodBankData.id },
-    });
+    return await this.bloodRequestRepository.save(toSaveData);
   }
 
   async update(
@@ -161,13 +166,29 @@ export class BloodBankService {
 
     if (bloodRequest.createdBy == user) {
       if (!checkIfObjectIsPublished(bloodRequest.state)) {
-        let bloodRequestInputData: any = {
+        let bloodRequestData: any = {
           ...updateBloodRequestInput,
+          address: bloodRequest.address,
         };
-        await this.bloodRequestRepository.update(id, {
-          ...bloodRequestInputData,
-        });
-        return await this.findOne(id);
+
+        //TODO: make separate services for address
+        if (updateBloodRequestInput.address) {
+          const savedAddress = await this.findAndSaveAddress(
+            updateBloodRequestInput.address,
+          );
+
+          bloodRequestData = {
+            ...bloodRequestData,
+            address: savedAddress,
+          };
+        }
+
+        const updatedBloodRequest = Object.assign(
+          bloodRequest,
+          bloodRequestData,
+        );
+        this.bloodRequestRepository.save(updatedBloodRequest);
+        return this.findOne(id);
       }
       throw new ForbiddenException(
         `Blood request cannot be edited once it is published.`,
@@ -207,7 +228,6 @@ export class BloodBankService {
   ): Promise<BloodRequest> {
     const bloodRequest: BloodRequest = await this.findOne(requestID);
     const userDetails = await getAuthor(this.userService, userID);
-
     if (!userDetails.profile.bloodGroupApproval)
       throw new ForbiddenException(
         `User has not accepted the approval for blood donation.`,
@@ -227,6 +247,11 @@ export class BloodBankService {
       bloodRequest.acceptors.push(userID);
       return await this.bloodRequestRepository.save(bloodRequest);
     }
+    // if (bloodRequest.createdBy !== userID) {
+
+    // } else {
+    //   throw new ForbiddenException(`You cannot accept your own request`);
+    // }
   }
 
   async getAcceptors(requestID: number) {

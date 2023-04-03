@@ -8,9 +8,11 @@ import {
 } from './entities/blood-bank.entity';
 import { BaseDistrict, BaseProvince } from 'src/common/entities/base.entity';
 import { UsersModule } from 'src/users/users.module';
+import { BloodRequestSubsriber } from './blood-bank.subscriber';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-  providers: [BloodBankService, BloodBankResolver],
+  providers: [BloodBankService, BloodBankResolver, BloodRequestSubsriber],
   imports: [
     TypeOrmModule.forFeature([
       BloodRequest,
@@ -19,6 +21,7 @@ import { UsersModule } from 'src/users/users.module';
       BaseProvince,
     ]),
     UsersModule,
+    NotificationsModule,
   ],
   exports: [BloodBankService],
 })
