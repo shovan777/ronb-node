@@ -5,10 +5,10 @@ import {
   registerEnumType,
   Float,
 } from '@nestjs/graphql';
-import { NewsComment } from '../../comments/entities/comment.entity';
-import { CreatorBaseEntity } from '../../common/entities/base.entity';
-import { pathFinderMiddleware } from '../../common/middlewares/pathfinder.middleware';
-import { NewsTaggit, Tag } from '../../tags/entities/tag.entity';
+import { NewsComment } from '@app/shared/entities/comment.entity';
+import { CreatorBaseEntity } from '@app/shared/common/entities/base.entity';
+import { pathFinderMiddleware } from '@app/shared/common/middlewares/pathfinder.middleware';
+import { NewsTaggit, Tag } from '@app/shared/entities/tags.entity';
 import {
   Column,
   CreateDateColumn,

@@ -23,12 +23,12 @@ import {
   UserInterests,
   UserLikesNews,
   UserNewsEngagement,
-} from './entities/news.entity';
-import { uploadFileStream } from '../common/utils/upload';
-import { NewsTaggit, Tag } from '../tags/entities/tag.entity';
+} from '@app/shared/entities/news.entity';
+import { uploadFileStream } from '@app/shared/common/utils/upload';
+import { NewsTaggit, Tag } from '@app/shared/entities/tags.entity';
 import { NewsTaggitService, TagsService } from '../tags/tags.service';
 import { join } from 'path';
-import { FilesService } from '../common/services/files.service';
+import { FilesService } from '@app/shared/common/services/files.service';
 
 @Injectable()
 export class NewsService {

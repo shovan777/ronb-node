@@ -23,7 +23,7 @@ import {
   UserInterests,
   UserLikesNews,
   UserNewsEngagement,
-} from './entities/news.entity';
+} from '@app/shared/entities/news.entity';
 import {
   CreateNewsCategoryInput,
   CreateNewsEngagementInput,
@@ -44,17 +44,17 @@ import {
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import NewsResponse from './news.response';
-import ConnectionArgs from '../common/pagination/types/connection.args';
+import ConnectionArgs from '@app/shared/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { FilterNewsInput } from './dto/filter-news.input';
-import { User } from '../common/decorators/user.decorator';
-import { checkUserAuthenticated } from '../common/utils/checkUserAuthentication';
-import { NewsTaggit, Tag } from '../tags/entities/tag.entity';
+import { User } from '@app/shared/common/decorators/user.decorator';
+import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
+import { NewsTaggit, Tag } from '@app/shared/entities/tags.entity';
 import { NewsTaggitService, TagsService } from '../tags/tags.service';
-import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enum/role.enum';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { MakePublic } from '../common/decorators/public.decorator';
+import { Roles } from '@app/shared/common/decorators/roles.decorator';
+import { Role } from '@app/shared/common/enum/role.enum';
+import { RolesGuard } from '@app/shared/common/guards/roles.guard';
+import { MakePublic } from '@app/shared/common/decorators/public.decorator';
 
 // const fileUpload = (fileName, uploadDir) => {
 

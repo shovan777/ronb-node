@@ -1,8 +1,11 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
-import { UserReacts } from '../../common/entities/base.entity';
-import { Upload } from '../../common/scalars/upload.scalar';
-import { NewsTaggit, Tag } from '../../tags/entities/tag.entity';
-import { NewsCategory, NewsLanguage, NewsState } from '../entities/news.entity';
+import { UserReacts } from '@app/shared/common/entities/base.entity';
+import { Upload } from '@app/shared/common/scalars/upload.scalar';
+import {
+  NewsCategory,
+  NewsLanguage,
+  NewsState,
+} from '@app/shared/entities/news.entity';
 
 // import GraphQLUpload from 'graphql-upload';
 

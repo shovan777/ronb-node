@@ -15,7 +15,7 @@ import {
   UserLikesNewsResolver,
   UserNewsEngagementResolver,
 } from './news.resolver';
-import { Upload } from '../common/scalars/upload.scalar';
+import { Upload } from '@app/shared/common/scalars/upload.scalar';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   News,
@@ -24,9 +24,9 @@ import {
   UserInterests,
   UserLikesNews,
   UserNewsEngagement,
-} from './entities/news.entity';
+} from '@app/shared/entities/news.entity';
 import { TagsModule } from '../tags/tags.module';
-import { FilesService } from '../common/services/files.service';
+import { FilesService } from '@app/shared/common/services/files.service';
 
 @Module({
   providers: [
