@@ -9,4 +9,11 @@ export class NewscacheController {
   getHello(): string {
     return this.newscacheService.getHello();
   }
+
+  @Get('news')
+  getNews() {
+    const news_arr = this.newscacheService.findNews();
+    console.log(news_arr);
+    return this.newscacheService.findNews();
+  }
 }

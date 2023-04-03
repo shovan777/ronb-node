@@ -1,3 +1,5 @@
+import { SharedModule } from '@app/shared';
+import { News } from '@app/shared/entities/news.entity';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,6 +9,9 @@ import { NewscacheService } from './newscache.service';
 @Module({
   imports: [
     ConfigModule.forRoot({}),
+    // AppModule,
+    SharedModule,
+    TypeOrmModule.forFeature([News]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -14,7 +19,7 @@ import { NewscacheService } from './newscache.service';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      synchronize: process.env.DB_SYNC === 'true',
+      synchronize: false,
       autoLoadEntities: true,
     }),
   ],
