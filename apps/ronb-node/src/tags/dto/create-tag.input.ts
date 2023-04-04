@@ -1,5 +1,5 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
-import { Tag } from '../entities/tag.entity';
+import { Tag } from '@app/shared/entities/tags.entity';
 
 @InputType()
 export class CreateTagInput {
@@ -8,10 +8,10 @@ export class CreateTagInput {
 }
 
 @InputType()
-export class CreateNewsTaggitInput{
-  @Field(()=>Int, { description: 'News id' })
+export class CreateNewsTaggitInput {
+  @Field(() => Int, { description: 'News id' })
   news: number;
-  
-  @Field(()=>Int,{ description: 'Tag id' })
+
+  @Field(() => Int, { description: 'Tag id' })
   tag: number;
 }

@@ -1,13 +1,20 @@
-import { Resolver, Query, Mutation, Args, Int, ArgsType } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ArgsType,
+} from '@nestjs/graphql';
 import { NewsTaggitService, TagsService } from './tags.service';
-import { NewsTaggit, Tag } from './entities/tag.entity';
+import { NewsTaggit, Tag } from '@app/shared/entities/tags.entity';
 import { CreateNewsTaggitInput, CreateTagInput } from './dto/create-tag.input';
 import { UpdateTagInput } from './dto/update-tag.input';
 import ConnectionArgs from '../common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { NotFoundException } from '@nestjs/common';
-import { User } from '../common/decorators/user.decorator';
-import { checkUserAuthenticated } from '../common/utils/checkUserAuthentication';
+import { User } from '@app/shared/common/decorators/user.decorator';
+import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
 
 @Resolver(() => Tag)
 export class TagsResolver {
@@ -16,7 +23,7 @@ export class TagsResolver {
   @Mutation(() => Tag)
   async createTag(
     @Args('createTagInput') createTagInput: CreateTagInput,
-    @User() user: number
+    @User() user: number,
   ) {
     checkUserAuthenticated(user);
     return await this.tagsService.create(createTagInput, user);
@@ -35,22 +42,23 @@ export class NewsTaggitResolver {
   @Mutation(() => NewsTaggit)
   async createNewsTaggit(
     @Args('createNewsTaggitInput') createNewsTaggitInput: CreateNewsTaggitInput,
-    @User() user: number  
+    @User() user: number,
   ) {
     checkUserAuthenticated(user);
     return await this.newsTaggitService.create(createNewsTaggitInput, user);
   }
 
   @Query(() => [NewsTaggit], { name: 'newsTaggit' })
-  async findAll(
-    // @ArgsType('filter', {nullable:true})
-    // filter?: 
-  ): Promise<NewsTaggit[]> {
+  async findAll(): // @ArgsType('filter', {nullable:true})
+  // filter?:
+  Promise<NewsTaggit[]> {
     return this.newsTaggitService.findAll();
   }
 
   @Mutation(() => NewsTaggit)
-  removeNewsTaggit(@Args('id', {type: () => Int}) id: number,): Promise<NotFoundException | any> {
-   return this.newsTaggitService.remove(id);
+  removeNewsTaggit(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<NotFoundException | any> {
+    return this.newsTaggitService.remove(id);
   }
 }

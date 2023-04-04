@@ -5,12 +5,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { slugify } from '../common/utils/slugify';
-import { News } from '../news/entities/news.entity';
+import { News } from '@app/shared/entities/news.entity';
 import { NewsService } from '../news/news.service';
-import { Raw, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateTagInput, CreateNewsTaggitInput } from './dto/create-tag.input';
-import { NewsTaggit, Tag } from './entities/tag.entity';
+import { NewsTaggit, Tag } from '@app/shared/entities/tags.entity';
 
 @Injectable()
 export class TagsService {
