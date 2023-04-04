@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   Notification,
   NotificationDevice,
-} from './entities/notifications.entity';
+} from '@app/shared/entities/notifications.entity';
 import { Like, Repository } from 'typeorm';
 import {
   CreateNotificationDeviceInput,
@@ -16,7 +16,7 @@ import {
   NotificationNewsInput,
 } from './dto/create-notification.input';
 import { NewsService } from '../news/news.service';
-import { generateFileUrl } from '../common/utils/fileurl';
+import { generateFileUrl } from '@app/shared/common/utils/fileurl';
 const stripHtml = require('string-strip-html');
 
 export interface ISendFirebaseMessages {

@@ -7,12 +7,12 @@ import {
 import {
   Notification,
   NotificationDevice,
-} from './entities/notifications.entity';
+} from '@app/shared/entities/notifications.entity';
 import { NotificationsService } from './notifications.service';
-import { User } from '../common/decorators/user.decorator';
-import ConnectionArgs from '../common/pagination/types/connection.args';
+import { User } from '@app/shared/common/decorators/user.decorator';
+import ConnectionArgs from '@app/shared/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
-import { checkUserAuthenticated } from '../common/utils/checkUserAuthentication';
+import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
 import NotificationResponse from './notifications.response';
 
 @Resolver(() => NotificationDevice)
