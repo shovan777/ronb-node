@@ -1,14 +1,14 @@
-import { FilesService } from './common/services/files.service';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { CacheModule, MiddlewareConsumer, Module } from '@nestjs/common';
+import { FilesService } from '@app/shared/common/services/files.service';
+import { ApolloDriver } from '@nestjs/apollo';
+import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SecurityMiddleware } from './common/middlewares/security.middleware';
+// import { SecurityMiddleware } from './common/middlewares/security.middleware';
 import { NewsModule } from './news/news.module';
 import { PublicToiletModule } from './public-toilet/public-toilet.module';
 import { TagsModule } from './tags/tags.module';
@@ -17,6 +17,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { YellowPagesModule } from './yellow-pages/yellow-pages.module';
 import { UsersModule } from './users/users.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { SharedModule } from '@app/shared';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ReviewsModule } from './reviews/reviews.module';
       // isGlobal: true,// Makes the variable global
       // i.e no need to import in each module
     }),
+    SharedModule,
     NewsModule,
     PublicToiletModule,
     TagsModule,
