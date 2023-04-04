@@ -1,5 +1,5 @@
-import { Field, Int, ObjectType } from "@nestjs/graphql";
-import { pathFinderMiddleware } from "../../common/middlewares/pathfinder.middleware";
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { pathFinderMiddleware } from '../../common/middlewares/pathfinder.middleware';
 
 @ObjectType({ description: 'Profile of the user' })
 export class Profile {
@@ -28,6 +28,9 @@ export class Author {
   // @Field({ description: 'User lastname' })
   // lastName: string;
 
-  @Field(() => Profile, { description: 'User profile information', nullable:true })
+  @Field(() => Profile, {
+    description: 'User profile information',
+    nullable: true,
+  })
   profile: Profile;
 }

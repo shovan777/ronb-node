@@ -1,4 +1,4 @@
-import { Author } from './entitiy/users.entity';
+import { Author } from '@app/shared/entities/users.entity';
 
 export const getAuthor = async (service, id: number): Promise<Author> => {
   return service.findOne(id).then((user) => {
