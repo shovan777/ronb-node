@@ -14,13 +14,13 @@ import {
   UserLikesNewsReplyService,
 } from './comments.service';
 import { UsersService } from '../users/users.service';
-import { Author } from '../users/entitiy/users.entity';
+import { Author } from '@app/shared/entities/users.entity';
 import {
   NewsComment,
   NewsReply,
   UserLikesNewsComment,
   UserLikesNewsReply,
-} from './entities/comment.entity';
+} from '@app/shared/entities/comment.entity';
 import {
   CreateNewsCommentInput,
   CreateNewsReplyInput,
@@ -33,12 +33,12 @@ import {
   UpdateUserLikesNewsCommentInput,
   UpdateUserLikesNewsReplyInput,
 } from './dto/update-comment.input';
-import { User } from '../common/decorators/user.decorator';
-import { checkUserAuthenticated } from '../common/utils/checkUserAuthentication';
-import ConnectionArgs from '../common/pagination/types/connection.args';
+import { User } from '@app/shared/common/decorators/user.decorator';
+import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
+import ConnectionArgs from '@app/shared/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import CommentsResponse, { RepliesResponse } from './comments.response';
-import { ReactCount } from '../common/entities/base.entity';
+import { ReactCount } from '@app/shared/common/entities/base.entity';
 import { getAuthor } from '../users/users.resolver';
 
 @Resolver(() => NewsComment)

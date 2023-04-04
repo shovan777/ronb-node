@@ -17,7 +17,7 @@ import {
   NewsReply,
   UserLikesNewsComment,
   UserLikesNewsReply,
-} from './entities/comment.entity';
+} from '@app/shared/entities/comment.entity';
 import { NewsModule } from '../news/news.module';
 import {
   NewsReplySubscriber,

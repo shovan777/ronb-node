@@ -1,12 +1,7 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserReacts } from '../common/entities/base.entity';
-import {
-  checkUserIsAuthor,
-} from '../common/utils/checkUserAuthentication';
+import { UserReacts } from '@app/shared/common/entities/base.entity';
+import { checkUserIsAuthor } from '@app/shared/common/utils/checkUserAuthentication';
 import { NewsService } from '../news/news.service';
 import { Repository } from 'typeorm';
 import {
@@ -26,7 +21,7 @@ import {
   NewsReply,
   UserLikesNewsComment,
   UserLikesNewsReply,
-} from './entities/comment.entity';
+} from '@app/shared/entities/comment.entity';
 
 @Injectable()
 export class NewsCommentsService {
@@ -390,4 +385,3 @@ export class UserLikesNewsReplyService {
     return removedUserLikesNewsReply;
   }
 }
-

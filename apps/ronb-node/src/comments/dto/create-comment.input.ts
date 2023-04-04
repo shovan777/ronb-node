@@ -1,5 +1,5 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
-import { UserReacts } from '../../common/entities/base.entity';
+import { UserReacts } from '@app/shared/common/entities/base.entity';
 
 @InputType()
 export class CreateNewsCommentInput {
