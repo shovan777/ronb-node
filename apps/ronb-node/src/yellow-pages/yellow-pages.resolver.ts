@@ -8,9 +8,9 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { connectionFromArraySlice } from 'graphql-relay';
-import { User } from '../common/decorators/user.decorator';
-import ConnectionArgs from '../common/pagination/types/connection.args';
-import { checkUserAuthenticated } from '../common/utils/checkUserAuthentication';
+import { User } from '@app/shared/common/decorators/user.decorator';
+import ConnectionArgs from '@app/shared/common/pagination/types/connection.args';
+import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
 import {
   CreateDistrictInput,
   CreateProvinceInput,
@@ -20,7 +20,7 @@ import {
   CreateYellowPagesInput,
   CreateYellowPagesPhoneNumberInput,
 } from './dto/create-yellow-pages.input';
-import { FetchPaginationArgs } from '../common/pagination/fetch-pagination-input';
+import { FetchPaginationArgs } from '@app/shared/common/pagination/fetch-pagination-input';
 import {
   UpdateDistrictInput,
   UpdateProvinceInput,
@@ -38,7 +38,7 @@ import {
   Province,
   District,
   YellowPagesEmail,
-} from './entities/yellow-pages.entity';
+} from '@app/shared/entities/yellow-pages.entity';
 import {
   YellowPagesResponse,
   YellowPagesCategoryResponse,
@@ -53,11 +53,11 @@ import {
   DistrictService,
   YellowPagesEmailService,
 } from './yellow-pages.service';
-import { UseGuards, UseInterceptors } from '@nestjs/common';
-import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enum/role.enum';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { MakePublic } from '../common/decorators/public.decorator';
+import { UseGuards } from '@nestjs/common';
+import { Roles } from '@app/shared/common/decorators/roles.decorator';
+import { Role } from '@app/shared/common/enum/role.enum';
+import { RolesGuard } from '@app/shared/common/guards/roles.guard';
+import { MakePublic } from '@app/shared/common/decorators/public.decorator';
 import {
   FilterDistrictInput,
   FilterYellowPagesInput,

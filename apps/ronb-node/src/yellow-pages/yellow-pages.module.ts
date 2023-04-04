@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FilesService } from '../common/services/files.service';
+import { FilesService } from '@app/shared/common/services/files.service';
 import {
   YellowPagesAddress,
   YellowPagesPhoneNumber,
@@ -9,7 +9,7 @@ import {
   District,
   Province,
   YellowPagesEmail,
-} from './entities/yellow-pages.entity';
+} from '@app/shared/entities/yellow-pages.entity';
 import {
   DistrictResolver,
   ProvinceResolver,

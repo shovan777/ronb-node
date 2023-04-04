@@ -1,7 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { PublishState as YellowPagesState } from '../../common/enum/publish_state.enum';
+import { PublishState as YellowPagesState } from '@app/shared/common/enum/publish_state.enum';
 import { EmailAddressResolver, BigIntResolver } from 'graphql-scalars';
-import { Upload } from '../../common/scalars/upload.scalar';
+import { Upload } from '@app/shared/common/scalars/upload.scalar';
 
 @InputType()
 export class CreateYellowPagesCategoryInput {

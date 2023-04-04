@@ -14,7 +14,7 @@ import {
   CreateYellowPagesInput,
   CreateYellowPagesPhoneNumberInput,
 } from './dto/create-yellow-pages.input';
-import { FetchPaginationArgs } from '../common/pagination/fetch-pagination-input';
+import { FetchPaginationArgs } from '@app/shared/common/pagination/fetch-pagination-input';
 import {
   UpdateDistrictInput,
   UpdateProvinceInput,
@@ -32,14 +32,14 @@ import {
   District,
   Province,
   YellowPagesEmail,
-} from './entities/yellow-pages.entity';
-import { PublishState as YellowPagesPublishState } from '../common/enum/publish_state.enum';
+} from '@app/shared/entities/yellow-pages.entity';
+import { PublishState as YellowPagesPublishState } from '@app/shared/common/enum/publish_state.enum';
 import {
   FilterDistrictInput,
   FilterYellowPagesInput,
 } from './dto/filter-yellowpages.input';
-import { uploadFileStream } from '../common/utils/upload';
-import { FilesService } from '../common/services/files.service';
+import { uploadFileStream } from '@app/shared/common/utils/upload';
+import { FilesService } from '@app/shared/common/services/files.service';
 @Injectable()
 export class YellowPagesService {
   constructor(

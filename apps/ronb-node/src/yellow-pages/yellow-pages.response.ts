@@ -1,10 +1,10 @@
 import { ObjectType } from '@nestjs/graphql';
-import { PaginateAdmin } from '../common/pagination/fetch-pagination-response';
-import relayTypes from '../common/pagination/types/relay.types';
+import { PaginateAdmin } from '@app/shared/common/pagination/fetch-pagination-response';
+import relayTypes from '@app/shared/common/pagination/types/relay.types';
 import {
   YellowPages,
   YellowPagesCatgory,
-} from './entities/yellow-pages.entity';
+} from '@app/shared/entities/yellow-pages.entity';
 
 @ObjectType()
 export class YellowPagesResponse extends relayTypes<YellowPages>(YellowPages) {}

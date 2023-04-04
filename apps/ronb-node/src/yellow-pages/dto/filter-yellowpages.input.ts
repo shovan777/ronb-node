@@ -1,7 +1,6 @@
 import { Field, InputType, Int, PartialType, PickType } from '@nestjs/graphql';
 import {
   CreateDistrictInput,
-  CreateYellowPagesAddressInput,
   CreateYellowPagesInput,
 } from './create-yellow-pages.input';
 
