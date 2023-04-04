@@ -10,20 +10,20 @@ import {
 import { connectionFromArraySlice } from 'graphql-relay';
 import { getAuthor } from '../users/users.resolver';
 import { UsersService } from '../users/users.service';
-import { Author } from '../users/entitiy/users.entity';
-import { User } from '../common/decorators/user.decorator';
-import ConnectionArgs from '../common/pagination/types/connection.args';
-import { checkUserAuthenticated } from '../common/utils/checkUserAuthentication';
+import { Author } from '@app/shared/entities/users.entity';
+import { User } from '@app/shared/common/decorators/user.decorator';
+import ConnectionArgs from '@app/shared/common/pagination/types/connection.args';
+import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
 import { CreatePublicToiletReviewInput } from './dto/create-reviews.input';
-import { PublicToiletReview } from './entities/reviews.entity';
+import { PublicToiletReview } from '@app/shared/entities/reviews.entity';
 import PublicToiletReviewsResponse from './reviews.response';
 import { PublicToiletReviewsService } from './reviews.service';
 import { UpdatePublicToiletReviewInput } from './dto/update-reviews.input';
-import { NotFoundException, UseGuards } from '@nestjs/common';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Role } from '../common/enum/role.enum';
-import { Roles } from '../common/decorators/roles.decorator';
-import { MakePublic } from '../common/decorators/public.decorator';
+import { UseGuards } from '@nestjs/common';
+import { RolesGuard } from '@app/shared/common/guards/roles.guard';
+import { Role } from '@app/shared/common/enum/role.enum';
+import { Roles } from '@app/shared/common/decorators/roles.decorator';
+import { MakePublic } from '@app/shared/common/decorators/public.decorator';
 
 @Resolver(() => PublicToiletReview)
 @Roles(Role.Admin, Role.SuperAdmin)

@@ -4,8 +4,8 @@ import { PublicToiletService } from '../public-toilet/public-toilet.service';
 import { Repository } from 'typeorm';
 import { CreatePublicToiletReviewInput } from './dto/create-reviews.input';
 import { UpdatePublicToiletReviewInput } from './dto/update-reviews.input';
-import { PublicToiletReview } from './entities/reviews.entity';
-import { checkUserIsAuthor } from '../common/utils/checkUserAuthentication';
+import { PublicToiletReview } from '@app/shared/entities/reviews.entity';
+import { checkUserIsAuthor } from '@app/shared/common/utils/checkUserAuthentication';
 
 @Injectable()
 export class PublicToiletReviewsService {
