@@ -11,7 +11,7 @@ import { PublicToiletService } from './public-toilet.service';
 import {
   PublicToilet,
   PublicToiletImage,
-} from './entities/public-toilet.entity';
+} from '@app/shared/entities/public-toilet.entity';
 import { CreatePublicToiletInput } from './dto/create-public-toilet.input';
 import { UpdatePublicToiletInput } from './dto/update-public-toilet.input';
 import { NotFoundException, UseGuards } from '@nestjs/common';
@@ -19,18 +19,18 @@ import {
   PublicToiletResponse,
   PublicToiletAdminResponse,
 } from './public-toilet.response';
-import ConnectionArgs from '../common/pagination/types/connection.args';
+import ConnectionArgs from '@app/shared/common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
-import { GeoJSONPointScalar } from '../common/scalars/geojson/Point.scalar';
-import { User } from '../common/decorators/user.decorator';
-import { checkUserAuthenticated } from '../common/utils/checkUserAuthentication';
-import { Role } from '../common/enum/role.enum';
-import { Roles } from '../common/decorators/roles.decorator';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { MakePublic } from '../common/decorators/public.decorator';
-import { TotalReviewRatings } from '../reviews/entities/reviews.entity';
+import { GeoJSONPointScalar } from '@app/shared/common/scalars/geojson/Point.scalar';
+import { User } from '@app/shared/common/decorators/user.decorator';
+import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
+import { Role } from '@app/shared/common/enum/role.enum';
+import { Roles } from '@app/shared/common/decorators/roles.decorator';
+import { RolesGuard } from '@app/shared/common/guards/roles.guard';
+import { MakePublic } from '@app/shared/common/decorators/public.decorator';
+import { TotalReviewRatings } from '@app/shared/entities/reviews.entity';
 import { PublicToiletReviewsService } from '../reviews/reviews.service';
-import { FetchPaginationArgs } from '../common/pagination/fetch-pagination-input';
+import { FetchPaginationArgs } from '@app/shared/common/pagination/fetch-pagination-input';
 
 @Resolver(() => PublicToilet)
 @Roles(Role.Admin, Role.SuperAdmin)

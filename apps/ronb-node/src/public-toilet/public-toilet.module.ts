@@ -1,15 +1,15 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { PublicToiletService } from './public-toilet.service';
 import { PublicToiletResolver } from './public-toilet.resolver';
-import { Upload } from '../common/scalars/upload.scalar';
-import { GeoJSONPointScalar } from '../common/scalars/geojson/Point.scalar';
+import { Upload } from '@app/shared/common/scalars/upload.scalar';
+import { GeoJSONPointScalar } from '@app/shared/common/scalars/geojson/Point.scalar';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   PublicToilet,
   PublicToiletImage,
-} from './entities/public-toilet.entity';
+} from '@app/shared/entities/public-toilet.entity';
 import { ReviewsModule } from '../reviews/reviews.module';
-import { FilesService } from '../common/services/files.service';
+import { FilesService } from '@app/shared/common/services/files.service';
 
 @Module({
   providers: [

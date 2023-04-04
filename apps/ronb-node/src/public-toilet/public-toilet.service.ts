@@ -1,4 +1,4 @@
-import { GeoJSONPointScalar } from '../common/scalars/geojson/Point.scalar';
+import { GeoJSONPointScalar } from '@app/shared/common/scalars/geojson/Point.scalar';
 import {
   ForbiddenException,
   Injectable,
@@ -11,12 +11,12 @@ import { UpdatePublicToiletInput } from './dto/update-public-toilet.input';
 import {
   PublicToilet,
   PublicToiletImage,
-} from './entities/public-toilet.entity';
-import { uploadFileStream } from '../common/utils/upload';
-import { PublishState as PublicToiletState } from '../common/enum/publish_state.enum';
-import { checkUserIsAuthor } from '../common/utils/checkUserAuthentication';
-import { checkIfObjectIsPublished } from '../common/utils/checkPublishedState';
-import { FilesService } from '../common/services/files.service';
+} from '@app/shared/entities/public-toilet.entity';
+import { uploadFileStream } from '@app/shared/common/utils/upload';
+import { PublishState as PublicToiletState } from '@app/shared/common/enum/publish_state.enum';
+import { checkUserIsAuthor } from '@app/shared/common/utils/checkUserAuthentication';
+import { checkIfObjectIsPublished } from '@app/shared/common/utils/checkPublishedState';
+import { FilesService } from '@app/shared/common/services/files.service';
 
 @Injectable()
 export class PublicToiletService {
