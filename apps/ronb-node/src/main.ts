@@ -22,7 +22,7 @@ async function bootstrap() {
       },
     }),
   );
-  app.useGlobalInterceptors(new ErrorLoggerInterceptor())
+  app.useGlobalInterceptors(new ErrorLoggerInterceptor());
   const PORT = configService.get('PORT') || 3000;
   await app.listen(PORT);
   console.log(`Server running on port ${PORT}`);
