@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, Not, IsNull } from 'typeorm';
 import {
@@ -29,6 +34,13 @@ import { NewsTaggit, Tag } from '@app/shared/entities/tags.entity';
 import { NewsTaggitService, TagsService } from '../tags/tags.service';
 import { join } from 'path';
 import { FilesService } from '@app/shared/common/services/files.service';
+import { firstValueFrom, Observable } from 'rxjs';
+import { ClientGrpc } from '@nestjs/microservices';
+import {
+  BeginCachingResponse,
+  NewsCachingServiceClient,
+  NEWS_CACHING_SERVICE_NAME,
+} from '@app/shared/common/proto/news.pb';
 
 @Injectable()
 export class NewsService {
@@ -634,5 +646,31 @@ export class RecommendationDataService {
     };
     return recommendationData;
     // return news;
+  }
+}
+
+interface UserId {
+  id: number;
+}
+
+interface existsRes {
+  success: boolean;
+}
+
+@Injectable()
+export class NewsCacheClientService implements OnModuleInit {
+  private newsCachingService: NewsCachingServiceClient;
+
+  constructor(
+    @Inject(NEWS_CACHING_SERVICE_NAME) private readonly client: ClientGrpc,
+  ) {}
+
+  onModuleInit() {
+    this.newsCachingService =
+      this.client.getService<NewsCachingServiceClient>('NewsCachingService');
+  }
+
+  async sendBeginCaching(): Promise<BeginCachingResponse> {
+    return firstValueFrom(this.newsCachingService.beginCaching({ id: 1 }));
   }
 }

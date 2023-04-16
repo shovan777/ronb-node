@@ -1024,6 +1024,7 @@ type Query {
   ): PublicToiletResponse!
   publicToiletsAdmin(skip: Int = 0, take: Int = 25): PublicToiletAdminResponse!
   recommendationData: RecommendationData!
+  recommendationDataExists: Boolean!
   tags: [Tag!]!
   userInterests: [UserInterests!]!
   userNewsEngagements: [UserNewsEngagement!]!
