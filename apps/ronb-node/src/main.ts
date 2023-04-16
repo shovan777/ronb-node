@@ -4,8 +4,8 @@ import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { AppModule } from './app.module';
-import { ErrorLoggerInterceptor } from './common/interceptors/errorlogger.interceptor';
-import { SecurityMiddleware } from './common/middlewares/security.middleware';
+import { ErrorLoggerInterceptor } from '@app/shared/common/interceptors/errorlogger.interceptor';
+import { SecurityMiddleware } from '@app/shared/common/middlewares/security.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
