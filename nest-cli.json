@@ -1,8 +1,50 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/ronb-node/src",
   "compilerOptions": {
-    "assets": ["common/csv/*.csv"]
+    "assets": [
+      "common/csv/*.csv",
+      "common/proto/*.proto"
+    ],
+    "watchAssets": true,
+    "webpack": true,
+    "tsConfigPath": "apps/ronb-node/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/ronb-node",
+  "projects": {
+    "ronb-node": {
+      "type": "application",
+      "root": "apps/ronb-node",
+      "entryFile": "main",
+      "sourceRoot": "apps/ronb-node/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ronb-node/tsconfig.app.json"
+      }
+    },
+    "newscache": {
+      "type": "application",
+      "root": "apps/newscache",
+      "entryFile": "main",
+      "sourceRoot": "apps/newscache/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/newscache/tsconfig.app.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json",
+        "assets": [
+          "common/csv/*.csv",
+          "common/proto/*.proto"
+        ],
+        "watchAssets": true
+      }
+    }
   }
 }
