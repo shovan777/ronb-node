@@ -41,7 +41,9 @@
         "tsConfigPath": "libs/shared/tsconfig.lib.json",
         "assets": [
           "common/csv/*.csv",
-          "common/proto/*.proto"
+          "common/proto/*.proto",
+          "config/*.*",
+          "migrations/*.*"
         ],
         "watchAssets": true
       }
