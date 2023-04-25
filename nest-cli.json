@@ -4,8 +4,10 @@
   "sourceRoot": "apps/ronb-node/src",
   "compilerOptions": {
     "assets": [
-      "common/csv/*.csv"
+      "common/csv/*.csv",
+      "common/proto/*.proto"
     ],
+    "watchAssets": true,
     "webpack": true,
     "tsConfigPath": "apps/ronb-node/tsconfig.app.json"
   },
@@ -36,7 +38,14 @@
       "entryFile": "index",
       "sourceRoot": "libs/shared/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/shared/tsconfig.lib.json"
+        "tsConfigPath": "libs/shared/tsconfig.lib.json",
+        "assets": [
+          "common/csv/*.csv",
+          "common/proto/*.proto",
+          "config/*.*",
+          "migrations/*.*"
+        ],
+        "watchAssets": true
       }
     }
   }

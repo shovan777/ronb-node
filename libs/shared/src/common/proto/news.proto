@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package news;
+
+service NewsCachingService {
+    rpc BeginCaching (UserId) returns (BeginCachingResponse) {}
+    // rpc GetNews (UserId) returns (stream News) {}
+}
+
+message UserId {
+    int32 id = 1;
+}
+
+message BeginCachingResponse {
+    bool success = 1;
+}

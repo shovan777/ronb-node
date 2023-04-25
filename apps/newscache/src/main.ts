@@ -1,5 +1,7 @@
+import { NEWS_PACKAGE_NAME } from '@app/shared/common/proto/news.pb';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { join } from 'path';
 import { NewscacheModule } from './newscache.module';
 
 async function bootstrap() {
@@ -15,10 +17,13 @@ async function bootstrap() {
   // );
   const app = await NestFactory.create(NewscacheModule);
   app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.TCP,
+    transport: Transport.GRPC,
     options: {
-      host: 'localhost',
-      port: 4000,
+      url: 'localhost:50051',
+      package: NEWS_PACKAGE_NAME,
+      protoPath: join(process.cwd(), 'libs/shared/src/common/proto/news.proto'),
+      // host: 'localhost',
+      // port: 4000,
     },
   });
   await app.startAllMicroservices();

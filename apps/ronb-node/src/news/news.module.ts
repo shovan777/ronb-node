@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import {
+  NewsCacheClientService,
   NewsCategoryService,
   NewsEngagementService,
   NewsService,
@@ -27,6 +28,9 @@ import {
 } from '@app/shared/entities/news.entity';
 import { TagsModule } from '../tags/tags.module';
 import { FilesService } from '@app/shared/common/services/files.service';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { join } from 'path';
+import { NEWS_CACHING_SERVICE_NAME, NEWS_PACKAGE_NAME } from '@app/shared/common/proto/news.pb';
 
 @Module({
   providers: [
@@ -44,6 +48,7 @@ import { FilesService } from '@app/shared/common/services/files.service';
     NewsEngagementService,
     RecommendationDataResolver,
     RecommendationDataService,
+    NewsCacheClientService,
   ],
   imports: [
     forwardRef(() => TagsModule),
@@ -54,6 +59,21 @@ import { FilesService } from '@app/shared/common/services/files.service';
       UserLikesNews,
       UserNewsEngagement,
       UserInterests,
+    ]),
+    ClientsModule.register([
+      {
+        name: NEWS_CACHING_SERVICE_NAME,
+        // name: 'NEWS_PACKAGE',
+        transport: Transport.GRPC,
+        options: {
+          url: 'localhost:50051',
+          package: NEWS_PACKAGE_NAME,
+          protoPath: join(
+            process.cwd(),
+            'libs/shared/src/common/proto/news.proto',
+          ),
+        },
+      },
     ]),
   ],
   exports: [NewsService],

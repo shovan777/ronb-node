@@ -10,7 +10,6 @@ import { NewsTaggitService, TagsService } from './tags.service';
 import { NewsTaggit, Tag } from '@app/shared/entities/tags.entity';
 import { CreateNewsTaggitInput, CreateTagInput } from './dto/create-tag.input';
 import { UpdateTagInput } from './dto/update-tag.input';
-import ConnectionArgs from '../common/pagination/types/connection.args';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { NotFoundException } from '@nestjs/common';
 import { User } from '@app/shared/common/decorators/user.decorator';

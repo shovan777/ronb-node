@@ -8,6 +8,7 @@ import {
   Parent,
 } from '@nestjs/graphql';
 import {
+  NewsCacheClientService,
   NewsCategoryService,
   NewsEngagementService,
   NewsService,
@@ -55,6 +56,7 @@ import { Roles } from '@app/shared/common/decorators/roles.decorator';
 import { Role } from '@app/shared/common/enum/role.enum';
 import { RolesGuard } from '@app/shared/common/guards/roles.guard';
 import { MakePublic } from '@app/shared/common/decorators/public.decorator';
+import { Observable } from 'rxjs';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -372,10 +374,25 @@ export class UserNewsEngagementResolver {
 export class RecommendationDataResolver {
   constructor(
     private readonly recommendationDataService: RecommendationDataService,
+    private readonly newsCacheClientService: NewsCacheClientService,
   ) {}
 
   @Query(() => RecommendationData, { name: 'recommendationData' })
   async getData(): Promise<RecommendationData> {
     return await this.recommendationDataService.getRecommendationData();
+  }
+
+  @Query(() => Boolean, { name: 'recommendationDataExists' })
+  async exists(): Promise<boolean> {
+    const isExist = await this.newsCacheClientService.sendBeginCaching();
+    // let res: boolean;
+    // console.log(
+    //   isExist.subscribe((data) => {
+    //     console.log(data);
+    //     res = data;
+    //   }),
+    // );
+    console.log(`Cache started: ${isExist.success}`);
+    return isExist.success;
   }
 }
