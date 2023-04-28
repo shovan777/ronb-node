@@ -1,12 +1,13 @@
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { BigIntResolver } from 'graphql-scalars';
 import {
-  CreatorBaseEntity,
   BaseDistrict as District,
   BaseProvince as Province,
-} from 'src/common/entities/base.entity';
-import { PublishState as BloodRequestState } from 'src/common/enum/publish_state.enum';
-import { BloodGroup } from 'src/common/enum/bloodGroup.enum';
+  CreatorBaseEntity,
+} from '@app/shared/common/entities/base.entity';
+import { PublishState as BloodRequestState } from '@app/shared/common/enum/publish_state.enum';
+import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
+BloodGroup;
 import {
   Column,
   Entity,
@@ -16,7 +17,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ArrayUnique } from 'class-validator';
-import { Author } from 'src/users/entitiy/users.entity';
+import { Author } from '@app/shared/entities/users.entity';
 
 @ObjectType()
 @Entity()

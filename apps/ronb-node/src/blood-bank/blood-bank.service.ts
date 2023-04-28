@@ -5,21 +5,26 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BaseDistrict, BaseProvince } from 'src/common/entities/base.entity';
-import { BloodGroup } from 'src/common/enum/bloodGroup.enum';
-import { PublishState as BloodRequestState } from 'src/common/enum/publish_state.enum';
-import { calculateUserAge } from 'src/common/utils/calculateUserAge';
-import { checkIfObjectIsPublished } from 'src/common/utils/checkPublishedState';
-import { Author } from 'src/users/entitiy/users.entity';
-import { getAuthor } from 'src/users/users.resolver';
-import { UsersService } from 'src/users/users.service';
+import {
+  BaseDistrict,
+  BaseProvince,
+} from '@app/shared/common/entities/base.entity';
+import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
+import { PublishState as BloodRequestState } from '@app/shared/common/enum/publish_state.enum';
+import { calculateUserAge } from '@app/shared/common/utils/calculateUserAge';
+import { checkIfObjectIsPublished } from '@app/shared/common/utils/checkPublishedState';
+import { Author } from '@app/shared/entities/users.entity';
+import { getAuthor, getDoners } from '../users/users.resolver';
+import { UsersService } from '../users/users.service';
 import { MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { CreateBloodRequestInput } from './dto/create-blood-bank.input';
 import { UpdateBloodRequestInput } from './dto/update-blood-bank.input';
 import {
   BloodRequest,
   BloodRequestAddress,
-} from './entities/blood-bank.entity';
+} from '@app/shared/entities/blood-bank.entity';
+import { DonerPaginateInterface } from '@app/shared/common/interfaces/user.interface';
+import { BloodRecordResponse } from './blood-bank.response';
 
 @Injectable()
 export class BloodBankService {
@@ -56,7 +61,7 @@ export class BloodBankService {
           bloodGroup: userDetails.profile.bloodGroup,
         };
       }
-      return this.bloodRequestRepository.find({
+      return await this.bloodRequestRepository.find({
         relations: ['address'],
         where: {
           ...whereOptions,
@@ -69,7 +74,7 @@ export class BloodBankService {
     );
   }
 
-  async findMyRequest(user): Promise<BloodRequest[]> {
+  async findMyRequest(user: number): Promise<BloodRequest[]> {
     const userDetails = await this.userService.findOne(user);
 
     if (userDetails.profile.blood_group_approval) {
@@ -187,8 +192,7 @@ export class BloodBankService {
           bloodRequest,
           bloodRequestData,
         );
-        this.bloodRequestRepository.save(updatedBloodRequest);
-        return this.findOne(id);
+        return await this.bloodRequestRepository.save(updatedBloodRequest);
       }
       throw new ForbiddenException(
         `Blood request cannot be edited once it is published.`,
@@ -227,31 +231,31 @@ export class BloodBankService {
     userID: number,
   ): Promise<BloodRequest> {
     const bloodRequest: BloodRequest = await this.findOne(requestID);
-    const userDetails = await getAuthor(this.userService, userID);
-    if (!userDetails.profile.bloodGroupApproval)
-      throw new ForbiddenException(
-        `User has not accepted the approval for blood donation.`,
-      );
 
-    const userAge = calculateUserAge(userDetails.profile.dateOfBirth);
-    if (userAge < 18 || userAge > 60)
-      throw new ForbiddenException(
-        `User with id ${userID} do not have valid age for donation.`,
-      );
+    if (bloodRequest.createdBy !== userID) {
+      const userDetails = await getAuthor(this.userService, userID);
+      if (!userDetails.profile.bloodGroupApproval)
+        throw new ForbiddenException(
+          `User has not accepted the approval for blood donation.`,
+        );
 
-    if (bloodRequest.acceptors.includes(userID)) {
-      throw new ForbiddenException(
-        `User with id ${userID} has already accepted this blood request.`,
-      );
+      const userAge = calculateUserAge(userDetails.profile.dateOfBirth);
+      if (userAge < 18 || userAge > 60)
+        throw new ForbiddenException(
+          `User with id ${userID} do not have valid age for donation.`,
+        );
+
+      if (bloodRequest.acceptors.includes(userID)) {
+        throw new ForbiddenException(
+          `User with id ${userID} has already accepted this blood request.`,
+        );
+      } else {
+        bloodRequest.acceptors.push(userID);
+        return await this.bloodRequestRepository.save(bloodRequest);
+      }
     } else {
-      bloodRequest.acceptors.push(userID);
-      return await this.bloodRequestRepository.save(bloodRequest);
+      throw new ForbiddenException(`You cannot accept your own request`);
     }
-    // if (bloodRequest.createdBy !== userID) {
-
-    // } else {
-    //   throw new ForbiddenException(`You cannot accept your own request`);
-    // }
   }
 
   async getAcceptors(requestID: number) {
@@ -268,5 +272,31 @@ export class BloodBankService {
     );
 
     return acc;
+  }
+
+  // Admin APIs
+  async findAllDoners(
+    limit: number,
+    offset: number,
+  ): Promise<DonerPaginateInterface> {
+    const users: DonerPaginateInterface = await getDoners(
+      limit,
+      offset,
+      this.userService,
+      this.bloodRequestRepository,
+    );
+    return users;
+  }
+
+  async bloodRecords(): Promise<BloodRecordResponse> {
+    const bloodRequest = await this.bloodRequestRepository.findAndCount({
+      where: {
+        state: BloodRequestState.PUBLISHED,
+      },
+    });
+
+    const totalDonation = 50; //TODO: Get total donations
+    const totalRequest = bloodRequest[1];
+    return { totalDonation: totalDonation, totalRequest: totalRequest };
   }
 }

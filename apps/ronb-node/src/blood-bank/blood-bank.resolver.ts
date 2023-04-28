@@ -1,11 +1,20 @@
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { MakePublic } from 'src/common/decorators/public.decorator';
-import { User } from 'src/common/decorators/user.decorator';
-import { checkUserAuthenticated } from 'src/common/utils/checkUserAuthentication';
+import { MakePublic } from '@app/shared/common/decorators/public.decorator';
+import { User } from '@app/shared/common/decorators/user.decorator';
+import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
 import { BloodBankService } from './blood-bank.service';
 import { CreateBloodRequestInput } from './dto/create-blood-bank.input';
 import { UpdateBloodRequestInput } from './dto/update-blood-bank.input';
-import { Acceptors, BloodRequest } from './entities/blood-bank.entity';
+import {
+  Acceptors,
+  BloodRequest,
+} from '@app/shared/entities/blood-bank.entity';
+import { Author } from '@app/shared/entities/users.entity';
+import {
+  BloodBankDonerListResponse,
+  BloodRecordResponse,
+} from './blood-bank.response';
+import { FetchPaginationArgs } from '@app/shared/common/pagination/fetch-pagination-input';
 
 @Resolver()
 @MakePublic()
@@ -70,5 +79,21 @@ export class BloodBankResolver {
   @Query(() => [Acceptors], { name: 'getAcceptors' })
   async getAcceptors(@Args('id', { type: () => Int }) id: number) {
     return this.bloodRequestService.getAcceptors(id);
+  }
+
+  @Query(() => BloodBankDonerListResponse, { name: 'getAllDoners' })
+  async findAllDoners(
+    @Args() args: FetchPaginationArgs,
+  ): Promise<BloodBankDonerListResponse> {
+    const { doners, count } = await this.bloodRequestService.findAllDoners(
+      args.take,
+      args.skip,
+    );
+    return { data: doners, count: count };
+  }
+
+  @Query(() => BloodRecordResponse, { name: 'getBloodRecords' })
+  async getBloodRecords(): Promise<BloodRecordResponse> {
+    return this.bloodRequestService.bloodRecords();
   }
 }

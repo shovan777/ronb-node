@@ -5,3 +5,8 @@ export interface UserInterface {
   isAdmin: boolean;
   role: Role;
 }
+
+export interface DonerPaginateInterface {
+  doners: any[];
+  count: number;
+}

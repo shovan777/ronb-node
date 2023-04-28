@@ -35,6 +35,10 @@ import {
   UserLikesNewsComment,
   UserLikesNewsReply,
 } from './entities/comment.entity';
+import {
+  BloodRequest,
+  BloodRequestAddress,
+} from './entities/blood-bank.entity';
 
 @Module({
   providers: [SharedService],
@@ -77,6 +81,8 @@ import {
       Province,
       YellowPagesPhoneNumber,
       YellowPagesEmail,
+      BloodRequest,
+      BloodRequestAddress,
     ]),
   ],
 })

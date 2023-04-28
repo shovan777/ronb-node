@@ -5,12 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   BloodRequest,
   BloodRequestAddress,
-} from './entities/blood-bank.entity';
-import { BaseDistrict, BaseProvince } from 'src/common/entities/base.entity';
-import { UsersModule } from 'src/users/users.module';
-import { BloodRequestSubsriber } from './blood-bank.subscriber';
-import { NotificationsModule } from 'src/notifications/notifications.module';
+} from '@app/shared/entities/blood-bank.entity';
 
+import {
+  BaseDistrict,
+  BaseProvince,
+} from '@app/shared/common/entities/base.entity';
+import { UsersModule } from '../users/users.module';
+import { BloodRequestSubsriber } from './blood-bank.subscriber';
+import { NotificationsModule } from '../notifications/notifications.module';
 @Module({
   providers: [BloodBankService, BloodBankResolver, BloodRequestSubsriber],
   imports: [

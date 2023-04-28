@@ -1,7 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { PublishState as BloodBankState } from '../../common/enum/publish_state.enum';
-import { EmailAddressResolver, BigIntResolver } from 'graphql-scalars';
-import { BloodGroup } from 'src/common/enum/bloodGroup.enum';
+import { PublishState as BloodBankState } from '@app/shared/common/enum/publish_state.enum';
+import { BigIntResolver } from 'graphql-scalars';
+import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
 import { ArrayUnique, IsArray } from 'class-validator';
 
 @InputType()

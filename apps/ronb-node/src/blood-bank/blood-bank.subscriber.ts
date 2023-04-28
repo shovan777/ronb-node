@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
-import { PublishState } from 'src/common/enum/publish_state.enum';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { getAuthor } from 'src/users/users.resolver';
-import { UsersService } from 'src/users/users.service';
+import { PublishState } from '@app/shared/common/enum/publish_state.enum';
+import { NotificationsService } from '../notifications/notifications.service';
+import { getAuthor } from '../users/users.resolver';
+import { UsersService } from '../users/users.service';
 import {
   DataSource,
   EntitySubscriberInterface,
@@ -10,7 +10,7 @@ import {
   UpdateEvent,
 } from 'typeorm';
 import { BloodBankService } from './blood-bank.service';
-import { BloodRequest } from './entities/blood-bank.entity';
+import { BloodRequest } from '@app/shared/entities/blood-bank.entity';
 
 @EventSubscriber()
 export class BloodRequestSubsriber
@@ -44,15 +44,16 @@ export class BloodRequestSubsriber
       );
 
       //TODO: Get the users with the same blood group as the request.
+      const bloodGroup = entity.bloodGroup;
       let users = [1, 504];
 
-      this.notificationService.sendNotification(
-        {
-          title: `Blood Request for blood group ${entity.bloodGroup}`,
-          body: 'This is the description of the blood request',
-        },
-        users,
-      );
+      // this.notificationService.sendNotification(
+      //   {
+      //     title: `Blood Request for blood group ${entity.bloodGroup}`,
+      //     body: 'This is the description of the blood request',
+      //   },
+      //   users,
+      // );
     }
 
     //Send notification when a user accepts to donate blood
@@ -72,13 +73,13 @@ export class BloodRequestSubsriber
         //TODO: Get the requestor(user) of this blood request.
         let users = [1];
 
-        this.notificationService.sendNotification(
-          {
-            title: `User ${doner.username} has accepted to donate blood.`,
-            body: 'This is the description of the accepted blood request',
-          },
-          users,
-        );
+        // this.notificationService.sendNotification(
+        //   {
+        //     title: `User ${doner.username} has accepted to donate blood.`,
+        //     body: 'This is the description of the accepted blood request',
+        //   },
+        //   users,
+        // );
       }
     }
   }

@@ -28,6 +28,37 @@ export class UsersService {
     // }
     return user;
   }
+
+  async findAllDoners(limit: number, offset: number) {
+    //TODO: Filter users who have approved for blood donation
+    const users = await this.userDataSource
+      .createQueryBuilder()
+      .from('account_user', 'account_user');
+    // .innerJoin('account_profile.user', 'account_user')
+    // .where('account_profile.blood_group_approval= :approval',{
+    // approval: true
+    // })
+
+    const queryOut = await users.take(limit).skip(offset).getRawMany();
+    await Promise.all(
+      queryOut.map(async (user) => {
+        user.profile = await this.userDataSource
+          .createQueryBuilder()
+          .from('account_profile', 'account_profile')
+          .where('account_profile.user_id = :id', { id: user.id })
+          .getRawMany();
+      }),
+    );
+
+    // const users = await this.userDataSource
+    //   .createQueryBuilder()
+    //   .from('account_profile','account_profile')
+    //   .innerJoin('account_profile','account_user')
+    //   .where('account_profile.blood_group_approval = :approval',{approval: true})
+    //   .getRawMany()
+
+    return { doners: queryOut, count: Object.keys(queryOut).length };
+  }
 }
 
 @Injectable()
