@@ -9,14 +9,36 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+      - nest-static:/uploads
+      - ./ronb-node/firebase:/dist/config/firebase
     env_file:
-    - .env
+    - .env.nest
+    - .env.nestimg
     # Run a command against the development stage of the image
-    command: npm run start:prod
+    command: npm run start:prod ronb-node
     ports:
       - 3000:3000
     depends_on:
       - db
+      - redis
+    networks:
+      - ronb-network
+  newscache:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: production
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+      - nest-static:/uploads
+    env_file:
+    - .env.nest
+    - .env.nestimg
+    command: npm run start:prod newscache
+    depends_on:
+      - db
+      - redis
     networks:
       - ronb-network
   db:
@@ -30,9 +52,23 @@ services:
       - ronb-network
     env_file:
       - .env.db
+  redis:
+    image: library/redis:5.0-alpine
+    restart: unless-stopped
+    networks:
+      - ronb-network
+    volumes:
+      - ronb-redis:/data
+
 volumes:
   docker-nest-postgres:
 
 networks:
   ronb-network:
     driver: bridge
+
+volumes:
+  # ronb-db:
+  nest-static:
+  # docker-nest-postgres:
+  ronb-redis:
