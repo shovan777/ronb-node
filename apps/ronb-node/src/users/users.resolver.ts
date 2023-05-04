@@ -41,7 +41,7 @@ export const getDoners = async (
     limit,
     offset,
   );
-  const { doners } = paginatedDoners;
+  const { doners, count } = paginatedDoners;
   let authors: Author[] = [];
   if (doners) {
     await Promise.all(
@@ -55,7 +55,6 @@ export const getDoners = async (
           user,
           bloodService,
         );
-
         authors.push({
           id: user.id,
           name: `${user.first_name} ${user.last_name}`,
@@ -73,6 +72,6 @@ export const getDoners = async (
         });
       }),
     );
-    return paginatedDoners;
+    return { doners: authors, count: count };
   }
 };

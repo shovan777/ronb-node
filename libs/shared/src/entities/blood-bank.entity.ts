@@ -59,6 +59,13 @@ export class BloodRequest extends CreatorBaseEntity {
   @Column('decimal', { precision: 3, scale: 2 })
   amount: number;
 
+    @Field({
+    description: 'Further description of the blood request',
+    nullable: true,
+  })
+  @Column({ nullable: true })
+  description?: string;
+
   @Field(() => BigIntResolver, { description: 'Phone number' })
   @Column({ type: 'bigint' })
   phoneNumber: number;
@@ -82,10 +89,19 @@ export class BloodRequest extends CreatorBaseEntity {
   })
   state: BloodRequestState;
 
+  @Field(() => Boolean, { description: 'Is the blood request an emergency?' })
+  @Column({ type: 'boolean', default: false })
+  is_emergency: boolean;
+
   @Field(() => [Int], { nullable: true })
   @Column('int', { array: true, nullable: true })
   @ArrayUnique()
   acceptors?: number[];
+
+  @Field(() => [Int], { nullable: true })
+  @Column('int', { array: true, nullable: true })
+  @ArrayUnique()
+  doners?: number[];
 }
 
 @ObjectType({ description: 'Acceptors of blood request' })

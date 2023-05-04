@@ -5,13 +5,13 @@
 """Acceptors of blood request"""
 type Acceptors {
   """User email"""
-  email: String!
+  email: String
 
   """User id"""
   id: Int!
 
   """User name"""
-  name: String!
+  name: String
 
   """User profile information"""
   profile: Profile
@@ -23,13 +23,13 @@ type Acceptors {
 """Comment Author"""
 type Author {
   """User email"""
-  email: String!
+  email: String
 
   """User id"""
   id: Int!
 
   """User name"""
-  name: String!
+  name: String
 
   """User profile information"""
   profile: Profile
@@ -103,11 +103,18 @@ type BloodRequest {
   """one who created"""
   createdBy: Int!
 
+  """Further description of the blood request"""
+  description: String
+
   """Donation date"""
   donationDate: DateTime!
+  doners: [Int!]
 
   """id field for int"""
   id: Int!
+
+  """Is the blood request an emergency?"""
+  is_emergency: Boolean!
 
   """Phone number"""
   phoneNumber: BigInt!
@@ -134,6 +141,11 @@ type BloodRequestAddress {
 
   """Province Type"""
   province: BaseProvince
+}
+
+type BloodRequestAdminResponse {
+  count: Int!
+  data: [BloodRequest!]!
 }
 
 type CommentsResponse {
@@ -166,6 +178,10 @@ input CreateBloodRequestInput {
 
   """Donation date"""
   donationDate: DateTime
+  doners: [Int!]
+
+  """Is the blood request an emergency?"""
+  is_emergency: Boolean = false
 
   """Phone number"""
   phoneNumber: BigInt
@@ -1054,7 +1070,7 @@ type PublicToiletReviewsResponse {
 
 type Query {
   bloodRequestById(id: Int!): BloodRequest!
-  bloodRequests: [BloodRequest!]!
+  bloodRequests(skip: Int = 0, take: Int = 25): BloodRequestAdminResponse!
   districts(filterDistrictInput: FilterDistrictInput): [District!]!
   getAcceptors(id: Int!): [Acceptors!]!
   getAllDoners(skip: Int = 0, take: Int = 25): BloodBankDonerListResponse!
@@ -1308,6 +1324,10 @@ input UpdateBloodRequestInput {
 
   """Donation date"""
   donationDate: DateTime
+  doners: [Int!]
+
+  """Is the blood request an emergency?"""
+  is_emergency: Boolean = false
 
   """Phone number"""
   phoneNumber: BigInt

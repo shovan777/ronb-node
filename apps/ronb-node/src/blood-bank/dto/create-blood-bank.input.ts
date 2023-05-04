@@ -29,6 +29,12 @@ export class CreateBloodRequestInput {
   })
   amount: number;
 
+  // @Field({
+  //   description: 'Description for blood request',
+  //   nullable: true,
+  // })
+  // description?: string;
+
   @Field(() => BigIntResolver, { description: 'Phone number', nullable: true })
   phoneNumber: number;
 
@@ -37,6 +43,12 @@ export class CreateBloodRequestInput {
     nullable: true,
   })
   state?: BloodBankState;
+
+  @Field({
+    description: 'Is the blood request an emergency?',
+    defaultValue: false,
+  })
+  is_emergency: boolean;
 
   @Field(() => CreateBloodRequestAddressInput, {
     description: 'Address for yellow page address',
@@ -51,4 +63,9 @@ export class CreateBloodRequestInput {
   @IsArray()
   @ArrayUnique()
   acceptors?: number[];
+
+  @Field(() => [Int], { nullable: true })
+  @IsArray()
+  @ArrayUnique()
+  doners?: number[];
 }

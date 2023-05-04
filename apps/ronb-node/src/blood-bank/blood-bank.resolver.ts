@@ -13,6 +13,7 @@ import { Author } from '@app/shared/entities/users.entity';
 import {
   BloodBankDonerListResponse,
   BloodRecordResponse,
+  BloodRequestAdminResponse,
 } from './blood-bank.response';
 import { FetchPaginationArgs } from '@app/shared/common/pagination/fetch-pagination-input';
 
@@ -29,10 +30,18 @@ export class BloodBankResolver {
     return this.bloodRequestService.create(createBloodBankInput, user);
   }
 
-  @Query(() => [BloodRequest], { name: 'bloodRequests' })
-  async getAllBloodRequests(@User() user: number): Promise<BloodRequest[]> {
+  @Query(() => BloodRequestAdminResponse, { name: 'bloodRequests' })
+  async getAllBloodRequests(
+    @Args() args: FetchPaginationArgs,
+    @User() user: number,
+  ): Promise<BloodRequestAdminResponse> {
     checkUserAuthenticated(user);
-    return this.bloodRequestService.findAll(user);
+    const [bloodRequest, count] = await this.bloodRequestService.findAll(
+      args.take,
+      args.skip,
+      user,
+    );
+    return { data: bloodRequest, count: count };
   }
 
   @Query(() => [BloodRequest], { name: 'mybloodRequests' })

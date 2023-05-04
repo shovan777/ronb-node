@@ -38,7 +38,7 @@ export class UsersService {
     // .where('account_profile.blood_group_approval= :approval',{
     // approval: true
     // })
-
+    const totalQueryCount = Object.keys(await users.getRawMany()).length;
     const queryOut = await users.take(limit).skip(offset).getRawMany();
     await Promise.all(
       queryOut.map(async (user) => {
@@ -46,7 +46,7 @@ export class UsersService {
           .createQueryBuilder()
           .from('account_profile', 'account_profile')
           .where('account_profile.user_id = :id', { id: user.id })
-          .getRawMany();
+          .getRawOne()
       }),
     );
 
@@ -57,7 +57,7 @@ export class UsersService {
     //   .where('account_profile.blood_group_approval = :approval',{approval: true})
     //   .getRawMany()
 
-    return { doners: queryOut, count: Object.keys(queryOut).length };
+    return { doners: queryOut, count: totalQueryCount };
   }
 }
 

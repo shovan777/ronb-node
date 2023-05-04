@@ -40,8 +40,13 @@ export class BloodBankService {
     @Inject(UsersService)
     private readonly userService: UsersService,
   ) {}
-
-  async findAll(user: number): Promise<BloodRequest[]> {
+  
+  //TODO: This is changed to admin pagination
+  async findAll(
+    limit: number,
+    offset: number,
+    user: number,
+  ): Promise<[BloodRequest[], number]> {
     const userDetails: Author = await getAuthor(this.userService, user);
 
     if (userDetails.profile.bloodGroupApproval) {
@@ -61,7 +66,9 @@ export class BloodBankService {
           bloodGroup: userDetails.profile.bloodGroup,
         };
       }
-      return await this.bloodRequestRepository.find({
+      return await this.bloodRequestRepository.findAndCount({
+        take: limit,
+        skip: offset,
         relations: ['address'],
         where: {
           ...whereOptions,
@@ -153,6 +160,12 @@ export class BloodBankService {
       };
     }
 
+    if (bloodBankInput.donationDate) {
+      const donationDate = new Date(bloodBankInput.donationDate).getDate();
+      console.debug('🚀 ~ BloodBankService ~ donationDate:', donationDate);
+      const dateToday = new Date().getDate();
+      console.debug('🚀 ~ BloodBankService ~ dateToday:', dateToday);
+    }
     const toSaveData = this.bloodRequestRepository.create({
       ...bloodRequestData,
       createdBy: user,

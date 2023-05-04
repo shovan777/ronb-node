@@ -42,10 +42,10 @@ export class Author {
   @Field(() => String, { description: 'Username' })
   username: string;
 
-  @Field({ description: 'User name' })
-  name: string;
+  @Field({ description: 'User name', nullable:true })
+  name?: string;
 
-  @Field({ description:'User email'})
+  @Field({ description:'User email', nullable:true})
   email?: string;
 
   // @Field({ description: 'User lastname' })
