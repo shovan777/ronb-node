@@ -60,9 +60,6 @@ services:
     volumes:
       - ronb-redis:/data
 
-volumes:
-  docker-nest-postgres:
-
 networks:
   ronb-network:
     driver: bridge
@@ -70,5 +67,5 @@ networks:
 volumes:
   # ronb-db:
   nest-static:
-  # docker-nest-postgres:
+  docker-nest-postgres:
   ronb-redis:
