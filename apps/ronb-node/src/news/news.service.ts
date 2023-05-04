@@ -649,14 +649,6 @@ export class RecommendationDataService {
   }
 }
 
-interface UserId {
-  id: number;
-}
-
-interface existsRes {
-  success: boolean;
-}
-
 @Injectable()
 export class NewsCacheClientService implements OnModuleInit {
   private newsCachingService: NewsCachingServiceClient;
