@@ -39,6 +39,7 @@ services:
     depends_on:
       - db
       - redis
+      - api
     networks:
       - ronb-network
   db:
