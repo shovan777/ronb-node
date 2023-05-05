@@ -25,7 +25,7 @@ services:
       - ronb-network
   newscache:
     build:
-      dockerfile: ./apps/ronb-node/newscache.Dockerfile
+      dockerfile: ./apps/newscache/newscache.Dockerfile
       context: .
       target: production
     volumes:
