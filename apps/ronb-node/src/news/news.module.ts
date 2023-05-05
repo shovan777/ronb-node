@@ -30,7 +30,10 @@ import { TagsModule } from '../tags/tags.module';
 import { FilesService } from '@app/shared/common/services/files.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
-import { NEWS_CACHING_SERVICE_NAME, NEWS_PACKAGE_NAME } from '@app/shared/common/proto/news.pb';
+import {
+  NEWS_CACHING_SERVICE_NAME,
+  NEWS_PACKAGE_NAME,
+} from '@app/shared/common/proto/news.pb';
 
 @Module({
   providers: [
@@ -70,7 +73,7 @@ import { NEWS_CACHING_SERVICE_NAME, NEWS_PACKAGE_NAME } from '@app/shared/common
           package: NEWS_PACKAGE_NAME,
           protoPath: join(
             process.cwd(),
-            'libs/shared/src/common/proto/news.proto',
+            'dist/libs/shared/common/proto/news.proto',
           ),
         },
       },

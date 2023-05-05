@@ -21,7 +21,10 @@ async function bootstrap() {
     options: {
       url: 'localhost:50051',
       package: NEWS_PACKAGE_NAME,
-      protoPath: join(process.cwd(), 'libs/shared/src/common/proto/news.proto'),
+      protoPath: join(
+        process.cwd(),
+        'dist/libs/shared/common/proto/news.proto',
+      ),
       // host: 'localhost',
       // port: 4000,
     },

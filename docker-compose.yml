@@ -7,15 +7,15 @@ services:
       # Only will build development stage from our dockerfile
       target: production
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      # - .:/usr/src/app
+      # - /usr/src/app/node_modules
       - nest-static:/uploads
       - ./ronb-node/firebase:/dist/config/firebase
     env_file:
     - .env.nest
     - .env.nestimg
     # Run a command against the development stage of the image
-    command: npm run start:prod ronb-node
+    # command: npm run start:prod:newscache
     ports:
       - 3000:3000
     depends_on:
@@ -29,23 +29,25 @@ services:
       context: .
       target: production
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      # - .:/usr/src/app
+      # - /usr/src/app/node_modules
       - nest-static:/uploads
+      - ./ronb-node/firebase:/dist/config/firebase
     env_file:
     - .env.nest
     - .env.nestimg
-    command: npm run start:prod newscache
+    # command: npm run start:prod:ronb-node
     depends_on:
       - db
       - redis
+      - api
     networks:
       - ronb-network
   db:
     image: postgres
     restart: always
-    ports:
-      - 5432:5432
+    # ports:
+    #   - 5433:5432
     volumes:
       - docker-nest-postgres:/var/lib/postgresql/data
     networks:
