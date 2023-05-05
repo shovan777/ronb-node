@@ -2,7 +2,7 @@ version: '3.7'
 services:
   api:
     build:
-      dockerfile: Dockerfile
+      dockerfile: ./apps/ronb-node/root.Dockerfile
       context: .
       # Only will build development stage from our dockerfile
       target: production
@@ -25,7 +25,7 @@ services:
       - ronb-network
   newscache:
     build:
-      dockerfile: Dockerfile
+      dockerfile: ./apps/ronb-node/newscache.Dockerfile
       context: .
       target: production
     volumes:
