@@ -42,8 +42,8 @@
         "assets": [
           "common/csv/*.csv",
           "common/proto/*.proto",
-          "config/*.*",
-          "migrations/*.*"
+          "live-config/*.*",
+          "live-migrations/*.*"
         ],
         "watchAssets": true
       }
