@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package recommendation;
+
+service NewsRecommendationService {
+    rpc GetNewsRecommendation(GetNewsRecommendationRequest) returns (GetNewsRecommendationResponse) {}
+}
+
+message GetNewsRecommendationRequest {
+    int32 userId = 1;
+}
+
+message GetNewsRecommendationResponse {
+    // array of news ids
+    repeated int32 newsIds = 1;
+}
