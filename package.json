@@ -29,7 +29,8 @@
     "migration:build": "npx tsc libs/shared/src/migrations/* --outDir libs/shared/src/live-migrations/",
     "loadAddress": "node src/config/loadAddress.ts",
     "proto:news": "protoc --plugin=node_modules/.bin/protoc-gen-ts_proto -I=./libs/shared/src/common/proto --ts_proto_out=libs/shared/src/common/proto libs/shared/src/common/proto/news.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
-    "proto:all": "npm run proto:news"
+    "proto:recommender": "protoc --plugin=node_modules/.bin/protoc-gen-ts_proto -I=./libs/shared/src/common/proto --ts_proto_out=libs/shared/src/common/proto libs/shared/src/common/proto/recommendation.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
+    "proto:all": "npm run proto:news && npm run proto:recommender"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.154.0",
