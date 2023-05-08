@@ -44,6 +44,13 @@ COPY  --from=development /usr/src/app/node_modules ./node_modules
 
 COPY  . .
 
+# Build shared libraries
+RUN npm run build shared
+
+# save the build folder to a temporary folder
+RUN mkdir -p /tmp/build
+RUN cp -r dist /tmp/build
+
 # Run the build command which creates the production bundle
 RUN npm run build newscache
 
@@ -69,10 +76,12 @@ FROM node:16-alpine As production
 
 
 # Copy the bundled code from the build stage to the production image
-COPY  --from=build /usr/src/app/node_modules ./node_modules
-COPY  --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/dist ./dist
+# copy shared folder stored in temporary folder to dist/lib
+COPY --from=build /tmp/build/dist/libs ./dist/libs
 COPY --from=build /usr/src/app/package.json ./package.json
 COPY --from=build /usr/src/app/package-lock.json ./package-lock.json
 
 # Start the server using the production build
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod:newscache"]
