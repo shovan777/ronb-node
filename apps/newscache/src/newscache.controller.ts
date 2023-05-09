@@ -1,14 +1,21 @@
 import {
   BeginCachingResponse,
   NEWS_CACHING_SERVICE_NAME,
+  UserId,
 } from '@app/shared/common/proto/news.pb';
 import { Controller, Get } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { NewscacheService } from './newscache.service';
+import {
+  NewsRecommendationClientService,
+  NewscacheService,
+} from './newscache.service';
 
 @Controller()
 export class NewscacheController {
-  constructor(private readonly newscacheService: NewscacheService) {}
+  constructor(
+    private readonly newscacheService: NewscacheService,
+    private readonly newsRecommendationClientService: NewsRecommendationClientService,
+  ) {}
 
   @Get()
   getHello(): Promise<any> {
@@ -23,8 +30,15 @@ export class NewscacheController {
   }
 
   @GrpcMethod(NEWS_CACHING_SERVICE_NAME, 'BeginCaching')
-  async beginCaching(data): Promise<BeginCachingResponse> {
-    console.log(`Begin Caching request received ${data}`);
+  async beginCaching(data: UserId): Promise<BeginCachingResponse> {
+    console.log(`Begin Caching request received ${data.id}`);
+    (
+      await this.newsRecommendationClientService.getNewsRecommendation()
+    ).subscribe({
+      next: (response) => {
+        console.log(`response: ${response.newsIds}`);
+      },
+    });
     this.newscacheService.findNews();
     return { success: true };
   }

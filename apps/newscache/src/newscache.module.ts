@@ -4,9 +4,16 @@ import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NewscacheController } from './newscache.controller';
-import { NewscacheService } from './newscache.service';
+import {
+  NewsRecommendationClientService,
+  NewscacheService,
+} from './newscache.service';
 import { redisStore } from 'cache-manager-redis-store';
 import { RedisClientOptions } from 'redis';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { RECOMMENDATION_PACKAGE_NAME } from '@app/shared/common/proto/recommendation.pb';
+import { NEWS_RECOMMENDATION_SERVICE_NAME } from '@app/shared/common/proto/recommendation.pb';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -33,8 +40,23 @@ import { RedisClientOptions } from 'redis';
           url: process.env.REDIS_URL,
         }),
     }),
+    // TODO: add client module to recommender here
+    ClientsModule.register([
+      {
+        name: NEWS_RECOMMENDATION_SERVICE_NAME,
+        transport: Transport.GRPC,
+        options: {
+          url: 'localhost:50052',
+          package: RECOMMENDATION_PACKAGE_NAME,
+          protoPath: join(
+            process.cwd(),
+            'dist/libs/shared/common/proto/recommendation.proto',
+          ),
+        },
+      },
+    ]),
   ],
   controllers: [NewscacheController],
-  providers: [NewscacheService],
+  providers: [NewscacheService, NewsRecommendationClientService],
 })
 export class NewscacheModule {}
