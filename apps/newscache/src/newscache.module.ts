@@ -9,7 +9,7 @@ import {
   NewscacheService,
 } from './newscache.service';
 import { redisStore } from 'cache-manager-redis-store';
-import { RedisClientOptions } from 'redis';
+import { RedisClientOptions, createClient } from 'redis';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RECOMMENDATION_PACKAGE_NAME } from '@app/shared/common/proto/recommendation.pb';
 import { NEWS_RECOMMENDATION_SERVICE_NAME } from '@app/shared/common/proto/recommendation.pb';
@@ -57,6 +57,21 @@ import { join } from 'path';
     ]),
   ],
   controllers: [NewscacheController],
-  providers: [NewscacheService, NewsRecommendationClientService],
+  providers: [
+    NewscacheService,
+    NewsRecommendationClientService,
+    {
+      provide: 'REDIS_CLIENT',
+      useFactory: () => {
+        const client = createClient({
+          url: `${process.env.REDIS_URL}/0`,
+        });
+        client.connect().then(() => {
+          console.log('**********news cache redis connected');
+        });
+        return client;
+      },
+    },
+  ],
 })
 export class NewscacheModule {}
