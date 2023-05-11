@@ -9,8 +9,9 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
+import { RedisClientType } from 'redis';
 import { Observable } from 'rxjs';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class NewscacheService {
@@ -19,6 +20,8 @@ export class NewscacheService {
     private newsRepository: Repository<News>,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
+    @Inject('REDIS_CLIENT')
+    private redisCache: RedisClientType,
   ) {}
   async getHello(): Promise<News[]> {
     console.log('***********getHello');
@@ -27,11 +30,20 @@ export class NewscacheService {
     return newsCache;
   }
 
-  async findNews(): Promise<News[]> {
-    const twoNews: News[] = await this.newsRepository.find({ take: 2 });
-    console.log(`setting in cache: ${twoNews.map((n) => n.id)}`);
-    await this.cacheManager.set('news', twoNews);
-    return twoNews;
+  async findNewsNCache(newsIds: number[], userId: number): Promise<News[]> {
+    const newsToCache: News[] = await this.newsRepository.find({
+      where: { id: In(newsIds) },
+    });
+    this.cacheManager.set(`newscache_${userId}`, newsToCache);
+    // console.log(`setting in cache: ${twoNews.map((n) => n.id)}`);
+    // append news to tail of user's cache if exists
+    // else creates
+    // await this.redisCache.rPush(
+    //   `newscache_${userId}`,
+    //   JSON.stringify(newsToCache),
+    // );
+    // await this.cacheManager.set(`newscache_${userId}`, newsToCache);
+    return newsToCache;
   }
 }
 
@@ -53,6 +65,14 @@ export class NewsRecommendationClientService implements OnModuleInit {
   async getNewsRecommendation(): Promise<
     Observable<GetNewsRecommendationResponse>
   > {
+    // const newsArr = [];
     return this.newsRecommendationService.getNewsRecommendation({ userId: 12 });
+    //   .subscribe({
+    //     next: (response) => {
+    //       console.log(`response: ${response.newsIds}`);
+    //       // news = this.newscacheService.findNews(response.newsIds);
+    //     },
+    //   });
+    // return newsArr;
   }
 }
