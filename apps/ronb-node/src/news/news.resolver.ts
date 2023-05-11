@@ -91,18 +91,29 @@ export class NewsResolver {
     filterNewsInput?: FilterNewsInput,
   ): Promise<NewsResponse> {
     const { limit, offset } = args.pagingParams();
-    const [news, count] = await this.newsService.findAll(
-      limit,
-      offset,
-      filterNewsInput,
-      true,
-    );
-
+    let news: News[] = [];
+    let count: number;
     // instead from db get the data from cache
     // const news = await this.cacheManager.get('user');
     // construct a fifo queue
     // get data from queue
     // return this.newsService.findAll();
+    const cachedNews: News[] = await this.cacheManager.get(`newscache_${user}`);
+    if (cachedNews) {
+      news = cachedNews;
+      console.log(
+        `cached news for user ${user}: ${cachedNews.map((n) => n.id)}`,
+      );
+      count = news.length;
+    } else {
+      console.log(`no cached news for user ${user}`);
+      [news, count] = await this.newsService.findAll(
+        limit,
+        offset,
+        filterNewsInput,
+        true,
+      );
+    }
     const page = connectionFromArraySlice(news, args, {
       arrayLength: count,
       sliceStart: offset || 0,
