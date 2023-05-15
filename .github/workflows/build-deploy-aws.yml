@@ -21,6 +21,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+
 jobs:
   build_and_push:
     name: Build and push Docker image
@@ -32,6 +33,15 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false # if one matrix fails, continue with the rest
+      matrix:
+        include:
+          - dockerfile: ./apps/ronb-node/root.Dockerfile
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          - dockerfile: ./apps/newscache/newscache.Dockerfile
+            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-newscache
+        
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v3
@@ -48,7 +58,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ matrix.image }}
           tags: |
             type=semver,pattern={{version}}
             # minimal (short sha)
@@ -57,6 +67,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           target: production
           push: true
           # push: ${{ github.event_name != 'pull_request' }}
