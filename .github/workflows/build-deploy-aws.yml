@@ -39,9 +39,9 @@ jobs:
       matrix:
         include:
           - dockerfile: ./apps/ronb-node/root.Dockerfile
-            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            image: root
           - dockerfile: ./apps/newscache/newscache.Dockerfile
-            image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-newscache
+            image: newscache
         
     steps:
       - name: Checkout the repo
@@ -59,7 +59,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ matrix.image }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.image }}
           tags: |
             type=semver,pattern={{version}}
             # minimal (short sha)
