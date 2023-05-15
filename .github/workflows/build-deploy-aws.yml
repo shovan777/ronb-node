@@ -2,9 +2,10 @@ name: CI/CD to AWS
 on:
   # pull_request:
   #   types: [opened]
-  # push:
-    # branches:
+  push:
+    branches:
       # - main
+      - dev
   release:
     types: [published]
     tags:
@@ -74,28 +75,28 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  deploy:
-    name: Deploy to Amazon EC2 instance
-    runs-on: ubuntu-latest
-    environment: aws
-    needs: build_and_push
+  # deploy:
+  #   name: Deploy to Amazon EC2 instance
+  #   runs-on: ubuntu-latest
+  #   environment: aws
+  #   needs: build_and_push
 
-    steps:
-      - name: Deploy to aws EC2 instance via SSH action
-        uses: appleboy/ssh-action@v0.1.3
-        env:
-            TAG: ${{fromJSON(needs.build_and_push.outputs.json_tag).tags[0]}}
-            # TAG: ${{needs.build_and_push.outputs.img_tag}}
-            #${{ github.sha }}_${{ github.event.inputs.version }}
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG
-          script: |
-            cd ronb-platform
-            echo $TAG
-            export NEST_TAG=$(echo $TAG)
-            echo NEST_IMAGE=$NEST_TAG > .env.nestimg
-            cat .env.django .env.nestimg .env.dashboard > .env
-            docker compose up -d api-nest
+  #   steps:
+  #     - name: Deploy to aws EC2 instance via SSH action
+  #       uses: appleboy/ssh-action@v0.1.3
+  #       env:
+  #           TAG: ${{fromJSON(needs.build_and_push.outputs.json_tag).tags[0]}}
+  #           # TAG: ${{needs.build_and_push.outputs.img_tag}}
+  #           #${{ github.sha }}_${{ github.event.inputs.version }}
+  #       with:
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: ${{ secrets.USERNAME }}
+  #         key: ${{ secrets.SSH_KEY }}
+  #         envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG
+  #         script: |
+  #           cd ronb-platform
+  #           echo $TAG
+  #           export NEST_TAG=$(echo $TAG)
+  #           echo NEST_IMAGE=$NEST_TAG > .env.nestimg
+  #           cat .env.django .env.nestimg .env.dashboard > .env
+  #           docker compose up -d api-nest
