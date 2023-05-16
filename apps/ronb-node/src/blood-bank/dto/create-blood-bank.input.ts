@@ -29,11 +29,11 @@ export class CreateBloodRequestInput {
   })
   amount: number;
 
-  // @Field({
-  //   description: 'Description for blood request',
-  //   nullable: true,
-  // })
-  // description?: string;
+  @Field({
+    description: 'Description for blood request',
+    nullable: true,
+  })
+  description?: string;
 
   @Field(() => BigIntResolver, { description: 'Phone number', nullable: true })
   phoneNumber: number;

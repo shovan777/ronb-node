@@ -17,7 +17,7 @@ import { Author } from '@app/shared/entities/users.entity';
 import { getAuthor, getDoners } from '../users/users.resolver';
 import { UsersService } from '../users/users.service';
 import { MoreThanOrEqual, Not, Repository } from 'typeorm';
-import { CreateBloodRequestInput } from './dto/create-blood-bank.input';
+import { CreateBloodRequestInput  } from './dto/create-blood-bank.input';
 import { UpdateBloodRequestInput } from './dto/update-blood-bank.input';
 import {
   BloodRequest,
@@ -25,6 +25,7 @@ import {
 } from '@app/shared/entities/blood-bank.entity';
 import { DonerPaginateInterface } from '@app/shared/common/interfaces/user.interface';
 import { BloodRecordResponse } from './blood-bank.response';
+import { FilterBloodRequestInput } from './dto/filter-blood-group.input';
 
 @Injectable()
 export class BloodBankService {
@@ -40,45 +41,50 @@ export class BloodBankService {
     @Inject(UsersService)
     private readonly userService: UsersService,
   ) {}
-  
-  //TODO: This is changed to admin pagination
+
+  async findAllAdmin(
+    limit: number,
+    offset: number,
+  ): Promise<[BloodRequest[], number]> {
+    return await this.bloodRequestRepository.findAndCount({
+      take: limit,
+      skip: offset,
+      relations: ['address'],
+    });
+  }
+
   async findAll(
     limit: number,
     offset: number,
     user: number,
-  ): Promise<[BloodRequest[], number]> {
+    filterBloodRequestInput: FilterBloodRequestInput,
+  ) {
     const userDetails: Author = await getAuthor(this.userService, user);
 
+    const sqlQuery = this.bloodRequestRepository
+      .createQueryBuilder('blood_request')
+      .leftJoinAndSelect('blood_request.address', 'address')
+      .leftJoinAndSelect('address.district', 'district')
+      .leftJoinAndSelect('address.province', 'province');
+
     if (userDetails.profile.bloodGroupApproval) {
-      let whereOptions: any = {
-        createdBy: Not(user),
-        state: BloodRequestState.PUBLISHED,
-        donationDate: MoreThanOrEqual(new Date()),
-      };
+      sqlQuery
+        .where('blood_request.state = :state', {
+          state: BloodRequestState.PUBLISHED,
+        })
+        .andWhere('blood_request.createdBy != :user', { user })
+        .andWhere('blood_request.donationDate >= :today', {
+          today: new Date(),
+        });
 
-      if (userDetails.profile.bloodGroup == BloodGroup.DONT_KNOW) {
-        whereOptions = {
-          ...whereOptions,
-        };
-      } else {
-        whereOptions = {
-          ...whereOptions,
+      if (userDetails.profile.bloodGroup !== BloodGroup.DONT_KNOW) {
+        sqlQuery.andWhere('blood_request.bloodGroup = :bloodGroup', {
           bloodGroup: userDetails.profile.bloodGroup,
-        };
+        });
       }
-      return await this.bloodRequestRepository.findAndCount({
-        take: limit,
-        skip: offset,
-        relations: ['address'],
-        where: {
-          ...whereOptions,
-        },
-      });
     }
-
-    throw new ForbiddenException(
-      `User has not accepted the approval for blood donation.`,
-    );
+    const queryOut = await sqlQuery.take(limit).skip(offset).getManyAndCount();
+    return queryOut;
   }
 
   async findMyRequest(user: number): Promise<BloodRequest[]> {
@@ -149,6 +155,27 @@ export class BloodBankService {
       address: null,
     };
 
+    const isEmergencyTimeInterval = 2 //in days
+
+    if (bloodBankInput.donationDate) {
+      const donationDate = new Date(bloodBankInput.donationDate).getDate();
+      const dateToday = new Date().getDate();
+      const donationDuration = donationDate - dateToday;
+
+      if (donationDuration < 0) {
+        throw new ForbiddenException(`Date must be selected from today or later.`);
+      } else if (donationDuration <= isEmergencyTimeInterval && donationDuration >= 0) {
+        bloodBankInput = {
+          ...bloodBankInput,
+          is_emergency: true,
+        };
+      } else {
+        bloodRequestData = {
+          ...bloodRequestData,
+        };
+      }
+    }
+
     if (bloodBankInput.address) {
       const savedAddress = await this.findAndSaveAddress(
         bloodBankInput.address,
@@ -159,13 +186,7 @@ export class BloodBankService {
         address: savedAddress,
       };
     }
-
-    if (bloodBankInput.donationDate) {
-      const donationDate = new Date(bloodBankInput.donationDate).getDate();
-      console.debug('🚀 ~ BloodBankService ~ donationDate:', donationDate);
-      const dateToday = new Date().getDate();
-      console.debug('🚀 ~ BloodBankService ~ dateToday:', dateToday);
-    }
+    
     const toSaveData = this.bloodRequestRepository.create({
       ...bloodRequestData,
       createdBy: user,
@@ -271,21 +292,67 @@ export class BloodBankService {
     }
   }
 
+  async cancelRequest(
+    requestID: number,
+    userID: number,
+  ): Promise<BloodRequest> {
+    const bloodRequest: BloodRequest = await this.findOne(requestID);
+
+    if (bloodRequest.acceptors.includes(userID)) {
+      const index = bloodRequest.acceptors.indexOf(userID);
+      if (index > -1) {
+        bloodRequest.acceptors.splice(index, userID);
+      }
+      return await this.bloodRequestRepository.save(bloodRequest);
+    }
+
+    throw new ForbiddenException(
+      `User ${userID} is not on the list of acceptors for this bloodRequest`,
+    );
+  }
+
   async getAcceptors(requestID: number) {
     const bloodRequest: BloodRequest = await this.findOne(requestID);
 
     const acceptorsList = bloodRequest.acceptors;
-    let acc = [];
+    let acceptors = [];
 
     await Promise.all(
       acceptorsList.map(async (each) => {
         const userDetails = await getAuthor(this.userService, each);
-        acc.push(userDetails);
+        acceptors.push(userDetails);
       }),
     );
 
-    return acc;
+    return acceptors;
   }
+
+  async getDOners(requestID: number) {
+    const bloodRequest: BloodRequest = await this.findOne(requestID);
+
+    const acceptorsList = bloodRequest.doners;
+    let doners = [];
+
+    await Promise.all(
+      acceptorsList.map(async (each) => {
+        const userDetails = await getAuthor(this.userService, each);
+        doners.push(userDetails);
+      }),
+    );
+
+    return doners;
+  }
+
+  async addDoners(requestID: number, donerId: [number]): Promise<BloodRequest> {
+    const bloodRequest: BloodRequest = await this.findOne(requestID);
+
+    donerId.forEach((id_) => {
+      bloodRequest.doners.push(id_);
+    });
+
+    return await this.bloodRequestRepository.save(bloodRequest);
+  }
+
 
   // Admin APIs
   async findAllDoners(
@@ -308,7 +375,9 @@ export class BloodBankService {
       },
     });
 
-    const totalDonation = 50; //TODO: Get total donations
+    const totalDonation = bloodRequest[0].reduce((acc, currentValue)=>{
+      return acc + currentValue.doners.length;
+    },0)
     const totalRequest = bloodRequest[1];
     return { totalDonation: totalDonation, totalRequest: totalRequest };
   }

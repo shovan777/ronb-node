@@ -148,6 +148,28 @@ type BloodRequestAdminResponse {
   data: [BloodRequest!]!
 }
 
+type BloodRequestConnection {
+  edges: [BloodRequestEdge!]!
+  pageInfo: BloodRequestPageInfo!
+}
+
+type BloodRequestEdge {
+  cursor: String
+  node: BloodRequest
+}
+
+type BloodRequestPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type BloodRequestResponse {
+  page: BloodRequestConnection!
+  pageData: PageData
+}
+
 type CommentsResponse {
   page: NewsCommentConnection!
   pageData: PageData
@@ -175,6 +197,9 @@ input CreateBloodRequestInput {
 
   """Blood group type"""
   bloodGroup: BloodGroup!
+
+  """Description for blood request"""
+  description: String
 
   """Donation date"""
   donationDate: DateTime
@@ -455,6 +480,11 @@ A field whose value conforms to the standard internet email address format as sp
 """
 scalar EmailAddress @specifiedBy(url: "https://www.w3.org/Protocols/rfc822/")
 
+input FilterBloodRequestInput {
+  """Blood group type"""
+  bloodGroup: BloodGroup
+}
+
 input FilterDistrictInput {
   """Districts Province"""
   province: Int
@@ -490,6 +520,8 @@ scalar GeoJSONPointScalar
 
 type Mutation {
   acceptBloodRequest(id: Int!): BloodRequest!
+  addDoners(id: Int!, usersID: [Int!]!): BloodRequest!
+  cancelBloodRequest(id: Int!): BloodRequest!
   creatDistrict(createDistrictInput: CreateDistrictInput!): District!
   createBloodRequest(createBloodBankInput: CreateBloodRequestInput!): BloodRequest!
   createNews(createNewsInput: CreateNewsInput!): News!
@@ -1070,11 +1102,26 @@ type PublicToiletReviewsResponse {
 
 type Query {
   bloodRequestById(id: Int!): BloodRequest!
-  bloodRequests(skip: Int = 0, take: Int = 25): BloodRequestAdminResponse!
+  bloodRequests(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+    filterBloodRequestInput: FilterBloodRequestInput
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): BloodRequestResponse!
+  bloodRequestsAdmin(skip: Int = 0, take: Int = 25): BloodRequestAdminResponse!
   districts(filterDistrictInput: FilterDistrictInput): [District!]!
   getAcceptors(id: Int!): [Acceptors!]!
   getAllDoners(skip: Int = 0, take: Int = 25): BloodBankDonerListResponse!
   getBloodRecords: BloodRecordResponse!
+  getDonorsOfBloodRequest(id: Int!): [Acceptors!]!
   instrestingTags: [Tag!]!
   mybloodRequests: [BloodRequest!]!
   news(
@@ -1321,6 +1368,9 @@ input UpdateBloodRequestInput {
 
   """Blood group type"""
   bloodGroup: BloodGroup
+
+  """Description for blood request"""
+  description: String
 
   """Donation date"""
   donationDate: DateTime

@@ -14,8 +14,14 @@ import {
   BloodBankDonerListResponse,
   BloodRecordResponse,
   BloodRequestAdminResponse,
+  BloodRequestResponse,
 } from './blood-bank.response';
 import { FetchPaginationArgs } from '@app/shared/common/pagination/fetch-pagination-input';
+import ConnectionArgs from '@app/shared/common/pagination/types/connection.args';
+import { FilterBloodRequestInput } from './dto/filter-blood-group.input';
+import { connectionFromArraySlice } from 'graphql-relay';
+import { BloodEligibilityGuard } from '@app/shared/common/guards/bloodEligibility.guard';
+import { UseGuards } from '@nestjs/common';
 
 @Resolver()
 @MakePublic()
@@ -30,18 +36,41 @@ export class BloodBankResolver {
     return this.bloodRequestService.create(createBloodBankInput, user);
   }
 
-  @Query(() => BloodRequestAdminResponse, { name: 'bloodRequests' })
-  async getAllBloodRequests(
+  @Query(() => BloodRequestAdminResponse, { name: 'bloodRequestsAdmin' })
+  async getAllBloodRequestsAdmin(
     @Args() args: FetchPaginationArgs,
     @User() user: number,
   ): Promise<BloodRequestAdminResponse> {
     checkUserAuthenticated(user);
-    const [bloodRequest, count] = await this.bloodRequestService.findAll(
+    const [bloodRequest, count] = await this.bloodRequestService.findAllAdmin(
       args.take,
       args.skip,
-      user,
     );
     return { data: bloodRequest, count: count };
+  }
+
+  @Query(() => BloodRequestResponse, { name: 'bloodRequests' })
+  @UseGuards(BloodEligibilityGuard)
+  async getAllBloodRequest(
+    @User() user: number,
+    @Args() args: ConnectionArgs,
+    @Args('filterBloodRequestInput', { nullable: true })
+    filterBloodRequestInput?: FilterBloodRequestInput,
+  ): Promise<BloodRequestResponse> {
+    const { limit, offset } = args.pagingParams();
+    const [bloodRequest, count] = await this.bloodRequestService.findAll(
+      limit,
+      offset,
+      user,
+      filterBloodRequestInput,
+    );
+
+    const page = connectionFromArraySlice(bloodRequest, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+
+    return { page, pageData: { count, limit, offset } };
   }
 
   @Query(() => [BloodRequest], { name: 'mybloodRequests' })
@@ -85,9 +114,33 @@ export class BloodBankResolver {
     return this.bloodRequestService.acceptRequest(id, user);
   }
 
+  @Mutation(() => BloodRequest)
+  async cancelBloodRequest(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<BloodRequest> {
+    checkUserAuthenticated(user);
+    return this.bloodRequestService.cancelRequest(id, user);
+  }
+
+  @Mutation(() => BloodRequest)
+  async addDoners(
+    @Args('id', { type: () => Int }) id: number,
+    @Args('usersID', { type: () => [Int] }) usersID: [number],
+    @User() user: number,
+  ) {
+    checkUserAuthenticated(user);
+    return this.bloodRequestService.addDoners(id, usersID);
+  }
+
   @Query(() => [Acceptors], { name: 'getAcceptors' })
   async getAcceptors(@Args('id', { type: () => Int }) id: number) {
     return this.bloodRequestService.getAcceptors(id);
+  }
+
+  @Query(() => [Acceptors], { name: 'getDonorsOfBloodRequest' })
+  async getDonors(@Args('id', { type: () => Int }) id: number) {
+    return this.bloodRequestService.getDOners(id);
   }
 
   @Query(() => BloodBankDonerListResponse, { name: 'getAllDoners' })
