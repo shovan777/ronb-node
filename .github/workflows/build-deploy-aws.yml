@@ -2,9 +2,10 @@ name: CI/CD to AWS
 on:
   # pull_request:
   #   types: [opened]
-  # push:
-    # branches:
+  push:
+    branches:
       # - main
+      - dev
   release:
     types: [published]
     tags:
@@ -21,6 +22,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+
 jobs:
   build_and_push:
     name: Build and push Docker image
@@ -32,6 +34,15 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: true # if one matrix fails, don't continue with the rest
+      matrix:
+        include:
+          - dockerfile: ./apps/ronb-node/root.Dockerfile
+            image: root
+          - dockerfile: ./apps/newscache/newscache.Dockerfile
+            image: newscache
+        
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v3
@@ -48,7 +59,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.image }}
           tags: |
             type=semver,pattern={{version}}
             # minimal (short sha)
@@ -57,34 +68,65 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           target: production
           push: true
           # push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      # write for matrix outputs workaround
+      - uses: cloudposse/github-action-matrix-outputs-write@main
+        id: out
+        with:
+          matrix-step-name: ${{ github.job }}
+          matrix-key: ${{ matrix.image }}
+          outputs: |-
+            image_json: ${{ steps.meta.outputs.json }}
+
+          # matrix: ${{ toJSON(matrix) }}
+          # output_name: json
+          # output_value: ${{ toJSON(steps.meta.outputs) }}
+  # Read matrix output
+  read:
+    name: Read matrix output
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - uses: cloudposse/github-action-matrix-outputs-read@main
+        id: read
+        with:
+          matrix-step-name: build_and_push
+    outputs:
+      result: "${{ steps.read.outputs.result }}"
+
 
   deploy:
     name: Deploy to Amazon EC2 instance
     runs-on: ubuntu-latest
     environment: aws
-    needs: build_and_push
+    needs: [build_and_push, read]
 
     steps:
       - name: Deploy to aws EC2 instance via SSH action
         uses: appleboy/ssh-action@v0.1.3
         env:
-            TAG: ${{fromJSON(needs.build_and_push.outputs.json_tag).tags[0]}}
+            TAG: ${{fromJSON(needs.read.outputs.result).image_json.root.tags[0]}}
+            # .json_tag).tags[0]}}
+            # read output from second matrix of the build_and_push job
+            TAG_NEWSCACHE: ${{fromJSON(needs.read.outputs.result).image_json.newscache.tags[0]}}
             # TAG: ${{needs.build_and_push.outputs.img_tag}}
             #${{ github.sha }}_${{ github.event.inputs.version }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG
+          envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG,TAG_NEWSCACHE
           script: |
             cd ronb-platform
             echo $TAG
+            echo $TAG_NEWSCACHE
             export NEST_TAG=$(echo $TAG)
-            echo NEST_IMAGE=$NEST_TAG > .env.nestimg
-            cat .env.django .env.nestimg .env.dashboard > .env
-            docker compose up -d api-nest
+            echo NEST_IMAGE_ROOT=$NEST_TAG > .env.nestimg
+            echo NEST_IMAGE_NEWSCACHE=$TAG_NEWSCACHE > .env.newscache
+            cat .env.django .env.nestimg .env.dashboard .env.newscache > .env
+            docker compose up -d api-nest newscache

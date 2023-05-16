@@ -2,37 +2,72 @@ version: '3.7'
 services:
   api:
     build:
-      dockerfile: Dockerfile
+      dockerfile: ./apps/ronb-node/root.Dockerfile
       context: .
       # Only will build development stage from our dockerfile
       target: production
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      # - .:/usr/src/app
+      # - /usr/src/app/node_modules
+      - nest-static:/uploads
+      - ./ronb-node/firebase:/dist/config/firebase
     env_file:
-    - .env
+    - .env.nest
+    - .env.nestimg
     # Run a command against the development stage of the image
-    command: npm run start:prod
+    # command: npm run start:prod:newscache
     ports:
       - 3000:3000
     depends_on:
       - db
+      - redis
+    networks:
+      - ronb-network
+  newscache:
+    build:
+      dockerfile: ./apps/newscache/newscache.Dockerfile
+      context: .
+      target: production
+    volumes:
+      # - .:/usr/src/app
+      # - /usr/src/app/node_modules
+      - nest-static:/uploads
+      - ./ronb-node/firebase:/dist/config/firebase
+    env_file:
+    - .env.nest
+    - .env.nestimg
+    # command: npm run start:prod:ronb-node
+    depends_on:
+      - db
+      - redis
+      - api
     networks:
       - ronb-network
   db:
     image: postgres
     restart: always
-    ports:
-      - 5432:5432
+    # ports:
+    #   - 5433:5432
     volumes:
       - docker-nest-postgres:/var/lib/postgresql/data
     networks:
       - ronb-network
     env_file:
       - .env.db
-volumes:
-  docker-nest-postgres:
+  redis:
+    image: library/redis:5.0-alpine
+    restart: unless-stopped
+    networks:
+      - ronb-network
+    volumes:
+      - ronb-redis:/data
 
 networks:
   ronb-network:
     driver: bridge
+
+volumes:
+  # ronb-db:
+  nest-static:
+  docker-nest-postgres:
+  ronb-redis:
