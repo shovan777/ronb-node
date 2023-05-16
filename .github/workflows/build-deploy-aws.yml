@@ -123,6 +123,7 @@ jobs:
           envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG,TAG_NEWSCACHE
           script: |
             cd ronb-platform
+            echo fireejieorjwierjweo****
             echo $TAG
             echo $TAG_NEWSCACHE
         # export NEST_TAG=$(echo $TAG)
