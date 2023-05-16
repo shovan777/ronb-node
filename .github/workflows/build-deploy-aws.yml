@@ -2,10 +2,10 @@ name: CI/CD to AWS
 on:
   # pull_request:
   #   types: [opened]
-  push:
-    branches:
-      # - main
-      - dev
+  # push:
+  #   branches:
+  #     # - main
+  #     - dev
   release:
     types: [published]
     tags:
