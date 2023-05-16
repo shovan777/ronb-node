@@ -113,7 +113,7 @@ jobs:
             TAG: ${{fromJSON(needs.read.outputs.result).image_json.root.tags[0]}}
             # .json_tag).tags[0]}}
             # read output from second matrix of the build_and_push job
-            TAG_NEWSCACHE: ${{fromJSON(needs.read.outputs.result).image_json.newscache}}
+            TAG_NEWSCACHE: ${{fromJSON(needs.read.outputs.result).image_json.newscache.tags[0]}}
             # TAG: ${{needs.build_and_push.outputs.img_tag}}
             #${{ github.sha }}_${{ github.event.inputs.version }}
         with:
