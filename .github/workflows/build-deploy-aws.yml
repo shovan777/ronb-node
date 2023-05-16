@@ -123,11 +123,10 @@ jobs:
           envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG,TAG_NEWSCACHE
           script: |
             cd ronb-platform
-            echo fireejieorjwierjweo****
             echo $TAG
             echo $TAG_NEWSCACHE
-        # export NEST_TAG=$(echo $TAG)
-        # echo NEST_IMAGE_ROOT=$NEST_TAG > .env.nestimg
-        # echo NEST_IMAGE_NEWSCACHE=$TAG_NEWSCACHE > .env.newscache
-        # cat .env.django .env.nestimg .env.dashboard .env.newscache > .env
-        # docker compose up -d api-nest
+            export NEST_TAG=$(echo $TAG)
+            echo NEST_IMAGE_ROOT=$NEST_TAG > .env.nestimg
+            echo NEST_IMAGE_NEWSCACHE=$TAG_NEWSCACHE > .env.newscache
+            cat .env.django .env.nestimg .env.dashboard .env.newscache > .env
+            docker compose up -d api-nest newscache
