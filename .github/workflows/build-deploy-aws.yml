@@ -81,7 +81,7 @@ jobs:
           matrix-step-name: ${{ github.job }}
           matrix-key: ${{ matrix.image }}
           outputs: |-
-            image_json: steps.meta.outputs.json
+            image_json: ${{ steps.meta.outputs.json }}
 
           # matrix: ${{ toJSON(matrix) }}
           # output_name: json
