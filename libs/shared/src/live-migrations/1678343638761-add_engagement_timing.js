@@ -51,9 +51,6 @@ var addEngagementTiming1678343638761 = /** @class */ (function () {
                         return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" ADD \"engagmentDate\" TIMESTAMP WITH TIME ZONE")];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" ADD \"engagementDuration\" TIME")];
-                    case 3:
-                        _a.sent();
                         return [2 /*return*/];
                 }
             });
@@ -63,14 +60,18 @@ var addEngagementTiming1678343638761 = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" DROP COLUMN \"engagementDuration\"")];
+                    case 0: 
+                    // await queryRunner.query(
+                    //   `ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`,
+                    // );
+                    return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" DROP COLUMN \"engagmentDate\"")];
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" DROP COLUMN \"engagmentDate\"")];
-                    case 2:
+                        // await queryRunner.query(
+                        //   `ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`,
+                        // );
                         _a.sent();
                         return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" ADD \"hasRead\" boolean NOT NULL DEFAULT false")];
-                    case 3:
+                    case 2:
                         _a.sent();
                         return [2 /*return*/];
                 }
