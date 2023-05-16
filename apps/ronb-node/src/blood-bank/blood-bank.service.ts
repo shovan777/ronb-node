@@ -17,7 +17,7 @@ import { Author } from '@app/shared/entities/users.entity';
 import { getAuthor, getDoners } from '../users/users.resolver';
 import { UsersService } from '../users/users.service';
 import { MoreThanOrEqual, Not, Repository } from 'typeorm';
-import { CreateBloodRequestInput  } from './dto/create-blood-bank.input';
+import { CreateBloodRequestInput } from './dto/create-blood-bank.input';
 import { UpdateBloodRequestInput } from './dto/update-blood-bank.input';
 import {
   BloodRequest,
@@ -67,41 +67,29 @@ export class BloodBankService {
       .leftJoinAndSelect('address.district', 'district')
       .leftJoinAndSelect('address.province', 'province');
 
-    if (userDetails.profile.bloodGroupApproval) {
-      sqlQuery
-        .where('blood_request.state = :state', {
-          state: BloodRequestState.PUBLISHED,
-        })
-        .andWhere('blood_request.createdBy != :user', { user })
-        .andWhere('blood_request.donationDate >= :today', {
-          today: new Date(),
-        });
+    sqlQuery
+      .where('blood_request.state = :state', {
+        state: BloodRequestState.PUBLISHED,
+      })
+      .andWhere('blood_request.createdBy != :user', { user })
+      .andWhere('blood_request.donationDate >= :today', {
+        today: new Date(),
+      });
 
-      if (userDetails.profile.bloodGroup !== BloodGroup.DONT_KNOW) {
-        sqlQuery.andWhere('blood_request.bloodGroup = :bloodGroup', {
-          bloodGroup: userDetails.profile.bloodGroup,
-        });
-      }
-    }
+    sqlQuery.andWhere('blood_request.bloodGroup = :bloodGroup', {
+      bloodGroup: userDetails.profile.bloodGroup,
+    });
     const queryOut = await sqlQuery.take(limit).skip(offset).getManyAndCount();
     return queryOut;
   }
 
   async findMyRequest(user: number): Promise<BloodRequest[]> {
-    const userDetails = await this.userService.findOne(user);
-
-    if (userDetails.profile.blood_group_approval) {
-      return this.bloodRequestRepository.find({
-        relations: ['address'],
-        where: {
-          createdBy: user,
-        },
-      });
-    }
-
-    throw new ForbiddenException(
-      `User has not accepted the approval for blood donation.`,
-    );
+    return this.bloodRequestRepository.find({
+      relations: ['address', 'address.district', 'address.province'],
+      where: {
+        createdBy: user,
+      },
+    });
   }
 
   async findOne(id: number): Promise<BloodRequest> {
@@ -155,7 +143,7 @@ export class BloodBankService {
       address: null,
     };
 
-    const isEmergencyTimeInterval = 2 //in days
+    const isEmergencyTimeInterval = 2; //in days
 
     if (bloodBankInput.donationDate) {
       const donationDate = new Date(bloodBankInput.donationDate).getDate();
@@ -163,8 +151,13 @@ export class BloodBankService {
       const donationDuration = donationDate - dateToday;
 
       if (donationDuration < 0) {
-        throw new ForbiddenException(`Date must be selected from today or later.`);
-      } else if (donationDuration <= isEmergencyTimeInterval && donationDuration >= 0) {
+        throw new ForbiddenException(
+          `Date must be selected from today or later.`,
+        );
+      } else if (
+        donationDuration <= isEmergencyTimeInterval &&
+        donationDuration >= 0
+      ) {
         bloodBankInput = {
           ...bloodBankInput,
           is_emergency: true,
@@ -186,7 +179,7 @@ export class BloodBankService {
         address: savedAddress,
       };
     }
-    
+
     const toSaveData = this.bloodRequestRepository.create({
       ...bloodRequestData,
       createdBy: user,
@@ -327,7 +320,7 @@ export class BloodBankService {
     return acceptors;
   }
 
-  async getDOners(requestID: number) {
+  async getDoners(requestID: number) {
     const bloodRequest: BloodRequest = await this.findOne(requestID);
 
     const acceptorsList = bloodRequest.doners;
@@ -353,8 +346,6 @@ export class BloodBankService {
     return await this.bloodRequestRepository.save(bloodRequest);
   }
 
-
-  // Admin APIs
   async findAllDoners(
     limit: number,
     offset: number,
@@ -375,9 +366,9 @@ export class BloodBankService {
       },
     });
 
-    const totalDonation = bloodRequest[0].reduce((acc, currentValue)=>{
+    const totalDonation = bloodRequest[0].reduce((acc, currentValue) => {
       return acc + currentValue.doners.length;
-    },0)
+    }, 0);
     const totalRequest = bloodRequest[1];
     return { totalDonation: totalDonation, totalRequest: totalRequest };
   }

@@ -22,6 +22,8 @@ import { FilterBloodRequestInput } from './dto/filter-blood-group.input';
 import { connectionFromArraySlice } from 'graphql-relay';
 import { BloodEligibilityGuard } from '@app/shared/common/guards/bloodEligibility.guard';
 import { UseGuards } from '@nestjs/common';
+import { AdminGuard } from '@app/shared/common/guards/admin.guard';
+import { BloodRequestAcceptLimit, BloodRequestCreateLimit } from '@app/shared/common/guards/bloodReqLimit.guard';
 
 @Resolver()
 @MakePublic()
@@ -29,6 +31,7 @@ export class BloodBankResolver {
   constructor(private readonly bloodRequestService: BloodBankService) {}
 
   @Mutation(() => BloodRequest)
+  @UseGuards(BloodEligibilityGuard, BloodRequestCreateLimit)
   async createBloodRequest(
     @Args('createBloodBankInput') createBloodBankInput: CreateBloodRequestInput,
     @User() user: number,
@@ -37,6 +40,7 @@ export class BloodBankResolver {
   }
 
   @Query(() => BloodRequestAdminResponse, { name: 'bloodRequestsAdmin' })
+  @UseGuards(AdminGuard)
   async getAllBloodRequestsAdmin(
     @Args() args: FetchPaginationArgs,
     @User() user: number,
@@ -74,12 +78,14 @@ export class BloodBankResolver {
   }
 
   @Query(() => [BloodRequest], { name: 'mybloodRequests' })
+  @UseGuards(BloodEligibilityGuard)
   async getMyBloodRequests(@User() user: number): Promise<BloodRequest[]> {
     checkUserAuthenticated(user);
     return this.bloodRequestService.findMyRequest(user);
   }
 
   @Query(() => BloodRequest, { name: 'bloodRequestById' })
+  @UseGuards(BloodEligibilityGuard)
   async getOneBloodRequest(
     @Args('id', { type: () => Int }) id: number,
   ): Promise<BloodRequest> {
@@ -106,6 +112,7 @@ export class BloodBankResolver {
   }
 
   @Mutation(() => BloodRequest)
+  @UseGuards(BloodEligibilityGuard, BloodRequestAcceptLimit)
   async acceptBloodRequest(
     @Args('id', { type: () => Int }) id: number,
     @User() user: number,
@@ -140,10 +147,11 @@ export class BloodBankResolver {
 
   @Query(() => [Acceptors], { name: 'getDonorsOfBloodRequest' })
   async getDonors(@Args('id', { type: () => Int }) id: number) {
-    return this.bloodRequestService.getDOners(id);
+    return this.bloodRequestService.getDoners(id);
   }
 
   @Query(() => BloodBankDonerListResponse, { name: 'getAllDoners' })
+  @UseGuards(AdminGuard)
   async findAllDoners(
     @Args() args: FetchPaginationArgs,
   ): Promise<BloodBankDonerListResponse> {
@@ -155,6 +163,7 @@ export class BloodBankResolver {
   }
 
   @Query(() => BloodRecordResponse, { name: 'getBloodRecords' })
+  @UseGuards(AdminGuard)
   async getBloodRecords(): Promise<BloodRecordResponse> {
     return this.bloodRequestService.bloodRecords();
   }
