@@ -1,6 +1,12 @@
 export const generateFileUrl = (filePath: string): string => {
   const use_s3 = process.env.USE_S3 === 'true';
+  const use_cloudflare = process.env.USE_CLOUDFLARE === 'true';
   if (!filePath) {
+    return filePath;
+  }
+  if (use_cloudflare) {
+    const cloudflare_url = process.env.CLOUDFLARE_URL;
+    filePath = `https://${cloudflare_url}/${filePath}`;
     return filePath;
   }
   if (use_s3) {
