@@ -23,7 +23,10 @@ import { connectionFromArraySlice } from 'graphql-relay';
 import { BloodEligibilityGuard } from '@app/shared/common/guards/bloodEligibility.guard';
 import { UseGuards } from '@nestjs/common';
 import { AdminGuard } from '@app/shared/common/guards/admin.guard';
-import { BloodRequestAcceptLimit, BloodRequestCreateLimit } from '@app/shared/common/guards/bloodReqLimit.guard';
+import {
+  BloodRequestAcceptLimit,
+  BloodRequestCreateLimit,
+} from '@app/shared/common/guards/bloodReqLimit.guard';
 
 @Resolver()
 @MakePublic()
@@ -46,7 +49,7 @@ export class BloodBankResolver {
     @User() user: number,
   ): Promise<BloodRequestAdminResponse> {
     checkUserAuthenticated(user);
-    const [bloodRequest, count] = await this.bloodRequestService.findAllAdmin(
+    const { bloodRequest, count } = await this.bloodRequestService.findAllAdmin(
       args.take,
       args.skip,
     );

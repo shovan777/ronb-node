@@ -59,7 +59,7 @@ export class BloodRequest extends CreatorBaseEntity {
   @Column('decimal', { precision: 3, scale: 2 })
   amount: number;
 
-    @Field({
+  @Field({
     description: 'Further description of the blood request',
     nullable: true,
   })
@@ -102,6 +102,11 @@ export class BloodRequest extends CreatorBaseEntity {
   @Column('int', { array: true, nullable: true })
   @ArrayUnique()
   doners?: number[];
+
+  @Field(() => Author, {
+    description: 'Profile of the user who created the request',
+  })
+  profile: Author;
 }
 
 @ObjectType({ description: 'Acceptors of blood request' })

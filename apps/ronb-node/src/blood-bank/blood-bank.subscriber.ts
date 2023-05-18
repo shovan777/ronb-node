@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { BloodBankService } from './blood-bank.service';
 import { BloodRequest } from '@app/shared/entities/blood-bank.entity';
+import { Author } from '@app/shared/entities/users.entity';
 
 @EventSubscriber()
 export class BloodRequestSubsriber
@@ -43,17 +44,21 @@ export class BloodRequestSubsriber
         `(Notification): Blood Request for blood group ${entity.bloodGroup}`,
       );
 
-      //TODO: Get the users with the same blood group as the request.
       const bloodGroup = entity.bloodGroup;
-      let users = [1, 504];
 
-      // this.notificationService.sendNotification(
-      //   {
-      //     title: `Blood Request for blood group ${entity.bloodGroup}`,
-      //     body: 'This is the description of the blood request',
-      //   },
-      //   users,
-      // );
+      let users = await this.userService.findUserByBloodGroup(
+        bloodGroup,
+      );
+
+      const ids = users.map((user) => user.user_id);
+
+      this.notificationService.sendNotification(
+        {
+          title: `Blood Request for blood group ${entity.bloodGroup}`,
+          body: 'This is the description of the blood request',
+        },
+        ids,
+      );
     }
 
     //Send notification when a user accepts to donate blood
@@ -61,25 +66,28 @@ export class BloodRequestSubsriber
       const newAcceptorsArray = entity.acceptors;
       const oldAcceptorsArray = event.databaseEntity.acceptors;
 
+      const data = {}; //TODO: Send the necessary data for the notification
       const result = newAcceptorsArray.filter(
         (id: number) => !oldAcceptorsArray.includes(id),
       );
       if (result.length > 0) {
         const doner = await getAuthor(this.userService, parseInt(result));
-        console.log(
-          `(Notification): User ${doner.username} has accepted to donate blood.`,
+
+        let requestor: Author = await this.userService.findOne(
+          entity.createdBy,
         );
-
-        //TODO: Get the requestor(user) of this blood request.
-        let users = [1];
-
-        // this.notificationService.sendNotification(
-        //   {
-        //     title: `User ${doner.username} has accepted to donate blood.`,
-        //     body: 'This is the description of the accepted blood request',
-        //   },
-        //   users,
-        // );
+        console.log(
+          `(Notification to user ${requestor.id}): User ${doner.username} has accepted to donate blood.`,
+        );
+        this.notificationService.sendNotificationUser(
+          {
+            title: `User ${doner.username} has accepted to donate blood.`,
+            body: 'This is the description of the accepted blood request',
+          },
+          requestor.id,
+          doner.id,
+          data,
+        );
       }
     }
   }

@@ -6,9 +6,11 @@
 type Acceptors {
   """User email"""
   email: String
+  first_name: String
 
   """User id"""
   id: Int!
+  last_name: String
 
   """User name"""
   name: String
@@ -24,9 +26,11 @@ type Acceptors {
 type Author {
   """User email"""
   email: String
+  first_name: String
 
   """User id"""
   id: Int!
+  last_name: String
 
   """User name"""
   name: String
@@ -118,6 +122,9 @@ type BloodRequest {
 
   """Phone number"""
   phoneNumber: BigInt!
+
+  """Profile of the user who created the request"""
+  profile: Author!
 
   """Blood request state"""
   state: State!

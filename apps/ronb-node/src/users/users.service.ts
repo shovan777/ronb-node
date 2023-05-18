@@ -30,34 +30,35 @@ export class UsersService {
   }
 
   async findAllDoners(limit: number, offset: number) {
-    //TODO: Filter users who have approved for blood donation
     const users = await this.userDataSource
       .createQueryBuilder()
       .from('account_user', 'account_user');
-    // .innerJoin('account_profile.user', 'account_user')
-    // .where('account_profile.blood_group_approval= :approval',{
-    // approval: true
-    // })
     const totalQueryCount = Object.keys(await users.getRawMany()).length;
-    const queryOut = await users.take(limit).skip(offset).getRawMany();
+    let queryOut = await users.take(limit).skip(offset).getRawMany();
     await Promise.all(
       queryOut.map(async (user) => {
         user.profile = await this.userDataSource
           .createQueryBuilder()
           .from('account_profile', 'account_profile')
           .where('account_profile.user_id = :id', { id: user.id })
-          .getRawOne()
+          .getRawOne();
       }),
-    );
-
-    // const users = await this.userDataSource
-    //   .createQueryBuilder()
-    //   .from('account_profile','account_profile')
-    //   .innerJoin('account_profile','account_user')
-    //   .where('account_profile.blood_group_approval = :approval',{approval: true})
-    //   .getRawMany()
-
+      );
+      
+    queryOut = queryOut.filter(query => query.profile.blood_group_approval === true)
     return { doners: queryOut, count: totalQueryCount };
+  }
+
+  async findUserByBloodGroup(bloodGroup: string) {
+    const users = await this.userDataSource
+      .createQueryBuilder()
+      .from('account_profile', 'account_profile')
+      .where('account_profile.blood_group = :bloodGroup', {
+        bloodGroup: bloodGroup,
+      })
+      .getRawMany();
+
+    return users;
   }
 }
 

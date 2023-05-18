@@ -27,10 +27,10 @@ export class Profile {
   })
   image?: string;
 
-  @Field(() => Int, {nullable:true})
+  @Field(() => Int, { nullable: true })
   totalDonation?: number;
 
-  @Field(() => Int, {nullable:true})
+  @Field(() => Int, { nullable: true })
   totalAccepted?: number;
 }
 
@@ -42,10 +42,16 @@ export class Author {
   @Field(() => String, { description: 'Username' })
   username: string;
 
-  @Field({ description: 'User name', nullable:true })
+  @Field({ description: 'User name', nullable: true })
   name?: string;
 
-  @Field({ description:'User email', nullable:true})
+  @Field({ nullable: true })
+  first_name: string;
+
+  @Field({ nullable: true })
+  last_name: string;
+
+  @Field({ description: 'User email', nullable: true })
   email?: string;
 
   // @Field({ description: 'User lastname' })

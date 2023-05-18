@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
   BaseDistrict,
   BaseProvince,
@@ -16,7 +16,7 @@ import { checkIfObjectIsPublished } from '@app/shared/common/utils/checkPublishe
 import { Author } from '@app/shared/entities/users.entity';
 import { getAuthor, getDoners } from '../users/users.resolver';
 import { UsersService } from '../users/users.service';
-import { MoreThanOrEqual, Not, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateBloodRequestInput } from './dto/create-blood-bank.input';
 import { UpdateBloodRequestInput } from './dto/update-blood-bank.input';
 import {
@@ -40,17 +40,30 @@ export class BloodBankService {
     private provinceRepository: Repository<BaseProvince>,
     @Inject(UsersService)
     private readonly userService: UsersService,
+    @InjectDataSource('default')
+    private dataSource: DataSource,
+    @InjectDataSource('usersConnection')
+    private userDataSource: DataSource,
   ) {}
 
-  async findAllAdmin(
-    limit: number,
-    offset: number,
-  ): Promise<[BloodRequest[], number]> {
-    return await this.bloodRequestRepository.findAndCount({
-      take: limit,
-      skip: offset,
-      relations: ['address'],
-    });
+  async findAllAdmin(limit: number, offset: number) {
+    const bloodRequest = await this.dataSource
+      .createQueryBuilder()
+      .from('blood_request', 'blood_request');
+
+    const totalQueryCount = Object.keys(await bloodRequest.getRawMany()).length;
+    const queryOut = await bloodRequest.take(limit).skip(offset).getRawMany();
+    await Promise.all(
+      queryOut.map(async (req) => {
+        req.profile = await this.userDataSource
+          .createQueryBuilder()
+          .from('account_user', 'account_user')
+          .where('account_user.id = :id', { id: req.createdBy })
+          .getRawOne();
+      }),
+    );
+
+    return { bloodRequest: queryOut, count: totalQueryCount };
   }
 
   async findAll(
