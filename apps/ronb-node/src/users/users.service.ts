@@ -28,6 +28,38 @@ export class UsersService {
     // }
     return user;
   }
+
+  async findAllDoners(limit: number, offset: number) {
+    const users = await this.userDataSource
+      .createQueryBuilder()
+      .from('account_user', 'account_user');
+    const totalQueryCount = Object.keys(await users.getRawMany()).length;
+    let queryOut = await users.take(limit).skip(offset).getRawMany();
+    await Promise.all(
+      queryOut.map(async (user) => {
+        user.profile = await this.userDataSource
+          .createQueryBuilder()
+          .from('account_profile', 'account_profile')
+          .where('account_profile.user_id = :id', { id: user.id })
+          .getRawOne();
+      }),
+      );
+      
+    queryOut = queryOut.filter(query => query.profile.blood_group_approval === true)
+    return { doners: queryOut, count: totalQueryCount };
+  }
+
+  async findUserByBloodGroup(bloodGroup: string) {
+    const users = await this.userDataSource
+      .createQueryBuilder()
+      .from('account_profile', 'account_profile')
+      .where('account_profile.blood_group = :bloodGroup', {
+        bloodGroup: bloodGroup,
+      })
+      .getRawMany();
+
+    return users;
+  }
 }
 
 @Injectable()

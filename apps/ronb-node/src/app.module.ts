@@ -18,6 +18,7 @@ import { YellowPagesModule } from './yellow-pages/yellow-pages.module';
 import { UsersModule } from './users/users.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SharedModule } from '@app/shared';
+import { BloodBankModule } from './blood-bank/blood-bank.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { SharedModule } from '@app/shared';
     YellowPagesModule,
     UsersModule,
     ReviewsModule,
+    BloodBankModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     GraphQLModule.forRoot({
       driver: ApolloDriver,

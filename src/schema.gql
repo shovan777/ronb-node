@@ -2,16 +2,66 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-"""Comment Author"""
-type Author {
+"""Acceptors of blood request"""
+type Acceptors {
+  """User email"""
+  email: String
+  first_name: String
+
   """User id"""
   id: Int!
+  last_name: String
 
   """User name"""
-  name: String!
+  name: String
 
   """User profile information"""
   profile: Profile
+
+  """Username"""
+  username: String!
+}
+
+"""Comment Author"""
+type Author {
+  """User email"""
+  email: String
+  first_name: String
+
+  """User id"""
+  id: Int!
+  last_name: String
+
+  """User name"""
+  name: String
+
+  """User profile information"""
+  profile: Profile
+
+  """Username"""
+  username: String!
+}
+
+type BaseDistrict {
+  """id field for int"""
+  id: Int!
+
+  """District Name"""
+  name: String!
+
+  """Districts Province"""
+  province: BaseProvince
+}
+
+type BaseProvince {
+  """Province Districts"""
+  districts: [BaseDistrict!]!
+
+  """id field for int"""
+  id: Int!
+
+  """Province name"""
+  name: String!
 }
 
 """
@@ -19,9 +69,157 @@ The `BigInt` scalar type represents non-fractional signed whole numeric values.
 """
 scalar BigInt
 
+type BloodBankDonerListResponse {
+  count: Int!
+  data: [Author!]!
+}
+
+enum BloodGroup {
+  AB_NEG
+  AB_POS
+  A_NEG
+  A_POS
+  B_NEG
+  B_POS
+  DONT_KNOW
+  O_NEG
+  O_POS
+}
+
+type BloodRecordResponse {
+  totalDonation: Float!
+  totalRequest: Float!
+}
+
+type BloodRequest {
+  acceptors: [Int!]
+  address: BloodRequestAddress!
+
+  """amount needed in this blood request"""
+  amount: Float!
+
+  """Type of blood group"""
+  bloodGroup: BloodGroup!
+
+  """date of creation"""
+  createdAt: DateTime!
+
+  """one who created"""
+  createdBy: Int!
+
+  """Further description of the blood request"""
+  description: String
+
+  """Donation date"""
+  donationDate: DateTime!
+  doners: [Int!]
+
+  """id field for int"""
+  id: Int!
+
+  """Is the blood request an emergency?"""
+  is_emergency: Boolean!
+
+  """Phone number"""
+  phoneNumber: BigInt!
+
+  """Profile of the user who created the request"""
+  profile: Author!
+
+  """Blood request state"""
+  state: State!
+
+  """date of update"""
+  updatedAt: DateTime!
+
+  """one who updated"""
+  updatedBy: Int!
+}
+
+type BloodRequestAddress {
+  """Address"""
+  address: String!
+
+  """District Type"""
+  district: BaseDistrict
+
+  """id field for int"""
+  id: Int!
+
+  """Province Type"""
+  province: BaseProvince
+}
+
+type BloodRequestAdminResponse {
+  count: Int!
+  data: [BloodRequest!]!
+}
+
+type BloodRequestConnection {
+  edges: [BloodRequestEdge!]!
+  pageInfo: BloodRequestPageInfo!
+}
+
+type BloodRequestEdge {
+  cursor: String
+  node: BloodRequest
+}
+
+type BloodRequestPageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type BloodRequestResponse {
+  page: BloodRequestConnection!
+  pageData: PageData
+}
+
 type CommentsResponse {
   page: NewsCommentConnection!
   pageData: PageData
+}
+
+input CreateBloodRequestAddressInput {
+  """Address"""
+  address: String!
+
+  """District Type"""
+  district: Int!
+
+  """Province Type"""
+  province: Int!
+}
+
+input CreateBloodRequestInput {
+  acceptors: [Int!]
+
+  """Address for yellow page address"""
+  address: CreateBloodRequestAddressInput
+
+  """Amount of blood"""
+  amount: Int
+
+  """Blood group type"""
+  bloodGroup: BloodGroup!
+
+  """Description for blood request"""
+  description: String
+
+  """Donation date"""
+  donationDate: DateTime
+  doners: [Int!]
+
+  """Is the blood request an emergency?"""
+  is_emergency: Boolean = false
+
+  """Phone number"""
+  phoneNumber: BigInt
+
+  """Yellow Pages State"""
+  state: State
 }
 
 input CreateDistrictInput {
@@ -289,6 +487,11 @@ A field whose value conforms to the standard internet email address format as sp
 """
 scalar EmailAddress @specifiedBy(url: "https://www.w3.org/Protocols/rfc822/")
 
+input FilterBloodRequestInput {
+  """Blood group type"""
+  bloodGroup: BloodGroup
+}
+
 input FilterDistrictInput {
   """Districts Province"""
   province: Int
@@ -323,7 +526,11 @@ input FilterYellowPagesInput {
 scalar GeoJSONPointScalar
 
 type Mutation {
+  acceptBloodRequest(id: Int!): BloodRequest!
+  addDoners(id: Int!, usersID: [Int!]!): BloodRequest!
+  cancelBloodRequest(id: Int!): BloodRequest!
   creatDistrict(createDistrictInput: CreateDistrictInput!): District!
+  createBloodRequest(createBloodBankInput: CreateBloodRequestInput!): BloodRequest!
   createNews(createNewsInput: CreateNewsInput!): News!
   createNewsCategory(createNewsCategoryInput: CreateNewsCategoryInput!): NewsCategory!
   createNewsComment(createNewsCommentInput: CreateNewsCommentInput!): NewsComment!
@@ -344,6 +551,7 @@ type Mutation {
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
   createYellowPagesEmail(createYellowPagesEmailInput: CreateYellowPagesEmailInput!): YellowPagesEmail!
   createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
+  removeBloodRequest(id: Int!): BloodRequest!
   removeDistrict(id: Int!): District!
   removeNews(id: Int!): News!
   removeNewsCategory(id: Int!): NewsCategory!
@@ -366,6 +574,7 @@ type Mutation {
   removeYellowPagesPhoneNumber(id: Int!): YellowPagesPhoneNumber!
   sendNotification(notificationInput: NotificationInput!): Notification!
   sendNotificationNews(notificationNewsInput: NotificationNewsInput!): Notification!
+  updateBloodRequest(id: Int!, updateBloodRequestInput: UpdateBloodRequestInput!): BloodRequest!
   updateDistrict(id: Int!, updateDistrictInput: UpdateDistrictInput!): District!
   updateNews(id: Int!, updateNewsInput: UpdateNewsInput!): News!
   updateNewsCategory(id: Int!, updateNewsCategoryInput: UpdateNewsCategoryInput!): NewsCategory!
@@ -728,14 +937,25 @@ type PageData {
 
 """Profile of the user"""
 type Profile {
+  """Age of the user"""
+  age: Int!
+
   """User Blood Group"""
   bloodGroup: String
+
+  """Has user approved for blood donation or not"""
+  bloodGroupApproval: Boolean!
+
+  """Date of birth of the user"""
+  dateOfBirth: String!
 
   """Profile id"""
   id: Int!
 
   """Url of the profile picture"""
   image: String
+  totalAccepted: Int
+  totalDonation: Int
 }
 
 type Province {
@@ -888,8 +1108,29 @@ type PublicToiletReviewsResponse {
 }
 
 type Query {
+  bloodRequestById(id: Int!): BloodRequest!
+  bloodRequests(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+    filterBloodRequestInput: FilterBloodRequestInput
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): BloodRequestResponse!
+  bloodRequestsAdmin(skip: Int = 0, take: Int = 25): BloodRequestAdminResponse!
   districts(filterDistrictInput: FilterDistrictInput): [District!]!
+  getAcceptors(id: Int!): [Acceptors!]!
+  getAllDoners(skip: Int = 0, take: Int = 25): BloodBankDonerListResponse!
+  getBloodRecords: BloodRecordResponse!
+  getDonorsOfBloodRequest(id: Int!): [Acceptors!]!
   instrestingTags: [Tag!]!
+  mybloodRequests: [BloodRequest!]!
   news(
     """Paginate after cursor"""
     after: String
@@ -1121,6 +1362,35 @@ type TotalReviewRatings {
 
   """Total Reviewer"""
   totalReview: Int!
+}
+
+input UpdateBloodRequestInput {
+  acceptors: [Int!]
+
+  """Address for yellow page address"""
+  address: CreateBloodRequestAddressInput
+
+  """Amount of blood"""
+  amount: Int
+
+  """Blood group type"""
+  bloodGroup: BloodGroup
+
+  """Description for blood request"""
+  description: String
+
+  """Donation date"""
+  donationDate: DateTime
+  doners: [Int!]
+
+  """Is the blood request an emergency?"""
+  is_emergency: Boolean = false
+
+  """Phone number"""
+  phoneNumber: BigInt
+
+  """Yellow Pages State"""
+  state: State
 }
 
 input UpdateDistrictInput {
