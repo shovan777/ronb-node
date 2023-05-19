@@ -124,7 +124,7 @@ type BloodRequest {
   phoneNumber: BigInt!
 
   """Profile of the user who created the request"""
-  profile: Author!
+  profile: Author
 
   """Blood request state"""
   state: State!

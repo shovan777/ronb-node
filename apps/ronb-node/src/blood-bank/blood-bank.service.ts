@@ -47,12 +47,12 @@ export class BloodBankService {
   ) {}
 
   async findAllAdmin(limit: number, offset: number) {
-    const bloodRequest = await this.dataSource
-      .createQueryBuilder()
-      .from('blood_request', 'blood_request');
+    const [queryOut, count] = await this.bloodRequestRepository.findAndCount({
+      relations: ['address', 'address.province', 'address.district'],
+      take: limit,
+      skip: offset,
+    });
 
-    const totalQueryCount = Object.keys(await bloodRequest.getRawMany()).length;
-    const queryOut = await bloodRequest.take(limit).skip(offset).getRawMany();
     await Promise.all(
       queryOut.map(async (req) => {
         req.profile = await this.userDataSource
@@ -63,7 +63,7 @@ export class BloodBankService {
       }),
     );
 
-    return { bloodRequest: queryOut, count: totalQueryCount };
+    return { bloodRequest: queryOut, count: count };
   }
 
   async findAll(
@@ -89,9 +89,11 @@ export class BloodBankService {
         today: new Date(),
       });
 
-    sqlQuery.andWhere('blood_request.bloodGroup = :bloodGroup', {
-      bloodGroup: userDetails.profile.bloodGroup,
-    });
+    if (filterBloodRequestInput.bloodGroup) {
+      sqlQuery.andWhere('blood_request.bloodGroup = :bloodGroup', {
+        bloodGroup: filterBloodRequestInput.bloodGroup,
+      });
+    }
     const queryOut = await sqlQuery.take(limit).skip(offset).getManyAndCount();
     return queryOut;
   }
@@ -249,12 +251,8 @@ export class BloodBankService {
 
     if (bloodRequest.createdBy == user) {
       if (!checkIfObjectIsPublished(bloodRequest.state)) {
-        const removedBloodRequest =
-          this.bloodRequestRepository.remove(bloodRequest);
-        return {
-          id,
-          ...removedBloodRequest,
-        };
+        this.bloodRequestRepository.remove(bloodRequest);
+        return bloodRequest;
       }
       throw new ForbiddenException(
         `Blood request cannot be edited once it is published.`,
@@ -352,8 +350,14 @@ export class BloodBankService {
   async addDoners(requestID: number, donerId: [number]): Promise<BloodRequest> {
     const bloodRequest: BloodRequest = await this.findOne(requestID);
 
-    donerId.forEach((id_) => {
-      bloodRequest.doners.push(id_);
+    donerId.forEach((id) => {
+      if (bloodRequest.doners.includes(id)) {
+        throw new ForbiddenException(
+          `User with id ${donerId} is already added as a doner`,
+        );
+      } else {
+        bloodRequest.doners.push(id);
+      }
     });
 
     return await this.bloodRequestRepository.save(bloodRequest);

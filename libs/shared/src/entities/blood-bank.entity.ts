@@ -105,6 +105,7 @@ export class BloodRequest extends CreatorBaseEntity {
 
   @Field(() => Author, {
     description: 'Profile of the user who created the request',
+    nullable: true,
   })
   profile: Author;
 }

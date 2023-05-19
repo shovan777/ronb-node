@@ -46,16 +46,15 @@ export class BloodRequestSubsriber
 
       const bloodGroup = entity.bloodGroup;
 
-      let users = await this.userService.findUserByBloodGroup(
-        bloodGroup,
-      );
+      let users = await this.userService.findUserByBloodGroup(bloodGroup);
 
       const ids = users.map((user) => user.user_id);
 
-      this.notificationService.sendNotification(
+      this.notificationService.sendNotificationGroup(
         {
           title: `Blood Request for blood group ${entity.bloodGroup}`,
           body: 'This is the description of the blood request',
+          data: '{}',
         },
         ids,
       );
