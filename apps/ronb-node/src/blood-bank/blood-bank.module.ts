@@ -10,7 +10,7 @@ import {
 import {
   BaseDistrict,
   BaseProvince,
-} from '@app/shared/common/entities/base.entity';
+} from '@app/shared/entities/address.entity';
 import { UsersModule } from '../users/users.module';
 import { BloodRequestSubsriber } from './blood-bank.subscriber';
 import { NotificationsModule } from '../notifications/notifications.module';
