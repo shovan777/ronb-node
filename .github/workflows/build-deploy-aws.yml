@@ -128,5 +128,5 @@ jobs:
             export NEST_TAG=$(echo $TAG)
             echo NEST_IMAGE_ROOT=$NEST_TAG > .env.nestimg
             echo NEST_IMAGE_NEWSCACHE=$TAG_NEWSCACHE > .env.newscache
-            cat .env.django .env.nestimg .env.dashboard .env.newscache > .env
+            cat .env.django .env.nestimg .env.dashboard .env.newscache .env.recommender > .env
             docker compose up -d api-nest newscache
