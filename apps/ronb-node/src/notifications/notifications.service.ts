@@ -9,7 +9,7 @@ import {
   Notification,
   NotificationDevice,
 } from '@app/shared/entities/notifications.entity';
-import { Like, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import {
   CreateNotificationDeviceInput,
   NotificationInput,
@@ -177,16 +177,25 @@ export class NotificationsService {
     }
   }
 
-  async findAll(): Promise<NotificationDevice[]> {
-    return await this.notificationDeviceRepository.find({});
+  async findAll(filterInput?: any): Promise<NotificationDevice[]> {
+    return await this.notificationDeviceRepository.find({
+      where: { ...filterInput },
+    });
   }
 
-  async sendNotification(data: NotificationInput): Promise<Notification> {
+  async sendNotification(
+    data: NotificationInput,
+    users?: number[],
+  ): Promise<Notification> {
     const messageObject = await this.notificationRepository.save({
       ...data,
       createdAt: new Date(),
     });
-    const devices = await this.findAll();
+    let whereOptions: any = {};
+    if (users.length > 0) {
+      whereOptions.userId = In(users);
+    }
+    const devices = await this.findAll(whereOptions);
     const androidSpecific = {
       notification: {
         eventTimestamp: new Date(),

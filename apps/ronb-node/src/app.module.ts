@@ -20,6 +20,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { SharedModule } from '@app/shared';
 import { redisStore } from 'cache-manager-redis-store';
 import { RedisClientOptions } from 'redis';
+import { BloodBankModule } from './blood-bank/blood-bank.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { RedisClientOptions } from 'redis';
     YellowPagesModule,
     UsersModule,
     ReviewsModule,
+    BloodBankModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     GraphQLModule.forRoot({
       driver: ApolloDriver,

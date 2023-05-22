@@ -36,48 +36,57 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.addEngagementTiming1678343638761 = void 0;
-var addEngagementTiming1678343638761 = /** @class */ (function () {
-    function addEngagementTiming1678343638761() {
-        this.name = 'addEngagementTiming1678343638761';
+exports.addNewFieldsBloodrequest1683008695261 = void 0;
+var addNewFieldsBloodrequest1683008695261 = /** @class */ (function () {
+    function addNewFieldsBloodrequest1683008695261() {
+        this.name = 'addNewFieldsBloodrequest1683008695261';
     }
-    addEngagementTiming1678343638761.prototype.up = function (queryRunner) {
+    addNewFieldsBloodrequest1683008695261.prototype.up = function (queryRunner) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" DROP COLUMN \"hasRead\"")];
+                    case 0: return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" ADD \"description\" character varying")];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" ADD \"engagmentDate\" TIMESTAMP WITH TIME ZONE")];
+                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" ADD \"is_emergency\" boolean NOT NULL DEFAULT false")];
                     case 2:
+                        _a.sent();
+                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" ADD \"doners\" integer array")];
+                    case 3:
+                        _a.sent();
+                        // await queryRunner.query(`ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`);
+                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" ADD \"engagementDuration\" TIME")];
+                    case 4:
+                        // await queryRunner.query(`ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`);
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         });
     };
-    addEngagementTiming1678343638761.prototype.down = function (queryRunner) {
+    addNewFieldsBloodrequest1683008695261.prototype.down = function (queryRunner) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: 
-                    // await queryRunner.query(
-                    //   `ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`,
-                    // );
-                    return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" DROP COLUMN \"engagmentDate\"")];
+                    case 0: return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" DROP COLUMN \"engagementDuration\"")];
                     case 1:
-                        // await queryRunner.query(
-                        //   `ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`,
-                        // );
                         _a.sent();
-                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" ADD \"hasRead\" boolean NOT NULL DEFAULT false")];
+                        // await queryRunner.query(`ALTER TABLE "user_news_engagement" ADD "engagementDuration" integer`);
+                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" DROP COLUMN \"doners\"")];
                     case 2:
+                        // await queryRunner.query(`ALTER TABLE "user_news_engagement" ADD "engagementDuration" integer`);
+                        _a.sent();
+                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" DROP COLUMN \"is_emergency\"")];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" DROP COLUMN \"description\"")];
+                    case 4:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         });
     };
-    return addEngagementTiming1678343638761;
+    return addNewFieldsBloodrequest1683008695261;
 }());
-exports.addEngagementTiming1678343638761 = addEngagementTiming1678343638761;
+exports.addNewFieldsBloodrequest1683008695261 = addNewFieldsBloodrequest1683008695261;
