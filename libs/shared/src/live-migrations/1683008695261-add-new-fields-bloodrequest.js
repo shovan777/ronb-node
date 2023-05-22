@@ -54,11 +54,10 @@ var addNewFieldsBloodrequest1683008695261 = /** @class */ (function () {
                         return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" ADD \"doners\" integer array")];
                     case 3:
                         _a.sent();
-                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" DROP COLUMN \"engagementDuration\"")];
-                    case 4:
-                        _a.sent();
+                        // await queryRunner.query(`ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`);
                         return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" ADD \"engagementDuration\" TIME")];
-                    case 5:
+                    case 4:
+                        // await queryRunner.query(`ALTER TABLE "user_news_engagement" DROP COLUMN "engagementDuration"`);
                         _a.sent();
                         return [2 /*return*/];
                 }
@@ -72,17 +71,16 @@ var addNewFieldsBloodrequest1683008695261 = /** @class */ (function () {
                     case 0: return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" DROP COLUMN \"engagementDuration\"")];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, queryRunner.query("ALTER TABLE \"user_news_engagement\" ADD \"engagementDuration\" integer")];
-                    case 2:
-                        _a.sent();
+                        // await queryRunner.query(`ALTER TABLE "user_news_engagement" ADD "engagementDuration" integer`);
                         return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" DROP COLUMN \"doners\"")];
-                    case 3:
+                    case 2:
+                        // await queryRunner.query(`ALTER TABLE "user_news_engagement" ADD "engagementDuration" integer`);
                         _a.sent();
                         return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" DROP COLUMN \"is_emergency\"")];
-                    case 4:
+                    case 3:
                         _a.sent();
                         return [4 /*yield*/, queryRunner.query("ALTER TABLE \"blood_request\" DROP COLUMN \"description\"")];
-                    case 5:
+                    case 4:
                         _a.sent();
                         return [2 /*return*/];
                 }
