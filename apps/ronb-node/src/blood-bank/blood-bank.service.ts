@@ -357,6 +357,7 @@ export class BloodBankService {
         );
       } else {
         bloodRequest.doners.push(id);
+        bloodRequest.donatedDate = new Date();
       }
     });
 

@@ -108,6 +108,10 @@ export class BloodRequest extends CreatorBaseEntity {
     nullable: true,
   })
   profile: Author;
+
+  @Field({ description: 'Donated date' , nullable:true})
+  @Column({ nullable: true })
+  donatedDate: Date;
 }
 
 @ObjectType({ description: 'Acceptors of blood request' })
