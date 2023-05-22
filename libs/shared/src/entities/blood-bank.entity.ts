@@ -1,10 +1,10 @@
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { BigIntResolver } from 'graphql-scalars';
+import { CreatorBaseEntity } from '@app/shared/common/entities/base.entity';
 import {
-  BaseDistrict as District,
-  BaseProvince as Province,
-  CreatorBaseEntity,
-} from '@app/shared/common/entities/base.entity';
+  BaseProvince,
+  BaseDistrict,
+} from '@app/shared/entities/address.entity';
 import { PublishState as BloodRequestState } from '@app/shared/common/enum/publish_state.enum';
 import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
 BloodGroup;
@@ -26,19 +26,19 @@ export class BloodRequestAddress {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => District, { description: 'District Type', nullable: true })
-  @ManyToOne(() => District, {
+  @Field(() => BaseDistrict, { description: 'District Type', nullable: true })
+  @ManyToOne(() => BaseDistrict, {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  district: District;
+  district: BaseDistrict;
 
-  @Field(() => Province, { description: 'Province Type', nullable: true })
-  @ManyToOne(() => Province, {
+  @Field(() => BaseProvince, { description: 'Province Type', nullable: true })
+  @ManyToOne(() => BaseProvince, {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  province: Province;
+  province: BaseProvince;
 
   @Field({ description: 'Address' })
   @Column()

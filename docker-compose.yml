@@ -44,12 +44,12 @@ services:
     networks:
       - ronb-network
   db:
-    image: postgres
+    image: postgis/postgis
     restart: always
     # ports:
     #   - 5433:5432
     volumes:
-      - docker-nest-postgres:/var/lib/postgresql/data
+      - docker-nest-postgres1:/var/lib/postgresql/data
     networks:
       - ronb-network
     env_file:
@@ -69,5 +69,5 @@ networks:
 volumes:
   # ronb-db:
   nest-static:
-  docker-nest-postgres:
+  docker-nest-postgres1:
   ronb-redis:

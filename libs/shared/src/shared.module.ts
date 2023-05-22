@@ -39,6 +39,7 @@ import {
   BloodRequest,
   BloodRequestAddress,
 } from './entities/blood-bank.entity';
+import { BaseDistrict, BaseProvince } from './entities/address.entity';
 
 @Module({
   providers: [SharedService],
@@ -83,6 +84,8 @@ import {
       YellowPagesEmail,
       BloodRequest,
       BloodRequestAddress,
+      BaseDistrict,
+      BaseProvince,
     ]),
   ],
 })

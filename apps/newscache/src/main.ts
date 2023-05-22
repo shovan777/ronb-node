@@ -19,7 +19,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
-      url: 'localhost:50051',
+      url: process.env.NEWSCACHE_URL,
       package: NEWS_PACKAGE_NAME,
       protoPath: join(
         process.cwd(),

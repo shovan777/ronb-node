@@ -8,7 +8,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
   BaseDistrict,
   BaseProvince,
-} from '@app/shared/common/entities/base.entity';
+} from '@app/shared/entities/address.entity';
 import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
 import { PublishState as BloodRequestState } from '@app/shared/common/enum/publish_state.enum';
 import { calculateUserAge } from '@app/shared/common/utils/calculateUserAge';

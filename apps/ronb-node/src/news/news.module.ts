@@ -69,7 +69,7 @@ import {
         // name: 'NEWS_PACKAGE',
         transport: Transport.GRPC,
         options: {
-          url: 'localhost:50051',
+          url: process.env.NEWSCACHE_URL,
           package: NEWS_PACKAGE_NAME,
           protoPath: join(
             process.cwd(),
