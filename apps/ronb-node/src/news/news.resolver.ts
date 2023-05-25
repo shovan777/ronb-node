@@ -103,11 +103,15 @@ export class NewsResolver {
     console.log(`user ${user} is requesting news with limit ${limit}`);
     // const cachedNews: News[] = await this.cacheManager.get(`newscache_${user}`);
     // get limit number of news from the queue in cache
+    const numBlocks = Math.floor(limit / 10) - 1;
     const cachedNews = await this.redisCache.lRange(
       `newscache_${user}`,
-      1,
-      Math.floor(limit / 10),
+      0,
+      numBlocks,
     );
+    // delete the retrieved block from the queue
+    this.redisCache.lTrim(`newscache_${user}`, numBlocks + 1, -1);
+
     if (cachedNews && cachedNews.length > 0) {
       for (let i = 0; i < cachedNews.length; i++) {
         const blockofNews = cachedNews[i];

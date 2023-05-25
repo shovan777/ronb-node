@@ -61,9 +61,9 @@ export class NewscacheService {
     for (let i = 0; i < numTraversal; i++) {
       const sliceOfIds = newsIds.slice(i * 10, (i + 1) * 10);
       const news = await this.getNewsFromDB(sliceOfIds);
-      // console.log(`news from db${i}th slice: ${news.map((n) => n.id)}`);
+      console.log(`news from db${i}th slice: ${news.map((n) => n.id)}`);
       newsToCache = newsToCache.concat(news);
-      await this.redisCache.lPush(`newscache_${userId}`, JSON.stringify(news));
+      await this.redisCache.rPush(`newscache_${userId}`, JSON.stringify(news));
     }
     if (remainder > 0) {
       const sliceOfIds = newsIds.slice(numTraversal * 10);
