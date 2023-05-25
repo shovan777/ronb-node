@@ -89,10 +89,14 @@ export class BloodBankService {
         today: new Date(),
       });
 
-    if (filterBloodRequestInput.bloodGroup) {
+    if (filterBloodRequestInput.filter) {
       sqlQuery.andWhere('blood_request.bloodGroup = :bloodGroup', {
         bloodGroup: filterBloodRequestInput.bloodGroup,
       });
+    }else {
+      sqlQuery.andWhere('blood_request.bloodGroup != :bloodGroup',{
+        bloodGroup: userDetails.profile.bloodGroup
+      })
     }
     const queryOut = await sqlQuery.take(limit).skip(offset).getManyAndCount();
     return queryOut;
