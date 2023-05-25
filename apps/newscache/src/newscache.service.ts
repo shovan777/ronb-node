@@ -102,11 +102,13 @@ export class NewsRecommendationClientService implements OnModuleInit {
       );
   }
 
-  async getNewsRecommendation(): Promise<
-    Observable<GetNewsRecommendationResponse>
-  > {
+  async getNewsRecommendation(
+    userId: number,
+  ): Promise<Observable<GetNewsRecommendationResponse>> {
     // const newsArr = [];
-    return this.newsRecommendationService.getNewsRecommendation({ userId: 12 });
+    return this.newsRecommendationService.getNewsRecommendation({
+      userId: userId,
+    });
     //   .subscribe({
     //     next: (response) => {
     //       console.log(`response: ${response.newsIds}`);

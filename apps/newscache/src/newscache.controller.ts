@@ -35,7 +35,9 @@ export class NewscacheController {
   async beginCaching(userData: UserId): Promise<BeginCachingResponse> {
     console.log(`Begin Caching request received ${userData.id}`);
     firstValueFrom(
-      await this.newsRecommendationClientService.getNewsRecommendation(),
+      await this.newsRecommendationClientService.getNewsRecommendation(
+        userData.id,
+      ),
     ).then((newsData) => {
       console.log(newsData);
       this.newscacheService
