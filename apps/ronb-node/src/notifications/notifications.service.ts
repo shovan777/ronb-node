@@ -177,15 +177,44 @@ export class NotificationsService {
     }
   }
 
-  async findAll(filterInput?: any): Promise<NotificationDevice[]> {
+  async findAll(): Promise<NotificationDevice[]> {
+    return await this.notificationDeviceRepository.find({});
+  }
+
+  async findBy(filterInput?: any): Promise<NotificationDevice[]> {
     return await this.notificationDeviceRepository.find({
       where: { ...filterInput },
     });
   }
 
-  async sendNotification(
+  async sendNotification(data: NotificationInput): Promise<Notification> {
+    const messageObject = await this.notificationRepository.save({
+      ...data,
+      createdAt: new Date(),
+    });
+    const devices = await this.findAll();
+    const androidSpecific = {
+      notification: {
+        eventTimestamp: new Date(),
+      },
+    };
+    const firebaseMessages = devices.map((device) => ({
+      token: device.token,
+      title: data.title,
+      message: data.body,
+      data: JSON.parse(data.data),
+      android: androidSpecific,
+    }));
+    const send_response =
+      await this.notificationsSendService.sendFirebaseMessages(
+        firebaseMessages,
+      );
+    return messageObject;
+  }
+
+  async sendNotificationGroup(
     data: NotificationInput,
-    users?: number[],
+    users: number[],
   ): Promise<Notification> {
     const messageObject = await this.notificationRepository.save({
       ...data,
@@ -195,7 +224,7 @@ export class NotificationsService {
     if (users.length > 0) {
       whereOptions.userId = In(users);
     }
-    const devices = await this.findAll(whereOptions);
+    const devices = await this.findBy(whereOptions);
     const androidSpecific = {
       notification: {
         eventTimestamp: new Date(),

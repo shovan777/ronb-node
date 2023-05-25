@@ -110,6 +110,9 @@ type BloodRequest {
   """Further description of the blood request"""
   description: String
 
+  """Donated date"""
+  donatedDate: DateTime
+
   """Donation date"""
   donationDate: DateTime!
   doners: [Int!]
@@ -124,7 +127,7 @@ type BloodRequest {
   phoneNumber: BigInt!
 
   """Profile of the user who created the request"""
-  profile: Author!
+  profile: Author
 
   """Blood request state"""
   state: State!
@@ -947,7 +950,7 @@ type Profile {
   bloodGroupApproval: Boolean!
 
   """Date of birth of the user"""
-  dateOfBirth: String!
+  dateOfBirth: String
 
   """Profile id"""
   id: Int!

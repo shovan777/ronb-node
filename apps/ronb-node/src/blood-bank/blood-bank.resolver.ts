@@ -77,7 +77,7 @@ export class BloodBankResolver {
       sliceStart: offset || 0,
     });
 
-    return { page, pageData: { count, limit, offset } };
+    return { page, pageData: { count, limit, offset, curTime: new Date() } };
   }
 
   @Query(() => [BloodRequest], { name: 'mybloodRequests' })

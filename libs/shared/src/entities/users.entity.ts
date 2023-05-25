@@ -17,7 +17,10 @@ export class Profile {
   @Field(() => Int, { description: 'Age of the user' })
   age: number;
 
-  @Field(() => String, { description: 'Date of birth of the user' })
+  @Field(() => String, {
+    description: 'Date of birth of the user',
+    nullable: true,
+  })
   dateOfBirth?: string;
 
   @Field(() => String, {
