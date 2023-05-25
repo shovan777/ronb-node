@@ -10,6 +10,7 @@ import {
   NewscacheService,
 } from './newscache.service';
 import { News } from '@app/shared/entities/news.entity';
+import { firstValueFrom, timeout } from 'rxjs';
 
 @Controller()
 export class NewscacheController {
@@ -31,22 +32,32 @@ export class NewscacheController {
   // }
 
   @GrpcMethod(NEWS_CACHING_SERVICE_NAME, 'BeginCaching')
-  async beginCaching(data: UserId): Promise<BeginCachingResponse> {
-    console.log(`Begin Caching request received ${data.id}`);
-    (
-      await this.newsRecommendationClientService.getNewsRecommendation()
-    ).subscribe({
-      next: (response) => {
-        console.log(`response: ${response.newsIds}`);
-        const news = this.newscacheService.findNewsNCache(
-          response.newsIds,
-          data.id,
-        );
-        news.then((res) => {
-          console.log(`news: ${res.map((n) => n.id)}`);
+  async beginCaching(userData: UserId): Promise<BeginCachingResponse> {
+    console.log(`Begin Caching request received ${userData.id}`);
+    firstValueFrom(
+      await this.newsRecommendationClientService.getNewsRecommendation(),
+    ).then((newsData) => {
+      console.log(newsData);
+      this.newscacheService
+        .findNewsNCache(newsData.newsIds, userData.id)
+        .then((newsCache) => {
+          console.log(`newsCache: ${newsCache.map((n) => n.id)}`);
         });
-      },
     });
+    // (
+    //   await this.newsRecommendationClientService.getNewsRecommendation()
+    // ).subscribe({
+    //   next: (response) => {
+    //     console.log(`response: ${response.newsIds}`);
+    //     const news = this.newscacheService.findNewsNCache(
+    //       response.newsIds,
+    //       data.id,
+    //     );
+    //     news.then((res) => {
+    //       console.log(`news: ${res.map((n) => n.id)}`);
+    //     });
+    //   },
+    // });
     // news.then((res) => {
     //   console.log(`news: ${res}`);
     // });
