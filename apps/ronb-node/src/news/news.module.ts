@@ -34,6 +34,7 @@ import {
   NEWS_CACHING_SERVICE_NAME,
   NEWS_PACKAGE_NAME,
 } from '@app/shared/common/proto/news.pb';
+import { createClient } from 'redis';
 
 @Module({
   providers: [
@@ -52,6 +53,18 @@ import {
     RecommendationDataResolver,
     RecommendationDataService,
     NewsCacheClientService,
+    {
+      provide: 'REDIS_CLIENT',
+      useFactory: () => {
+        const client = createClient({
+          url: `${process.env.REDIS_URL}/0`,
+        });
+        client.connect().then(() => {
+          console.log('**********news cache redis connected');
+        });
+        return client;
+      },
+    },
   ],
   imports: [
     forwardRef(() => TagsModule),

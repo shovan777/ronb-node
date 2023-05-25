@@ -57,6 +57,7 @@ import { Role } from '@app/shared/common/enum/role.enum';
 import { RolesGuard } from '@app/shared/common/guards/roles.guard';
 import { MakePublic } from '@app/shared/common/decorators/public.decorator';
 import { Observable } from 'rxjs';
+import { RedisClientType } from 'redis';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -70,6 +71,7 @@ export class NewsResolver {
     private readonly newsService: NewsService,
     private readonly newsTaggitService: NewsTaggitService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject('REDIS_CLIENT') private redisCache: RedisClientType,
   ) {}
 
   @Mutation(() => News)
@@ -98,13 +100,24 @@ export class NewsResolver {
     // construct a fifo queue
     // get data from queue
     // return this.newsService.findAll();
-    const cachedNews: News[] = await this.cacheManager.get(`newscache_${user}`);
-    if (cachedNews) {
-      news = cachedNews;
-      console.log(
-        `cached news for user ${user}: ${cachedNews.map((n) => n.id)}`,
-      );
+    console.log(`user ${user} is requesting news with limit ${limit}`);
+    // const cachedNews: News[] = await this.cacheManager.get(`newscache_${user}`);
+    // get limit number of news from the queue in cache
+    const cachedNews = await this.redisCache.lRange(
+      `newscache_${user}`,
+      1,
+      Math.floor(limit / 10),
+    );
+    if (cachedNews && cachedNews.length > 0) {
+      for (let i = 0; i < cachedNews.length; i++) {
+        const blockofNews = cachedNews[i];
+        // convert the block to news array
+        const newsArr = JSON.parse(blockofNews);
+        // Append the news to news array
+        news = news.concat(newsArr);
+      }
       count = news.length;
+      console.log(`cached news for user ${user}: ${count}`);
     } else {
       console.log(`no cached news for user ${user}`);
       [news, count] = await this.newsService.findAll(
