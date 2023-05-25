@@ -30,14 +30,54 @@ export class NewscacheService {
     return newsCache;
   }
 
+  // get 10 news from db
+  private async getNewsFromDB(sliceOfIds: number[]): Promise<News[]> {
+    const sqlQuery = this.newsRepository.query(
+      `select n.* from unnest('{${sliceOfIds.join(
+        ',',
+      )}}'::int[]) with ordinality as t(id, ord) join news n using(id) order by t.ord`,
+    );
+    // https://dba.stackexchange.com/questions/243675/order-of-where-in-result-for-postgresql
+    // .createQueryBuilder('news')
+    // .whereInIds(sliceOfIds)
+    // .orderBy(`FIELD(news.id, ${sliceOfIds.join(',')})`);
+    return await sqlQuery;
+    // return await this.newsRepository.find({
+    //   where: { id: In(sliceOfIds) },
+    //   // sort by order in sliceofIds
+    //   // order: { id: sliceOfIds },
+    // });
+  }
+
   async findNewsNCache(newsIds: number[], userId: number): Promise<News[]> {
-    const newsToCache: News[] = await this.newsRepository.find({
-      where: { id: In(newsIds) },
-    });
-    this.cacheManager.set(`newscache_${userId}`, newsToCache);
+    let newsToCache: News[] = [];
+    // avoid to many calls to db or redis
+    // divide newsIds into slices of 10
+    const newsIdsCount = newsIds.length;
+    const numTraversal = Math.floor(newsIdsCount / 10);
+    const remainder = newsIdsCount % 10;
+
+    // push to cache array in chunks of 10
+    for (let i = 0; i < numTraversal; i++) {
+      const sliceOfIds = newsIds.slice(i * 10, (i + 1) * 10);
+      const news = await this.getNewsFromDB(sliceOfIds);
+      // console.log(`news from db${i}th slice: ${news.map((n) => n.id)}`);
+      newsToCache = newsToCache.concat(news);
+      await this.redisCache.lPush(`newscache_${userId}`, JSON.stringify(news));
+    }
+    if (remainder > 0) {
+      const sliceOfIds = newsIds.slice(numTraversal * 10);
+      const news = await this.getNewsFromDB(sliceOfIds);
+      newsToCache = newsToCache.concat(news);
+    }
+
+    // this.cacheManager.set(`newscache_${userId}`, newsToCache);
     // console.log(`setting in cache: ${twoNews.map((n) => n.id)}`);
     // append news to tail of user's cache if exists
     // else creates
+    // for (const id of newsIds) {
+    //   await this.redisCache.rPush(`newscache_${userId}`, id.toString());
+    // }
     // await this.redisCache.rPush(
     //   `newscache_${userId}`,
     //   JSON.stringify(newsToCache),
