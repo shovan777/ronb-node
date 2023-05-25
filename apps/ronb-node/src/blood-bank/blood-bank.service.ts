@@ -93,11 +93,15 @@ export class BloodBankService {
       sqlQuery.andWhere('blood_request.bloodGroup = :bloodGroup', {
         bloodGroup: filterBloodRequestInput.bloodGroup,
       });
-    }else {
-      sqlQuery.andWhere('blood_request.bloodGroup != :bloodGroup',{
-        bloodGroup: userDetails.profile.bloodGroup
-      })
+    } else {
+      sqlQuery.andWhere('blood_request.bloodGroup != :bloodGroup', {
+        bloodGroup: userDetails.profile.bloodGroup,
+      });
     }
+
+    sqlQuery.orderBy('blood_request.is_emergency', 'DESC');
+    sqlQuery.addOrderBy('blood_request.createdAt', 'DESC');
+
     const queryOut = await sqlQuery.take(limit).skip(offset).getManyAndCount();
     return queryOut;
   }
@@ -107,6 +111,10 @@ export class BloodBankService {
       relations: ['address', 'address.district', 'address.province'],
       where: {
         createdBy: user,
+      },
+      order: {
+        is_emergency: 'DESC',
+        createdAt: 'DESC',
       },
     });
   }
