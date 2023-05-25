@@ -7,11 +7,33 @@ import {
   DataSource,
   EntitySubscriberInterface,
   EventSubscriber,
+  InsertEvent,
   UpdateEvent,
 } from 'typeorm';
 import { BloodBankService } from './blood-bank.service';
 import { BloodRequest } from '@app/shared/entities/blood-bank.entity';
 import { Author } from '@app/shared/entities/users.entity';
+
+async function sendNotificationOnCreateOrUpdate(entity: any) {
+  console.log(
+    `(Notification): Blood Request for blood group ${entity.bloodGroup}`,
+  );
+
+  const bloodGroup = entity.bloodGroup;
+
+  let users = await this.userService.findUserByBloodGroup(bloodGroup);
+
+  const ids = users.map((user) => user.user_id);
+
+  this.notificationService.sendNotificationGroup(
+    {
+      title: `Blood Request for blood group ${entity.bloodGroup}`,
+      body: 'This is the description of the blood request',
+      data: '{}',
+    },
+    ids,
+  );
+}
 
 @EventSubscriber()
 export class BloodRequestSubsriber
@@ -31,6 +53,13 @@ export class BloodRequestSubsriber
   listenTo(): any {
     return BloodRequest;
   }
+  async afterInsert(event: InsertEvent<BloodRequest>): Promise<any> {
+    const { entity } = event;
+
+    if (entity.state == PublishState.PUBLISHED) {
+      sendNotificationOnCreateOrUpdate(entity);
+    }
+  }
 
   async afterUpdate(event: UpdateEvent<BloodRequest>): Promise<any> {
     const { entity, updatedColumns } = event;
@@ -40,24 +69,7 @@ export class BloodRequestSubsriber
       entity.state == PublishState.PUBLISHED &&
       entity.state !== event.databaseEntity.state
     ) {
-      console.log(
-        `(Notification): Blood Request for blood group ${entity.bloodGroup}`,
-      );
-
-      const bloodGroup = entity.bloodGroup;
-
-      let users = await this.userService.findUserByBloodGroup(bloodGroup);
-
-      const ids = users.map((user) => user.user_id);
-
-      this.notificationService.sendNotificationGroup(
-        {
-          title: `Blood Request for blood group ${entity.bloodGroup}`,
-          body: 'This is the description of the blood request',
-          data: '{}',
-        },
-        ids,
-      );
+      sendNotificationOnCreateOrUpdate(entity);
     }
 
     //Send notification when a user accepts to donate blood
