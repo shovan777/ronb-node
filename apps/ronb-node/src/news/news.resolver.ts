@@ -72,6 +72,7 @@ export class NewsResolver {
     private readonly newsTaggitService: NewsTaggitService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @Inject('REDIS_CLIENT') private redisCache: RedisClientType,
+    private readonly newsCacheClientService: NewsCacheClientService,
   ) {}
 
   @Mutation(() => News)
@@ -101,18 +102,28 @@ export class NewsResolver {
     // get data from queue
     // return this.newsService.findAll();
     console.log(`user ${user} is requesting news with limit ${limit}`);
+    const userCacheName = `newscache_${user}`;
+    // check if user news cache exists
+    const userNewsCacheExists = await this.redisCache.exists(userCacheName);
+    if (!userNewsCacheExists && user) {
+      this.newsCacheClientService
+        .sendBeginCaching(user)
+        .then((res) => console.log(res));
+    }
+    // if user news cache does not exist, start caching
+
     // const cachedNews: News[] = await this.cacheManager.get(`newscache_${user}`);
     // get limit number of news from the queue in cache
     const numBlocks = Math.floor(limit / 10) - 1;
     const cachedNews = await this.redisCache.lRange(
-      `newscache_${user}`,
+      userCacheName,
       0,
       numBlocks,
     );
-    // delete the retrieved block from the queue
-    this.redisCache.lTrim(`newscache_${user}`, numBlocks + 1, -1);
 
     if (cachedNews && cachedNews.length > 0) {
+      // delete the retrieved block from the queue
+      this.redisCache.lTrim(`newscache_${user}`, numBlocks + 1, -1);
       for (let i = 0; i < cachedNews.length; i++) {
         const blockofNews = cachedNews[i];
         // convert the block to news array
@@ -412,7 +423,8 @@ export class RecommendationDataResolver {
 
   @Query(() => Boolean, { name: 'recommendationDataExists' })
   async exists(): Promise<boolean> {
-    const isExist = await this.newsCacheClientService.sendBeginCaching();
+    const userId = 1;
+    const isExist = await this.newsCacheClientService.sendBeginCaching(userId);
     // let res: boolean;
     // console.log(
     //   isExist.subscribe((data) => {

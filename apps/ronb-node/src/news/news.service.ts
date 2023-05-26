@@ -662,7 +662,7 @@ export class NewsCacheClientService implements OnModuleInit {
       this.client.getService<NewsCachingServiceClient>('NewsCachingService');
   }
 
-  async sendBeginCaching(): Promise<BeginCachingResponse> {
-    return firstValueFrom(this.newsCachingService.beginCaching({ id: 1 }));
+  async sendBeginCaching(userId: number): Promise<BeginCachingResponse> {
+    return firstValueFrom(this.newsCachingService.beginCaching({ id: userId }));
   }
 }
