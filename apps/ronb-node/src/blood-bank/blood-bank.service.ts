@@ -390,6 +390,8 @@ export class BloodBankService {
       }
     });
 
+    bloodRequest.state = BloodRequestState.COMPLETE
+
     return await this.bloodRequestRepository.save(bloodRequest);
   }
 
