@@ -24,14 +24,14 @@ async function sendNotificationOnCreateOrUpdate(entity: any, service: any) {
   const bloodGroup = entity.bloodGroup;
 
   let users = await service.findUserIdByBloodGroup(bloodGroup);
-  this.notificationService.sendNotificationGroup(
-    {
-      title: `Blood Request for blood group ${entity.bloodGroup}`,
-      body: 'This is the description of the blood request',
-      data: '{}',
-    },
-    users,
-  );
+  // this.notificationService.sendNotificationGroup(
+  //   {
+  //     title: `Blood Request for blood group ${entity.bloodGroup}`,
+  //     body: 'This is the description of the blood request',
+  //     data: '{}',
+  //   },
+  //   users,
+  // );
 }
 
 @EventSubscriber()
@@ -87,42 +87,34 @@ export class BloodRequestSubsriber
         console.log(
           `(Notification to user ${requestor.id}): User ${doner.username} has accepted to donate blood.`,
         );
-        this.notificationService.sendNotificationUser(
-          {
-            title: `User ${doner.username} has accepted to donate blood.`,
-            body: 'This is the description of the accepted blood request',
-          },
-          requestor.id,
-          doner.id,
-          data,
-        );
+        // this.notificationService.sendNotificationUser(
+        //   {
+        //     title: `User ${doner.username} has accepted to donate blood.`,
+        //     body: 'This is the description of the accepted blood request',
+        //   },
+        //   requestor.id,
+        //   doner.id,
+        //   data,
+        // );
       }
     }
 
     //Send Notification to the acceptors of the blood request about the cancellation of the request.
     if (entity.state == BloodRequestState.CANCELLED) {
-      const users: number[] = entity.acceptors;
-      console.log(
-        '🚀 ~ file: blood-bank.subscriber.ts:105 ~ afterUpdate ~ users:',
-        users,
-      );
+      const users: number[] = entity.acceptors;     
       const users1: number[] = event.databaseEntity.acceptors;
-      console.log(
-        '🚀 ~ file: blood-bank.subscriber.ts:107 ~ afterUpdate ~ users1:',
-        users1,
-      );
-
+     
       console.log(
         `(Notification to user ${users}): Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
       );
-      this.notificationService.sendNotificationGroup(
-        {
-          title: `Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
-          body: 'This is the description of the blood request',
-          data: '{}',
-        },
-        users,
-      );
+      // this.notificationService.sendNotificationGroup(
+      //   {
+      //     title: `Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
+      //     body: 'This is the description of the blood request',
+      //     data: '{}',
+      //   },
+      //   users,
+      // );
     }
   }
 }
