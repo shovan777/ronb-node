@@ -35,6 +35,9 @@ import {
   NEWS_PACKAGE_NAME,
 } from '@app/shared/common/proto/news.pb';
 import { createClient } from 'redis';
+import { Profile as userProfile } from '@app/shared/entities/users.entity';
+import { NewsComment } from '@app/shared/entities/comment.entity';
+import { Tag } from '@app/shared/entities/tags.entity';
 
 @Module({
   providers: [
@@ -75,6 +78,9 @@ import { createClient } from 'redis';
       UserLikesNews,
       UserNewsEngagement,
       UserInterests,
+      userProfile,
+      NewsComment,
+      Tag,
     ]),
     ClientsModule.register([
       {
