@@ -59,7 +59,7 @@ export class NewsService {
     private tagsService: TagsService,
     private newsTaggitService: NewsTaggitService,
     private fileService: FilesService,
-  ) { }
+  ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
   async create(newsInput: CreateNewsInput, user: number): Promise<News> {
@@ -436,7 +436,7 @@ export class NewsCategoryService {
   constructor(
     @InjectRepository(NewsCategory)
     private newsCategoryRepository: Repository<NewsCategory>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<NewsCategory[]> {
     return this.newsCategoryRepository.find();
@@ -497,7 +497,7 @@ export class UserLikesNewsService {
     private userLikesNewsRepository: Repository<UserLikesNews>,
     @InjectRepository(News)
     private newsRepository: Repository<News>,
-  ) { }
+  ) {}
   async create(
     createUserLikesNewsInput: CreateUserLikesNewsInput,
     user: number,
@@ -537,7 +537,7 @@ export class UserInterestsService {
     private userInterestsRepository: Repository<UserInterests>,
     private newsCategoryService: NewsCategoryService,
     private newsTagService: TagsService,
-  ) { }
+  ) {}
 
   async create(
     userInterestsInput: CreateUserInterestsInput,
@@ -588,7 +588,7 @@ export class NewsEngagementService {
     @InjectRepository(UserNewsEngagement)
     private newsEngagementRepository: Repository<UserNewsEngagement>,
     private newsService: NewsService,
-  ) { }
+  ) {}
 
   async create(
     createNewsEngagementInput: CreateNewsEngagementInput,
@@ -646,8 +646,7 @@ export class RecommendationDataService {
     private tagRepository: Repository<Tag>,
     @InjectDataSource('usersConnection')
     private userDataSource: DataSource,
-
-  ) { }
+  ) {}
 
   async getRecommendationData(): Promise<RecommendationData> {
     // const userInterestsIds = userInterests.map((interest) => interest.category);
@@ -667,23 +666,22 @@ export class RecommendationDataService {
 
     const userWriter = createObjectCsvWriter({
       path: '/home/saru/Documents/NewsRecommend/users.csv',
-      header: [
-        { id: 'id', title: 'User' },
-      ]
+      header: [{ id: 'id', title: 'User' }],
     });
     const usersData = user.map((usersItem) => {
       return {
         id: usersItem.id,
       };
     });
-    userWriter.writeRecords(usersData)
+    userWriter
+      .writeRecords(usersData)
       .then(() => console.log('CSV file for Users written successfully'))
       .catch((error) => console.log('Error writing Users CSV file', error));
-    console.log(user)
+    console.log(user);
     // saving user likes data
     const userlikes = await this.userLikesNewsRepository.find({
       order: {
-        userId: "ASC",
+        userId: 'ASC',
       },
     });
     const likesWriter = createObjectCsvWriter({
@@ -691,16 +689,17 @@ export class RecommendationDataService {
       header: [
         { id: 'user', title: 'User' },
         { id: 'news', title: 'News' },
-      ]
+      ],
     });
     const likesData = userlikes.map((likesItem) => {
       return {
         user: likesItem.userId,
-        news: likesItem.newsId
+        news: likesItem.newsId,
       };
     });
 
-    likesWriter.writeRecords(likesData)
+    likesWriter
+      .writeRecords(likesData)
       .then(() => console.log('CSV file for Likes written successfully'))
       .catch((error) => console.log('Error writing Likes CSV file', error));
 
@@ -716,7 +715,7 @@ export class RecommendationDataService {
       //   id: LessThan(2000)
       // },
       order: {
-        id: "ASC",
+        id: 'ASC',
       },
     });
 
@@ -728,8 +727,8 @@ export class RecommendationDataService {
         { id: 'category', title: 'Category' },
         { id: 'tags', title: 'Tags' },
         { id: 'likes', title: 'Likes' },
-        { id: 'comments', title: 'Comments' }
-      ]
+        { id: 'comments', title: 'Comments' },
+      ],
     });
     const newsData = news.map((newsItem) => {
       return {
@@ -738,10 +737,11 @@ export class RecommendationDataService {
         category: newsItem.category ? newsItem.category.id : null,
         tags: newsItem.tags.map((tag) => tag.id).join(','),
         likes: newsItem.likes.length,
-        comments: newsItem.comments.length
+        comments: newsItem.comments.length,
       };
     });
-    newsWriter.writeRecords(newsData)
+    newsWriter
+      .writeRecords(newsData)
       .then(() => console.log('CSV file for news written successfully'))
       .catch((error) => console.log('Error writing News CSV file', error));
 
@@ -752,85 +752,88 @@ export class RecommendationDataService {
         { id: 'newsId', title: 'News' },
         { id: 'userId', title: 'User' },
         { id: 'likeCount', title: 'Like' },
-        { id: 'commentCount', title: 'Comment' }
-      ]
+        { id: 'commentCount', title: 'Comment' },
+      ],
     });
     let ratingDataAll = [];
-    news.forEach(n => {
-      let ratingDict = {}
-      n.likes.forEach(like => {
+    news.forEach((n) => {
+      let ratingDict = {};
+      n.likes.forEach((like) => {
         ratingDict[like.userId] = {
           newsId: n.id,
           userId: like.userId,
           likeCount: 1,
           commentCount: 0,
-        }
+        };
       });
 
-      n.comments.forEach(comment => {
+      n.comments.forEach((comment) => {
         if (comment.author in ratingDict) {
-          ratingDict[comment.author].commentCount += 1
+          ratingDict[comment.author].commentCount += 1;
         } else {
           ratingDict[comment.author] = {
             newsId: n.id,
             userId: comment.author,
             likeCount: 0,
             commentCount: 1,
-          }
+          };
         }
         // console.log(ratingDict)
       });
       const ratingData = Object.values(ratingDict);
       ratingDataAll = ratingDataAll.concat(ratingData);
-    }
-    );
-    ratingWriter.writeRecords(ratingDataAll)
+    });
+    ratingWriter
+      .writeRecords(ratingDataAll)
       .then(() => console.log('CSV file for rating written successfully'))
       .catch((error) => console.log('Error writing rating CSV file', error));
-
 
     // saving user Interest data
     const userInterests = await this.userInterestsRepository.find({
       relations: ['newsTags', 'newsCategories'],
       order: {
-        userId: "ASC",
+        userId: 'ASC',
       },
-    })
-      ;
+    });
     const userInterestWriter = createObjectCsvWriter({
       path: '/home/saru/Documents/NewsRecommend/userInterest.csv',
       header: [
         { id: 'userId', title: 'User' },
         { id: 'tags', title: 'Tags' },
         { id: 'category', title: 'Category' },
-      ]
+      ],
     });
     const userInterestData = userInterests.map((interestItem) => {
       return {
         userId: interestItem.userId,
         tags: interestItem.newsTags.map((tag) => tag.id).join(','),
-        category: interestItem.newsCategories.map((category) => category.id).join(','),
+        category: interestItem.newsCategories
+          .map((category) => category.id)
+          .join(','),
       };
     });
-    userInterestWriter.writeRecords(userInterestData)
+    userInterestWriter
+      .writeRecords(userInterestData)
       .then(() => console.log('CSV file for userInterest written successfully'))
-      .catch((error) => console.log('Error writing user Interest CSV file', error));
+      .catch((error) =>
+        console.log('Error writing user Interest CSV file', error),
+      );
 
     // saving Category data
     const categories = await this.newsCategoryRepository.find({
       // relations: ['news','userInterests'],
       order: {
-        id: "ASC",
+        id: 'ASC',
       },
     });
-    console.log("kaljfklsdhfkjfecjdsgbvjhgdhjgd")
+    console.log('kaljfklsdhfkjfecjdsgbvjhgdhjgd');
     const categoryWriter = createObjectCsvWriter({
       path: '/home/saru/Documents/NewsRecommend/categories.csv',
       header: [
         { id: 'id', title: 'Id' },
         { id: 'category', title: 'Category' },
         // {id: 'news', title: 'News'},
-      ]
+      ],
     });
     const categoryData = categories.map((categoryItem) => {
       return {
@@ -839,7 +842,8 @@ export class RecommendationDataService {
         // news: categoryItem.news.map((news) => news.id).join(','),
       };
     });
-    categoryWriter.writeRecords(categoryData)
+    categoryWriter
+      .writeRecords(categoryData)
       .then(() => console.log('CSV file for category written successfully'))
       .catch((error) => console.log('Error writing category CSV file', error));
 
@@ -847,7 +851,7 @@ export class RecommendationDataService {
     const tags = await this.tagRepository.find({
       // relations: ['news','tag'],
       order: {
-        id: "ASC",
+        id: 'ASC',
       },
     });
     const tagsWriter = createObjectCsvWriter({
@@ -855,16 +859,17 @@ export class RecommendationDataService {
       header: [
         { id: 'id', title: 'Id' },
         { id: 'tag', title: 'Tag' },
-      ]
+      ],
     });
-    console.log("sdyufhgvdbehjgfcjkdhsjkfgvdjkfgvdjkfgvbjiuedc")
+    console.log('sdyufhgvdbehjgfcjkdhsjkfgvdjkfgvdjkfgvbjiuedc');
     const tagData = tags.map((tagItem) => {
       return {
         id: tagItem.id,
         tag: tagItem.name,
       };
     });
-    tagsWriter.writeRecords(tagData)
+    tagsWriter
+      .writeRecords(tagData)
       .then(() => console.log('CSV file for tag written successfully'))
       .catch((error) => console.log('Error writing Tag CSV file', error));
 
@@ -884,7 +889,7 @@ export class NewsCacheClientService implements OnModuleInit {
 
   constructor(
     @Inject(NEWS_CACHING_SERVICE_NAME) private readonly client: ClientGrpc,
-  ) { }
+  ) {}
 
   onModuleInit() {
     this.newsCachingService =
