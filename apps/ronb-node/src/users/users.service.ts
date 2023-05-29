@@ -43,22 +43,25 @@ export class UsersService {
           .where('account_profile.user_id = :id', { id: user.id })
           .getRawOne();
       }),
-      );
-      
-    queryOut = queryOut.filter(query => query.profile.blood_group_approval === true)
+    );
+
+    queryOut = queryOut.filter(
+      (query) => query.profile.blood_group_approval === true,
+    );
     return { doners: queryOut, count: totalQueryCount };
   }
 
-  async findUserByBloodGroup(bloodGroup: string) {
+  async findUserIdByBloodGroup(bloodGroup: string) {
     const users = await this.userDataSource
       .createQueryBuilder()
       .from('account_profile', 'account_profile')
+      .select('account_profile.user_id')
       .where('account_profile.blood_group = :bloodGroup', {
         bloodGroup: bloodGroup,
       })
       .getRawMany();
 
-    return users;
+    return users.map((user) => user.user_id); //TODO: Check for alternative solution without using .map()
   }
 }
 
