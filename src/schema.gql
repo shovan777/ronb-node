@@ -130,7 +130,7 @@ type BloodRequest {
   profile: Author
 
   """Blood request state"""
-  state: State!
+  state: BloodRequestState!
 
   """date of update"""
   updatedAt: DateTime!
@@ -180,6 +180,14 @@ type BloodRequestResponse {
   pageData: PageData
 }
 
+enum BloodRequestState {
+  CANCELLED
+  COMPLETE
+  DRAFT
+  PUBLISHED
+  REVIEWED
+}
+
 type CommentsResponse {
   page: NewsCommentConnection!
   pageData: PageData
@@ -222,7 +230,7 @@ input CreateBloodRequestInput {
   phoneNumber: BigInt
 
   """Yellow Pages State"""
-  state: State
+  state: BloodRequestState
 }
 
 input CreateDistrictInput {
@@ -532,7 +540,9 @@ scalar GeoJSONPointScalar
 type Mutation {
   acceptBloodRequest(id: Int!): BloodRequest!
   addDoners(id: Int!, usersID: [Int!]!): BloodRequest!
+  cancelAcceptedBloodRequest(id: Int!): BloodRequest!
   cancelBloodRequest(id: Int!): BloodRequest!
+  completeBloodRequest(id: Int!): BloodRequest!
   creatDistrict(createDistrictInput: CreateDistrictInput!): District!
   createBloodRequest(createBloodBankInput: CreateBloodRequestInput!): BloodRequest!
   createNews(createNewsInput: CreateNewsInput!): News!
@@ -1394,7 +1404,7 @@ input UpdateBloodRequestInput {
   phoneNumber: BigInt
 
   """Yellow Pages State"""
-  state: State
+  state: BloodRequestState
 }
 
 input UpdateDistrictInput {

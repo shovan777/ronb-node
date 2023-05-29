@@ -125,12 +125,30 @@ export class BloodBankResolver {
   }
 
   @Mutation(() => BloodRequest)
+  async cancelAcceptedBloodRequest(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<BloodRequest> {
+    checkUserAuthenticated(user);
+    return this.bloodRequestService.cancelAcceptedRequest(id, user);
+  }
+
+  @Mutation(() => BloodRequest)
+  async completeBloodRequest(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+  ): Promise<BloodRequest> {
+    checkUserAuthenticated(user);
+    return this.bloodRequestService.completeRequest(id);
+  }
+
+  @Mutation(() => BloodRequest)
   async cancelBloodRequest(
     @Args('id', { type: () => Int }) id: number,
     @User() user: number,
   ): Promise<BloodRequest> {
     checkUserAuthenticated(user);
-    return this.bloodRequestService.cancelRequest(id, user);
+    return this.bloodRequestService.cancelBloodRequest(id);
   }
 
   @Mutation(() => BloodRequest)

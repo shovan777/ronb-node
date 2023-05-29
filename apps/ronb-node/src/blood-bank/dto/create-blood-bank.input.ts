@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { PublishState as BloodBankState } from '@app/shared/common/enum/publish_state.enum';
+import { BloodRequestState,BloodRequestStateType } from '@app/shared/entities/blood-bank.entity';
 import { BigIntResolver } from 'graphql-scalars';
 import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
 import { ArrayUnique, IsArray } from 'class-validator';
@@ -38,11 +38,11 @@ export class CreateBloodRequestInput {
   @Field(() => BigIntResolver, { description: 'Phone number', nullable: true })
   phoneNumber: number;
 
-  @Field(() => BloodBankState, {
+  @Field(() => BloodRequestState, {
     description: 'Yellow Pages State',
     nullable: true,
   })
-  state?: BloodBankState;
+  state?: BloodRequestStateType;
 
   @Field({
     description: 'Is the blood request an emergency?',
