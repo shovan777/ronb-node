@@ -8,6 +8,7 @@ import { GrpcMethod } from '@nestjs/microservices';
 import {
   NewsRecommendationClientService,
   NewscacheService,
+  RecommendationDataService,
 } from './newscache.service';
 import { News } from '@app/shared/entities/news.entity';
 import { firstValueFrom, timeout } from 'rxjs';
@@ -17,11 +18,13 @@ export class NewscacheController {
   constructor(
     private readonly newscacheService: NewscacheService,
     private readonly newsRecommendationClientService: NewsRecommendationClientService,
+    private readonly recommendationDataService: RecommendationDataService,
   ) {}
 
   @Get()
   getHello(): Promise<any> {
-    return this.newscacheService.getHello();
+    return this.recommendationDataService.getRecommendationData();
+    // return this.newscacheService.getHello();
   }
 
   // @Get('news')
