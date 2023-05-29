@@ -10,7 +10,6 @@ import {
   BaseProvince,
 } from '@app/shared/entities/address.entity';
 import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
-import { PublishState as BloodRequestState } from '@app/shared/common/enum/publish_state.enum';
 import { calculateUserAge } from '@app/shared/common/utils/calculateUserAge';
 import { checkIfObjectIsPublished } from '@app/shared/common/utils/checkPublishedState';
 import { Author } from '@app/shared/entities/users.entity';
@@ -22,6 +21,7 @@ import { UpdateBloodRequestInput } from './dto/update-blood-bank.input';
 import {
   BloodRequest,
   BloodRequestAddress,
+  BloodRequestState,
 } from '@app/shared/entities/blood-bank.entity';
 import { DonerPaginateInterface } from '@app/shared/common/interfaces/user.interface';
 import { BloodRecordResponse } from './blood-bank.response';
@@ -308,23 +308,40 @@ export class BloodBankService {
     }
   }
 
-  async cancelRequest(
-    requestID: number,
-    userID: number,
+  async cancelAcceptedRequest(
+    requestId: number,
+    userId: number,
   ): Promise<BloodRequest> {
-    const bloodRequest: BloodRequest = await this.findOne(requestID);
+    const bloodRequest: BloodRequest = await this.findOne(requestId);
 
-    if (bloodRequest.acceptors.includes(userID)) {
-      const index = bloodRequest.acceptors.indexOf(userID);
+    if (bloodRequest.acceptors.includes(userId)) {
+      const index = bloodRequest.acceptors.indexOf(userId);
       if (index > -1) {
-        bloodRequest.acceptors.splice(index, userID);
+        bloodRequest.acceptors.splice(index, userId);
       }
       return await this.bloodRequestRepository.save(bloodRequest);
     }
 
     throw new ForbiddenException(
-      `User ${userID} is not on the list of acceptors for this bloodRequest`,
+      `User ${userId} is not on the list of acceptors for this bloodRequest`,
     );
+  }
+
+  async cancelBloodRequest(requestId: number): Promise<BloodRequest> {
+    const bloodRequest: BloodRequest = await this.findOne(requestId);
+
+    bloodRequest.state = BloodRequestState.CANCELLED;
+    bloodRequest.acceptors = [];
+
+    return await this.bloodRequestRepository.save(bloodRequest);
+  }
+
+  async completeRequest(requestId: number): Promise<BloodRequest> {
+    const bloodRequest: BloodRequest = await this.findOne(requestId);
+
+    bloodRequest.state = BloodRequestState.COMPLETE;
+
+    return await this.bloodRequestRepository.save(bloodRequest);
   }
 
   async getAcceptors(requestID: number) {
