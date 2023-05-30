@@ -55,7 +55,7 @@ jobs:
         run: |
           echo "image name: ${{ steps.meta.outputs.tags }}"
           echo "*******img: ${{ env.IMAGE_NAME }}"
-          docker build -t ${{ steps.meta.outputs.tags }} .
+          docker build -t ${{ steps.meta.outputs.tags }} ./apps/newscache/newscache.Dockerfile
           # echo "::set-output name=tags::${{ steps.meta.outputs.tags }}"
           # echo "::set-output name=json_tag::\"${{ steps.meta.outputs.tags }}\""
       - name: Push image to Amazon ECR
