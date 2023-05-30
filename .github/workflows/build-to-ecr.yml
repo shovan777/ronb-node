@@ -1,0 +1,97 @@
+name: CI/CD to AWS
+on:
+  # pull_request:
+  #   types: [opened]
+  push:
+    branches:
+      - news_recommender_cache
+  # release:
+  #   types: [published]
+  #   tags:
+  #     - 'v*'
+
+  # allows to manually run the workflow in actions tab
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+
+env:
+  REGION: ap-southeast-1
+  IMAGE_NAME: news_cache
+
+jobs:
+  build_and_push:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    outputs:
+      img_tag: ${{steps.meta.outputs.tags}}
+      json_tag: ${{steps.meta.outputs.json}}
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v3
+
+      - name: Configure Aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Get meta info
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha
+      - name: Build docker image
+        id: build-image
+        run: |
+          echo "image name: ${{ steps.meta.outputs.tags }}"
+          echo "*******img: ${{ env.IMAGE_NAME }}"
+          docker build -t ${{ steps.meta.outputs.tags }} .
+          # echo "::set-output name=tags::${{ steps.meta.outputs.tags }}"
+          # echo "::set-output name=json_tag::\"${{ steps.meta.outputs.tags }}\""
+      - name: Push image to Amazon ECR
+        id: push-image
+        env:
+          IMAGE_URL: ${{ steps.meta.outputs.tags }}
+        run: |
+          # push image to ECR so that it can
+          # be deployed to ECS.
+          docker push $IMAGE_URL
+          # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          # echo "::set-output name=tag::$IMAGE_TAG"
+          # echo "::set-output name=json_tag::\"$IMAGE_TAG\""
+
+  # deploy:
+  #   name: Deploy to Amazon EC2 instance
+  #   runs-on: ubuntu-latest
+  #   environment: aws
+  #   needs: build_and_push
+
+  #   steps:
+  #     - name: Deploy to aws EC2 instance via SSH action
+  #       uses: appleboy/ssh-action@v0.1.3
+  #       env:
+  #           TAG: ${{fromJSON(needs.build_and_push.outputs.json_tag).tags[0]}}
+  #           # TAG: ${{needs.build_and_push.outputs.img_tag}}
+  #           #${{ github.sha }}_${{ github.event.inputs.version }}
+  #       with:
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: ${{ secrets.USERNAME }}
+  #         key: ${{ secrets.SSH_KEY }}
+  #         envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA,TAG
+  #         script: |
+  #           cd ronb-platform
+  #           echo $TAG
+  #           export NEST_TAG=$(echo $TAG)
+  #           echo NEST_IMAGE=$NEST_TAG > .env.nestimg
+  #           cat .env.django .env.nestimg .env.dashboard > .env
+  #           docker compose up -d api-nest
