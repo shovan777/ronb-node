@@ -22,6 +22,9 @@ import { RedisClientType } from 'redis';
 import { Observable } from 'rxjs';
 import { DataSource, In, Repository } from 'typeorm';
 import { RecommendationData } from './interfaces/recommendations.interface';
+import { join } from 'path';
+import { S3 } from 'aws-sdk';
+import { createReadStream } from 'fs';
 
 @Injectable()
 export class NewscacheService {
@@ -160,14 +163,18 @@ export class RecommendationDataService {
     // const comment= await this.commentRepository.count()
     // console.log("Comment Count",comment)
     // saving user data
+    const uploadDir = join(process.env.MEDIA_ROOT, 'recommendation_data');
+    const filePaths = [];
+    const use_s3 = process.env.USE_S3 === 'true';
+
     const user = await this.userDataSource
       .createQueryBuilder()
       .from('account_user', 'account_user')
       .orderBy('id')
       .getRawMany();
-
+    const userPath = join(uploadDir, 'users.csv');
     const userWriter = createObjectCsvWriter({
-      path: '/home/saru/Documents/NewsRecommend/users.csv',
+      path: userPath,
       header: [{ id: 'id', title: 'User' }],
     });
     const usersData = user.map((usersItem) => {
@@ -175,19 +182,22 @@ export class RecommendationDataService {
         id: usersItem.id,
       };
     });
-    userWriter
+    await userWriter
       .writeRecords(usersData)
       .then(() => console.log('CSV file for Users written successfully'))
       .catch((error) => console.log('Error writing Users CSV file', error));
-    console.log(user);
+    filePaths.push(userPath);
+
+    // console.log(user);
     // saving user likes data
     const userlikes = await this.userLikesNewsRepository.find({
       order: {
         userId: 'ASC',
       },
     });
+    const likePath = join(uploadDir, 'likes.csv');
     const likesWriter = createObjectCsvWriter({
-      path: '/home/saru/Documents/NewsRecommend/likes.csv',
+      path: likePath,
       header: [
         { id: 'user', title: 'User' },
         { id: 'news', title: 'News' },
@@ -200,10 +210,11 @@ export class RecommendationDataService {
       };
     });
 
-    likesWriter
+    await likesWriter
       .writeRecords(likesData)
       .then(() => console.log('CSV file for Likes written successfully'))
       .catch((error) => console.log('Error writing Likes CSV file', error));
+    filePaths.push(likePath);
 
     // saving news data
     const news = await this.newsRepository.find({
@@ -220,9 +231,9 @@ export class RecommendationDataService {
         id: 'ASC',
       },
     });
-
+    const newsPath = join(uploadDir, 'news.csv');
     const newsWriter = createObjectCsvWriter({
-      path: '/home/saru/Documents/NewsRecommend/news.csv',
+      path: newsPath,
       header: [
         { id: 'id', title: 'Id' },
         { id: 'title', title: 'Title' },
@@ -242,14 +253,16 @@ export class RecommendationDataService {
         comments: newsItem.comments.length,
       };
     });
-    newsWriter
+    await newsWriter
       .writeRecords(newsData)
       .then(() => console.log('CSV file for news written successfully'))
       .catch((error) => console.log('Error writing News CSV file', error));
+    filePaths.push(newsPath);
 
     // saving rating data
+    const ratingPath = join(uploadDir, 'ratings.csv');
     const ratingWriter = createObjectCsvWriter({
-      path: '/home/saru/Documents/NewsRecommend/ratings.csv',
+      path: ratingPath,
       header: [
         { id: 'newsId', title: 'News' },
         { id: 'userId', title: 'User' },
@@ -285,12 +298,14 @@ export class RecommendationDataService {
       const ratingData = Object.values(ratingDict);
       ratingDataAll = ratingDataAll.concat(ratingData);
     });
-    ratingWriter
+    await ratingWriter
       .writeRecords(ratingDataAll)
       .then(() => console.log('CSV file for rating written successfully'))
       .catch((error) => console.log('Error writing rating CSV file', error));
+    filePaths.push(ratingPath);
 
     // saving user Interest data
+    const userInterestPath = join(uploadDir, 'userInterest.csv');
     const userInterests = await this.userInterestsRepository.find({
       relations: ['newsTags', 'newsCategories'],
       order: {
@@ -298,7 +313,7 @@ export class RecommendationDataService {
       },
     });
     const userInterestWriter = createObjectCsvWriter({
-      path: '/home/saru/Documents/NewsRecommend/userInterest.csv',
+      path: userInterestPath,
       header: [
         { id: 'userId', title: 'User' },
         { id: 'tags', title: 'Tags' },
@@ -314,23 +329,24 @@ export class RecommendationDataService {
           .join(','),
       };
     });
-    userInterestWriter
+    await userInterestWriter
       .writeRecords(userInterestData)
       .then(() => console.log('CSV file for userInterest written successfully'))
       .catch((error) =>
         console.log('Error writing user Interest CSV file', error),
       );
+    filePaths.push(userInterestPath);
 
     // saving Category data
+    const categoriesPath = join(uploadDir, 'categories.csv');
     const categories = await this.newsCategoryRepository.find({
       // relations: ['news','userInterests'],
       order: {
         id: 'ASC',
       },
     });
-    console.log('kaljfklsdhfkjfecjdsgbvjhgdhjgd');
     const categoryWriter = createObjectCsvWriter({
-      path: '/home/saru/Documents/NewsRecommend/categories.csv',
+      path: categoriesPath,
       header: [
         { id: 'id', title: 'Id' },
         { id: 'category', title: 'Category' },
@@ -344,12 +360,14 @@ export class RecommendationDataService {
         // news: categoryItem.news.map((news) => news.id).join(','),
       };
     });
-    categoryWriter
+    await categoryWriter
       .writeRecords(categoryData)
       .then(() => console.log('CSV file for category written successfully'))
       .catch((error) => console.log('Error writing category CSV file', error));
+    filePaths.push(categoriesPath);
 
     // saving tag data
+    const tagsPath = join(uploadDir, 'tags.csv');
     const tags = await this.tagRepository.find({
       // relations: ['news','tag'],
       order: {
@@ -357,23 +375,54 @@ export class RecommendationDataService {
       },
     });
     const tagsWriter = createObjectCsvWriter({
-      path: '/home/saru/Documents/NewsRecommend/tags.csv',
+      path: tagsPath,
       header: [
         { id: 'id', title: 'Id' },
         { id: 'tag', title: 'Tag' },
       ],
     });
-    console.log('sdyufhgvdbehjgfcjkdhsjkfgvdjkfgvdjkfgvbjiuedc');
     const tagData = tags.map((tagItem) => {
       return {
         id: tagItem.id,
         tag: tagItem.name,
       };
     });
-    tagsWriter
+    await tagsWriter
       .writeRecords(tagData)
       .then(() => console.log('CSV file for tag written successfully'))
       .catch((error) => console.log('Error writing Tag CSV file', error));
+    filePaths.join(tagsPath);
+
+    if (use_s3) {
+      const s3_params = {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_ACCESS_KEY,
+        region: process.env.AWS_REGION,
+      };
+      const s3 = new S3({ ...s3_params });
+      const run = async (awsUploadParams) => {
+        try {
+          // const data = await s3Client.send(new PutObjectCommand(awsUploadParams));
+          // this is not working because its shit ENOT found vanxa k garnu ta abo
+          const data = await s3.upload(awsUploadParams).promise();
+          console.log(`Success uploading to aws ${data.Location}`);
+        } catch (err) {
+          console.log('Error', err);
+          throw err;
+        }
+      };
+      //TODO: use boto to write the files to S3
+      for (const i in filePaths) {
+        const curFilePath = filePaths[i];
+        const dataStream = createReadStream(curFilePath);
+        const awsUploadParams = {
+          Bucket: process.env.REC_BUCKET_NAME,
+          Key: curFilePath,
+          Body: dataStream,
+        };
+        await run(awsUploadParams);
+      }
+    }
 
     const recommendationData: RecommendationData = {
       userData: 'user data',
