@@ -26,6 +26,7 @@ import {
 import { DonerPaginateInterface } from '@app/shared/common/interfaces/user.interface';
 import { BloodRecordResponse } from './blood-bank.response';
 import { FilterBloodRequestInput } from './dto/filter-blood-group.input';
+import { getDateInterval } from '@app/shared/common/utils/dateInterval';
 
 @Injectable()
 export class BloodBankService {
@@ -173,9 +174,8 @@ export class BloodBankService {
     const isEmergencyTimeInterval = 2; //in days
 
     if (bloodBankInput.donationDate) {
-      const donationDate = new Date(bloodBankInput.donationDate).getDate();
-      const dateToday = new Date().getDate();
-      const donationDuration = donationDate - dateToday;
+      const donationDate = bloodBankInput.donationDate;
+      const donationDuration = getDateInterval(donationDate)
 
       if (donationDuration < 0) {
         throw new ForbiddenException(
@@ -390,7 +390,7 @@ export class BloodBankService {
       }
     });
 
-    bloodRequest.state = BloodRequestState.COMPLETE
+    bloodRequest.state = BloodRequestState.COMPLETE;
 
     return await this.bloodRequestRepository.save(bloodRequest);
   }
