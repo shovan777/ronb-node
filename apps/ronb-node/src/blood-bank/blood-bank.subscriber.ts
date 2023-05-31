@@ -16,19 +16,24 @@ import {
 } from '@app/shared/entities/blood-bank.entity';
 import { Author } from '@app/shared/entities/users.entity';
 
-async function sendNotificationOnCreateOrUpdate(entity: any, service: any) {
+async function sendNotificationOnCreateOrUpdate(
+  entity: any,
+  service: any,
+  notificationService: any,
+) {
   console.log(
-    `(Notification: ${process.env.SEND_NOTIFICATION}/${typeof process.env
-      .SEND_NOTIFICATION}): Blood Request for blood group ${entity.bloodGroup}`,
+    `(Notification): Blood Request for blood group ${entity.bloodGroup}`,
   );
   const bloodGroup = entity.bloodGroup;
 
   let users = await service.findUserIdByBloodGroup(bloodGroup);
-  // this.notificationService.sendNotificationGroup(
+  // notificationService.sendNotificationGroup(
   //   {
   //     title: `Blood Request for blood group ${entity.bloodGroup}`,
   //     body: 'This is the description of the blood request',
-  //     data: '{}',
+  //     data: JSON.stringify({
+  //       category: 'BLOOD',
+  //     }),
   //   },
   //   users,
   // );
@@ -54,7 +59,11 @@ export class BloodRequestSubsriber
     const { entity } = event;
 
     if (entity.state == BloodRequestState.PUBLISHED) {
-      sendNotificationOnCreateOrUpdate(entity, this.userService);
+      sendNotificationOnCreateOrUpdate(
+        entity,
+        this.userService,
+        this.notificationService,
+      );
     }
   }
 
@@ -66,7 +75,11 @@ export class BloodRequestSubsriber
       entity.state == BloodRequestState.PUBLISHED &&
       entity.state !== event.databaseEntity.state
     ) {
-      sendNotificationOnCreateOrUpdate(entity, this.userService);
+      sendNotificationOnCreateOrUpdate(
+        entity,
+        this.userService,
+        this.notificationService,
+      );
     }
 
     //Send notification when a user accepts to donate blood
@@ -74,7 +87,9 @@ export class BloodRequestSubsriber
       const newAcceptorsArray = entity.acceptors;
       const oldAcceptorsArray = event.databaseEntity.acceptors;
 
-      const data = {}; //TODO: Send the necessary data for the notification
+      const data = {
+        category: 'BLOOD',
+      };
       const result = newAcceptorsArray.filter(
         (id: number) => !oldAcceptorsArray.includes(id),
       );
@@ -101,9 +116,8 @@ export class BloodRequestSubsriber
 
     //Send Notification to the acceptors of the blood request about the cancellation of the request.
     if (entity.state == BloodRequestState.CANCELLED) {
-      const users: number[] = entity.acceptors;     
-      const users1: number[] = event.databaseEntity.acceptors;
-     
+      const users: number[] = entity.acceptors;
+
       console.log(
         `(Notification to user ${users}): Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
       );
@@ -111,7 +125,9 @@ export class BloodRequestSubsriber
       //   {
       //     title: `Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
       //     body: 'This is the description of the blood request',
-      //     data: '{}',
+      //     data: JSON.stringify({
+      //       category: 'BLOOD',
+      //     }),
       //   },
       //   users,
       // );
