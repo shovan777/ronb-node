@@ -15,6 +15,7 @@ import {
   BloodRequestState,
 } from '@app/shared/entities/blood-bank.entity';
 import { Author } from '@app/shared/entities/users.entity';
+import { removeIdFromArray } from '@app/shared/common/utils/utils';
 
 async function sendNotificationOnCreateOrUpdate(
   entity: any,
@@ -27,16 +28,18 @@ async function sendNotificationOnCreateOrUpdate(
   const bloodGroup = entity.bloodGroup;
 
   let users = await service.findUserIdByBloodGroup(bloodGroup);
-  // notificationService.sendNotificationGroup(
-  //   {
-  //     title: `Blood Request for blood group ${entity.bloodGroup}`,
-  //     body: 'This is the description of the blood request',
-  //     data: JSON.stringify({
-  //       category: 'BLOOD',
-  //     }),
-  //   },
-  //   users,
-  // );
+  const usersToNotify = removeIdFromArray(users, entity.createdBy.toString());
+ 
+  notificationService.sendNotificationGroup(
+    {
+      title: `Blood Request for blood group ${entity.bloodGroup}`,
+      body: 'This is the description of the blood request',
+      data: JSON.stringify({
+        category: 'BLOOD',
+      }),
+    },
+    usersToNotify,
+  );
 }
 
 @EventSubscriber()
@@ -102,15 +105,15 @@ export class BloodRequestSubsriber
         console.log(
           `(Notification to user ${requestor.id}): User ${doner.username} has accepted to donate blood.`,
         );
-        // this.notificationService.sendNotificationUser(
-        //   {
-        //     title: `User ${doner.username} has accepted to donate blood.`,
-        //     body: 'This is the description of the accepted blood request',
-        //   },
-        //   requestor.id,
-        //   doner.id,
-        //   data,
-        // );
+        this.notificationService.sendNotificationUser(
+          {
+            title: `User ${doner.username} has accepted to donate blood.`,
+            body: 'This is the description of the accepted blood request',
+          },
+          requestor.id,
+          doner.id,
+          data,
+        );
       }
     }
 
@@ -121,16 +124,16 @@ export class BloodRequestSubsriber
       console.log(
         `(Notification to user ${users}): Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
       );
-      // this.notificationService.sendNotificationGroup(
-      //   {
-      //     title: `Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
-      //     body: 'This is the description of the blood request',
-      //     data: JSON.stringify({
-      //       category: 'BLOOD',
-      //     }),
-      //   },
-      //   users,
-      // );
+      this.notificationService.sendNotificationGroup(
+        {
+          title: `Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
+          body: 'This is the description of the blood request',
+          data: JSON.stringify({
+            category: 'BLOOD',
+          }),
+        },
+        users,
+      );
     }
   }
 }
