@@ -84,4 +84,4 @@ COPY --from=build /usr/src/app/package.json ./package.json
 COPY --from=build /usr/src/app/package-lock.json ./package-lock.json
 
 # Start the server using the production build
-CMD ["npm", "run", "start:prod:newscache"]
+CMD ["npm", "run", "start:prod:newscache", "--offline", "--logs-max=0"]
