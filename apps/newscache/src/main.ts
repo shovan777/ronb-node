@@ -15,7 +15,7 @@ async function bootstrap() {
   //     },
   //   },
   // );
-  const app = await NestFactory.create(NewscacheModule, { logger: false });
+  const app = await NestFactory.create(NewscacheModule);
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
