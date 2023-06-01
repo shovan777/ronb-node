@@ -27,6 +27,7 @@ import { DonerPaginateInterface } from '@app/shared/common/interfaces/user.inter
 import { BloodRecordResponse } from './blood-bank.response';
 import { FilterBloodRequestInput } from './dto/filter-blood-group.input';
 import { getDateInterval } from '@app/shared/common/utils/dateInterval';
+import { removeIdFromArray } from '@app/shared/common/utils/utils';
 
 @Injectable()
 export class BloodBankService {
@@ -175,7 +176,7 @@ export class BloodBankService {
 
     if (bloodBankInput.donationDate) {
       const donationDate = bloodBankInput.donationDate;
-      const donationDuration = getDateInterval(donationDate)
+      const donationDuration = getDateInterval(donationDate);
 
       if (donationDuration < 0) {
         throw new ForbiddenException(
@@ -313,12 +314,12 @@ export class BloodBankService {
     userId: number,
   ): Promise<BloodRequest> {
     const bloodRequest: BloodRequest = await this.findOne(requestId);
+    const bloodRequestAcceptors = bloodRequest.acceptors;
 
-    if (bloodRequest.acceptors.includes(userId)) {
-      const index = bloodRequest.acceptors.indexOf(userId);
-      if (index > -1) {
-        bloodRequest.acceptors.splice(index, userId);
-      }
+    if (bloodRequestAcceptors.includes(userId)) {
+      const updatedAcceptors = removeIdFromArray(bloodRequestAcceptors, userId);
+      bloodRequest.acceptors = updatedAcceptors;
+
       return await this.bloodRequestRepository.save(bloodRequest);
     }
 
@@ -409,16 +410,31 @@ export class BloodBankService {
   }
 
   async bloodRecords(): Promise<BloodRecordResponse> {
-    const bloodRequest = await this.bloodRequestRepository.findAndCount({
-      where: {
-        state: BloodRequestState.PUBLISHED,
-      },
-    });
+    const bloodRequestCompleted =
+      await this.bloodRequestRepository.findAndCount({
+        where: {
+          state: BloodRequestState.COMPLETE,
+        },
+      });
 
-    const totalDonation = bloodRequest[0].reduce((acc, currentValue) => {
-      return acc + currentValue.doners.length;
-    }, 0);
-    const totalRequest = bloodRequest[1];
+    const totalDonation = bloodRequestCompleted[0].reduce(
+      (acc, currentValue) => {
+        const filteredDoners = currentValue.doners.filter(
+          (item) => item !== -1,
+        );
+        return acc + filteredDoners.length;
+      },
+      0,
+    );
+
+    const bloodRequestPublished =
+      await this.bloodRequestRepository.findAndCount({
+        where: {
+          state: BloodRequestState.PUBLISHED,
+        },
+      });
+
+    const totalRequest = bloodRequestPublished[1];
     return { totalDonation: totalDonation, totalRequest: totalRequest };
   }
 }
