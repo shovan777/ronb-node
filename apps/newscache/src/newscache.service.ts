@@ -395,9 +395,9 @@ export class RecommendationDataService {
 
     if (use_s3) {
       const s3_params = {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_ACCESS_KEY,
-        region: process.env.AWS_REGION,
+        accessKeyId: process.env.REC_AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.REC_AWS_ACCESS_KEY,
+        region: process.env.REC_AWS_REGION,
       };
       const s3 = new S3({ ...s3_params });
       const run = async (awsUploadParams) => {
