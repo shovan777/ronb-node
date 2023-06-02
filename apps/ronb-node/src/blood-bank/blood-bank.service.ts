@@ -89,6 +89,9 @@ export class BloodBankService {
       .andWhere('blood_request.createdBy != :user', { user })
       .andWhere('blood_request.donationDate >= :today', {
         today: new Date(),
+      })
+      .andWhere('address.province = :userProvince', {
+        userProvince: userDetails.address.province,
       });
 
     if (filterBloodRequestInput.filter) {

@@ -4,6 +4,9 @@
 
 """Acceptors of blood request"""
 type Acceptors {
+  """User address information"""
+  address: UserAddress
+
   """User email"""
   email: String
   first_name: String
@@ -24,6 +27,9 @@ type Acceptors {
 
 """Comment Author"""
 type Author {
+  """User address information"""
+  address: UserAddress
+
   """User email"""
   email: String
   first_name: String
@@ -1581,6 +1587,12 @@ input UpdateYellowPagesPhoneNumberInput {
 
 """Upload files"""
 scalar Upload
+
+"""Address of the user"""
+type UserAddress {
+  district: String!
+  province: String!
+}
 
 type UserInterests {
   """News categories of interest to user"""

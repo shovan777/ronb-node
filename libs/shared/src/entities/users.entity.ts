@@ -37,6 +37,15 @@ export class Profile {
   totalAccepted?: number;
 }
 
+@ObjectType({ description: 'Address of the user' })
+export class UserAddress {
+  @Field(() => String)
+  province: string;
+
+  @Field(() => String)
+  district: string;
+}
+
 @ObjectType({ description: 'Comment Author' })
 export class Author {
   @Field(() => Int, { description: 'User id' })
@@ -59,6 +68,11 @@ export class Author {
 
   // @Field({ description: 'User lastname' })
   // lastName: string;
+  @Field(() => UserAddress, {
+    description: 'User address information',
+    nullable: true,
+  })
+  address: UserAddress;
 
   @Field(() => Profile, {
     description: 'User profile information',
