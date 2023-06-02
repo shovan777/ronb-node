@@ -30,16 +30,16 @@ async function sendNotificationOnCreateOrUpdate(
   let users = await service.findUserIdByBloodGroup(bloodGroup);
   const usersToNotify = removeIdFromArray(users, entity.createdBy.toString());
 
-  notificationService.sendNotificationGroup(
-    {
-      title: `${entity.bloodGroup} Blood request`,
-      body: 'Someone needs blood near your location.',
-      data: JSON.stringify({
-        category: 'BLOOD',
-      }),
-    },
-    usersToNotify,
-  );
+  // notificationService.sendNotificationGroup(
+  //   {
+  //     title: `${entity.bloodGroup} Blood request`,
+  //     body: 'Someone needs blood near your location.',
+  //     data: JSON.stringify({
+  //       category: 'BLOOD',
+  //     }),
+  //   },
+  //   usersToNotify,
+  // );
 }
 
 @EventSubscriber()
@@ -105,15 +105,15 @@ export class BloodRequestSubsriber
         console.log(
           `(Notification to user ${requestor.id}): User ${doner.username} has accepted to donate blood.`,
         );
-        this.notificationService.sendNotificationUser(
-          {
-            title: `Blood request accepted`,
-            body: `${doner.username} accepted your blood request.`,
-          },
-          requestor.id,
-          doner.id,
-          data,
-        );
+        // this.notificationService.sendNotificationUser(
+        //   {
+        //     title: `Blood request accepted`,
+        //     body: `${doner.username} accepted your blood request.`,
+        //   },
+        //   requestor.id,
+        //   doner.id,
+        //   data,
+        // );
       }
     }
 
@@ -124,16 +124,16 @@ export class BloodRequestSubsriber
       console.log(
         `(Notification to user ${users}): Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
       );
-      this.notificationService.sendNotificationGroup(
-        {
-          title: `Blood request cancelled`,
-          body: `Blood request for ${entity.bloodGroup} that you accepted has been cancelled`,
-          data: JSON.stringify({
-            category: 'BLOOD',
-          }),
-        },
-        users,
-      );
+      // this.notificationService.sendNotificationGroup(
+      //   {
+      //     title: `Blood request cancelled`,
+      //     body: `Blood request for ${entity.bloodGroup} that you accepted has been cancelled`,
+      //     data: JSON.stringify({
+      //       category: 'BLOOD',
+      //     }),
+      //   },
+      //   users,
+      // );
     }
   }
 }
