@@ -29,11 +29,11 @@ async function sendNotificationOnCreateOrUpdate(
 
   let users = await service.findUserIdByBloodGroup(bloodGroup);
   const usersToNotify = removeIdFromArray(users, entity.createdBy.toString());
- 
+
   notificationService.sendNotificationGroup(
     {
-      title: `Blood Request for blood group ${entity.bloodGroup}`,
-      body: 'This is the description of the blood request',
+      title: `${entity.bloodGroup} Blood request`,
+      body: 'Someone needs blood near your location.',
       data: JSON.stringify({
         category: 'BLOOD',
       }),
@@ -107,8 +107,8 @@ export class BloodRequestSubsriber
         );
         this.notificationService.sendNotificationUser(
           {
-            title: `User ${doner.username} has accepted to donate blood.`,
-            body: 'This is the description of the accepted blood request',
+            title: `Blood request accepted`,
+            body: `${doner.username} accepted your blood request.`,
           },
           requestor.id,
           doner.id,
@@ -126,8 +126,8 @@ export class BloodRequestSubsriber
       );
       this.notificationService.sendNotificationGroup(
         {
-          title: `Blood Request for blood group ${entity.bloodGroup} that you accepted has been cancelled.`,
-          body: 'This is the description of the blood request',
+          title: `Blood request cancelled`,
+          body: `Blood request for ${entity.bloodGroup} that you accepted has been cancelled`,
           data: JSON.stringify({
             category: 'BLOOD',
           }),

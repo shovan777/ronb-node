@@ -59,6 +59,9 @@ export class UsersService {
       .where('account_profile.blood_group = :bloodGroup', {
         bloodGroup: bloodGroup,
       })
+      .andWhere('account_profile.blood_notification_enabled = :notify', {
+        notify: true,
+      })
       .getRawMany();
 
     return users.map((user) => user.user_id); //TODO: Check for alternative solution without using .map()
