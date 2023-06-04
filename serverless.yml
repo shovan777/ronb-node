@@ -1,0 +1,26 @@
+service: data-collector
+
+plugins:
+  - serverless-offline
+  - serverless-jetpack
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: ap-southeast-1
+package: 
+  exclude:
+    - uploads/**
+    - buploads/**
+  excludeDevDependencies: true
+
+functions:
+  main:
+    handler: dist/apps/datacollector/main.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
