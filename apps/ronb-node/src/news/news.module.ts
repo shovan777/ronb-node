@@ -4,7 +4,6 @@ import {
   NewsCategoryService,
   NewsEngagementService,
   NewsService,
-  RecommendationDataService,
   UserInterestsService,
   UserLikesNewsService,
 } from './news.service';
@@ -54,7 +53,6 @@ import { Tag } from '@app/shared/entities/tags.entity';
     UserNewsEngagementResolver,
     NewsEngagementService,
     RecommendationDataResolver,
-    RecommendationDataService,
     NewsCacheClientService,
     {
       provide: 'REDIS_CLIENT',

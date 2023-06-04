@@ -12,7 +12,6 @@ import {
   NewsCategoryService,
   NewsEngagementService,
   NewsService,
-  RecommendationDataService,
   UserInterestsService,
   UserLikesNewsService,
 } from './news.service';
@@ -412,14 +411,13 @@ export class UserNewsEngagementResolver {
 @Resolver(() => RecommendationData)
 export class RecommendationDataResolver {
   constructor(
-    private readonly recommendationDataService: RecommendationDataService,
     private readonly newsCacheClientService: NewsCacheClientService,
   ) {}
 
-  @Query(() => RecommendationData, { name: 'recommendationData' })
-  async getData(): Promise<RecommendationData> {
-    return await this.recommendationDataService.getRecommendationData();
-  }
+  // @Query(() => RecommendationData, { name: 'recommendationData' })
+  // async getData(): Promise<RecommendationData> {
+  //   return await this.recommendationDataService.getRecommendationData();
+  // }
 
   @Query(() => Boolean, { name: 'recommendationDataExists' })
   async exists(): Promise<boolean> {

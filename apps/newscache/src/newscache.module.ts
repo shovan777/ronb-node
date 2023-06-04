@@ -13,7 +13,6 @@ import { NewscacheController } from './newscache.controller';
 import {
   NewsRecommendationClientService,
   NewscacheService,
-  RecommendationDataService,
 } from './newscache.service';
 import { redisStore } from 'cache-manager-redis-store';
 import { RedisClientOptions, createClient } from 'redis';
@@ -100,7 +99,6 @@ import { Tag } from '@app/shared/entities/tags.entity';
   providers: [
     NewscacheService,
     NewsRecommendationClientService,
-    RecommendationDataService,
     {
       provide: 'REDIS_CLIENT',
       useFactory: () => {
