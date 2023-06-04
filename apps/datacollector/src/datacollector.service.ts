@@ -11,7 +11,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { S3 } from 'aws-sdk';
 import { createObjectCsvWriter } from 'csv-writer';
-import { createReadStream } from 'fs';
+import { createReadStream, mkdirSync } from 'fs';
 import { join } from 'path';
 import { DataSource, Repository } from 'typeorm';
 import { RecommendationData } from './interfaces/recommendations.interface';
@@ -50,9 +50,18 @@ export class DatacollectorService {
     // const comment= await this.commentRepository.count()
     // console.log("Comment Count",comment)
     // saving user data
-    const uploadDir = join(process.env.MEDIA_ROOT, 'recommendation_data');
+    const uploadDir = join(
+      '/tmp',
+      process.env.MEDIA_ROOT,
+      'recommendation_data',
+    );
+    console.log(`uploadDir: ${uploadDir}`);
     const filePaths = [];
     const use_s3 = process.env.USE_S3 === 'true';
+    console.log(
+      '*********the dir created is:',
+      mkdirSync(uploadDir, { recursive: true }),
+    );
 
     const user = await this.userDataSource
       .createQueryBuilder()

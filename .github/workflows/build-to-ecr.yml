@@ -4,7 +4,7 @@ on:
   #   types: [opened]
   push:
     branches:
-      - news_recommnder_cache
+      - news_recommnder_cache_don't_dep
   # release:
   #   types: [published]
   #   tags:
