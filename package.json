@@ -100,6 +100,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "28.0.3",
     "prettier": "^2.3.2",
+    "serverless-jetpack": "^0.11.2",
     "serverless-offline": "^12.0.4",
     "source-map-support": "^0.5.20",
     "sqlite3": "^5.0.11",
