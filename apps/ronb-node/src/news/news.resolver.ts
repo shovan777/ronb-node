@@ -37,6 +37,7 @@ import {
 } from './dto/update-news.input';
 import {
   CACHE_MANAGER,
+  ForbiddenException,
   Inject,
   NotFoundException,
   UseGuards,
@@ -100,6 +101,9 @@ export class NewsResolver {
     // construct a fifo queue
     // get data from queue
     // return this.newsService.findAll();
+    if (!limit) {
+      throw new ForbiddenException(`limit cannot be ${limit}`);
+    }
     console.log(`user ${user} is requesting news with limit ${limit}`);
     const userCacheName = `newscache_${user}`;
     // check if user news cache exists
@@ -107,7 +111,10 @@ export class NewsResolver {
     if (!userNewsCacheExists && user) {
       this.newsCacheClientService
         .sendBeginCaching(user)
-        .then((res) => console.log(res));
+        .then((res) => console.log(res))
+        .catch((err) => {
+          console.log(`${err}`);
+        });
     }
     // if user news cache does not exist, start caching
 
