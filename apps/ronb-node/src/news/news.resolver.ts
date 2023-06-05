@@ -56,7 +56,6 @@ import { Roles } from '@app/shared/common/decorators/roles.decorator';
 import { Role } from '@app/shared/common/enum/role.enum';
 import { RolesGuard } from '@app/shared/common/guards/roles.guard';
 import { MakePublic } from '@app/shared/common/decorators/public.decorator';
-import { Observable } from 'rxjs';
 import { RedisClientType } from 'redis';
 
 // const fileUpload = (fileName, uploadDir) => {

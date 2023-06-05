@@ -309,8 +309,11 @@ export class DatacollectorService {
       };
       //TODO: use boto to write the files to S3
       for (const i in filePaths) {
-        const curFilePath = filePaths[i];
-        const dataStream = createReadStream(curFilePath);
+        const curFilePathTmp = filePaths[i];
+        const curPathArr = curFilePathTmp.split('/').slice(-3);
+        // curPathArr.splice(0, 1);
+        const curFilePath = join(...curPathArr);
+        const dataStream = createReadStream(curFilePathTmp);
         const awsUploadParams = {
           Bucket: process.env.REC_BUCKET_NAME,
           Key: curFilePath,
