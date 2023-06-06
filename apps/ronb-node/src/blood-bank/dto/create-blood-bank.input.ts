@@ -1,8 +1,18 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { BloodRequestState,BloodRequestStateType } from '@app/shared/entities/blood-bank.entity';
+import {
+  BloodRequestState,
+  BloodRequestStateType,
+} from '@app/shared/entities/blood-bank.entity';
 import { BigIntResolver } from 'graphql-scalars';
 import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
-import { ArrayUnique, IsArray } from 'class-validator';
+import {
+  ArrayUnique,
+  IsArray,
+  Max,
+  Min,
+  MaxDate,
+} from 'class-validator';
+import { getMaxDate, getMinDate } from '@app/shared/common/utils/utils';
 
 @InputType()
 export class CreateBloodRequestAddressInput {
@@ -27,6 +37,8 @@ export class CreateBloodRequestInput {
     description: 'Amount of blood',
     nullable: true,
   })
+  @Min(1, { message: 'Amount should be greater than 0' })
+  @Max(9, { message: 'Amount should be less than 10' })
   amount: number;
 
   @Field({
@@ -57,6 +69,7 @@ export class CreateBloodRequestInput {
   address?: CreateBloodRequestAddressInput;
 
   @Field({ description: 'Donation date', nullable: true })
+  @MaxDate(getMaxDate())
   donationDate: Date;
 
   @Field(() => [Int], { nullable: true })

@@ -112,7 +112,7 @@ export class BloodBankService {
   }
 
   async findMyRequest(user: number): Promise<BloodRequest[]> {
-    return this.bloodRequestRepository.find({
+    return await this.bloodRequestRepository.find({
       relations: ['address', 'address.district', 'address.province'],
       where: {
         createdBy: user,
@@ -132,6 +132,12 @@ export class BloodBankService {
       });
     if (!bloodRequest) {
       throw new NotFoundException(`Blood request with id ${id} not found.`);
+    } else {
+      const donerDetails = await getAuthor(
+        this.userService,
+        bloodRequest.createdBy,
+      );
+      bloodRequest.profile = donerDetails;
     }
     return bloodRequest;
   }
@@ -183,7 +189,7 @@ export class BloodBankService {
 
       if (donationDuration < 0) {
         throw new ForbiddenException(
-          `Date must be selected from today or later.`,
+          `Donation date must be selected from ${new Date()} or later.`,
         );
       } else if (
         donationDuration <= isEmergencyTimeInterval &&

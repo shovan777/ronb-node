@@ -1,4 +1,10 @@
-import { Field, Float, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import {
+  Field,
+  Float,
+  Int,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { BigIntResolver } from 'graphql-scalars';
 import { CreatorBaseEntity } from '@app/shared/common/entities/base.entity';
 import {
