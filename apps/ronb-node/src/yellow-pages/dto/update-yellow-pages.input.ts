@@ -1,4 +1,5 @@
-import { InputType, PartialType } from '@nestjs/graphql';
+import { PublishState as YellowPagesState } from '@app/shared/common/enum/publish_state.enum';
+import { Field, InputType, PartialType } from '@nestjs/graphql';
 import {
   CreateDistrictInput,
   CreateProvinceInput,
@@ -13,6 +14,13 @@ import {
 export class UpdateYellowPagesInput extends PartialType(
   CreateYellowPagesInput,
 ) {}
+
+@InputType()
+export class PublishYellowPagesInput {
+  @Field(() => YellowPagesState)
+  state: YellowPagesState;
+}
+
 @InputType()
 export class UpdateYellowPagesAddressInput extends PartialType(
   CreateYellowPagesAddressInput,

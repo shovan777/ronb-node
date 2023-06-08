@@ -16,6 +16,7 @@ import {
 } from './dto/create-yellow-pages.input';
 import { FetchPaginationArgs } from '@app/shared/common/pagination/fetch-pagination-input';
 import {
+  PublishYellowPagesInput,
   UpdateDistrictInput,
   UpdateProvinceInput,
   UpdateYellowPagesAddressInput,
@@ -33,7 +34,10 @@ import {
   Province,
   YellowPagesEmail,
 } from '@app/shared/entities/yellow-pages.entity';
-import { PublishState as YellowPagesPublishState } from '@app/shared/common/enum/publish_state.enum';
+import {
+  PublishState,
+  PublishState as YellowPagesPublishState,
+} from '@app/shared/common/enum/publish_state.enum';
 import {
   FilterDistrictInput,
   FilterYellowPagesInput,
@@ -312,48 +316,77 @@ export class YellowPagesService {
     id: number,
     updateYellowPagesInput: UpdateYellowPagesInput,
     user: number,
+    role: string,
+  ): Promise<YellowPages> {
+    const yellowpages: YellowPages = await this.findOne(id);
+    if (
+      role == 'writer' &&
+      yellowpages.state == YellowPagesPublishState.PUBLISHED
+    ) {
+      throw new ForbiddenException(
+        `User ${user} does not have the permission to update this yellow page.`,
+      );
+    } else {
+      let yellowPagesInputData: any = {
+        ...updateYellowPagesInput,
+      };
+
+      const category_id = updateYellowPagesInput.category;
+
+      if (category_id) {
+        const category =
+          await this.yellowPagesCategoryeRepository.findOneOrFail({
+            where: { id: category_id },
+          });
+
+        if (!category) {
+          throw new NotFoundException(
+            `Yellow Pages category with id ${category_id} not found`,
+          );
+        }
+
+        yellowPagesInputData = {
+          ...yellowPagesInputData,
+          category: category,
+        };
+      }
+
+      if (updateYellowPagesInput.singleImage) {
+        const file_path: string = await this.get_file_path({
+          ...updateYellowPagesInput,
+          id: yellowpages.id,
+        });
+
+        if (file_path) {
+          await this.removeImage(id, user, role);
+          yellowPagesInputData = {
+            ...yellowPagesInputData,
+            singleImage: file_path,
+          };
+          yellowpages.singleImage = file_path;
+        }
+      }
+
+      await this.yellowPagesRepository.update(id, {
+        ...yellowPagesInputData,
+        state: PublishState.DRAFT,
+        updatedBy: user,
+      });
+
+      return await this.findOne(id);
+    }
+  }
+
+  async publish(
+    id: number,
+    updateYellowPagesInput: PublishYellowPagesInput,
+    user: number,
   ): Promise<YellowPages> {
     const yellowpages: YellowPages = await this.findOne(id);
 
     let yellowPagesInputData: any = {
       ...updateYellowPagesInput,
     };
-
-    const category_id = updateYellowPagesInput.category;
-
-    if (category_id) {
-      const category = await this.yellowPagesCategoryeRepository.findOneOrFail({
-        where: { id: category_id },
-      });
-
-      if (!category) {
-        throw new NotFoundException(
-          `Yellow Pages category with id ${category_id} not found`,
-        );
-      }
-
-      yellowPagesInputData = {
-        ...yellowPagesInputData,
-        category: category,
-      };
-    }
-
-    if (updateYellowPagesInput.singleImage) {
-      const file_path: string = await this.get_file_path({
-        ...updateYellowPagesInput,
-        id: yellowpages.id,
-      });
-
-      if (file_path) {
-        await this.removeImage(id, user);
-        yellowPagesInputData = {
-          ...yellowPagesInputData,
-          singleImage: file_path,
-        };
-        yellowpages.singleImage = file_path;
-      }
-    }
-
     await this.yellowPagesRepository.update(id, {
       ...yellowPagesInputData,
       updatedBy: user,
@@ -367,35 +400,57 @@ export class YellowPagesService {
     return await this.findOne(id);
   }
 
-  async removeImage(id: number, user: number): Promise<YellowPages> {
+  async removeImage(
+    id: number,
+    user: number,
+    role: string,
+  ): Promise<YellowPages> {
     const yellowpages: YellowPages = await this.yellowPagesRepository.findOne({
       where: { id: id },
     });
-    if (yellowpages.singleImage) {
-      await this.fileService.removeFile(yellowpages.singleImage);
-      yellowpages.singleImage = null;
-      await this.yellowPagesRepository.save(yellowpages);
+    if (
+      role == 'writer' &&
+      yellowpages.state == YellowPagesPublishState.PUBLISHED
+    ) {
+      throw new ForbiddenException(
+        `User ${user} does not have the permission to peform this action.`,
+      );
+    } else {
+      if (yellowpages.singleImage) {
+        await this.fileService.removeFile(yellowpages.singleImage);
+        yellowpages.singleImage = null;
+        await this.yellowPagesRepository.save(yellowpages);
+      }
+      return yellowpages;
     }
-    return yellowpages;
   }
 
-  async remove(id: number, user: number) {
+  async remove(id: number, user: number, role: string) {
     const yellowpages: YellowPages = await this.findOne(id);
-
     if (
-      yellowpages.state == YellowPagesPublishState.DRAFT &&
-      yellowpages.createdBy == user
+      role == 'writer' &&
+      yellowpages.state == YellowPagesPublishState.PUBLISHED
     ) {
-      const removedYellowPages = this.yellowPagesRepository.remove(yellowpages);
-      this.removeImage(id, user);
-      return {
-        id,
-        ...removedYellowPages,
-      };
+      throw new ForbiddenException(
+        `User ${user} does not have the permission to peform this action.`,
+      );
+    } else {
+      if (
+        yellowpages.state == YellowPagesPublishState.DRAFT &&
+        yellowpages.createdBy == user
+      ) {
+        const removedYellowPages =
+          this.yellowPagesRepository.remove(yellowpages);
+        this.removeImage(id, user, role);
+        return {
+          id,
+          ...removedYellowPages,
+        };
+      }
+      throw new ForbiddenException(
+        `Yellow pages with id ${id} cannot be deleted`,
+      );
     }
-    throw new ForbiddenException(
-      `Yellow pages with id ${id} cannot be deleted`,
-    );
   }
 }
 
@@ -452,7 +507,7 @@ export class YellowPagesCategoryService {
     updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput,
   ) {
     const yellowPagesCategory = await this.findOne(id);
-    if (yellowPagesCategory) {
+    if (yellowPagesCategory.yellowpages) {
       return await this.yellowPagesCategoryRepository.save({
         ...yellowPagesCategory,
         ...updateYellowPagesCategoryInput,
@@ -534,54 +589,73 @@ export class YellowPagesAddressService {
 
   async update(
     id: number,
+    role: string,
     updateYellowPagesAddressInput: UpdateYellowPagesAddressInput,
   ): Promise<YellowPagesAddress> {
     let addressInputData: any = {
       ...updateYellowPagesAddressInput,
     };
     const yellowpagesAddress: YellowPagesAddress = await this.findOne(id);
-
-    if (!yellowpagesAddress) {
-      throw new NotFoundException(
-        `Yellow Pages address with id ${id} not found`,
+    if (
+      role == 'writer' &&
+      yellowpagesAddress.yellowpages.state == YellowPagesPublishState.PUBLISHED
+    ) {
+      throw new ForbiddenException(
+        `User does not have the permission to perform this action.`,
       );
-    }
-    if (updateYellowPagesAddressInput.yellowpages) {
-      const yellowPages: YellowPages =
-        await this.yellowPagesRepository.findOneBy({
-          id: updateYellowPagesAddressInput.yellowpages,
-        });
-
-      if (!yellowPages) {
+    }else {
+      if (!yellowpagesAddress) {
         throw new NotFoundException(
-          `Yellow pages with id ${updateYellowPagesAddressInput.yellowpages} not found`,
+          `Yellow Pages address with id ${id} not found`,
         );
       }
-
-      addressInputData = {
-        ...addressInputData,
-        yellowpages: yellowPages,
-      };
+      if (updateYellowPagesAddressInput.yellowpages) {
+        const yellowPages: YellowPages =
+          await this.yellowPagesRepository.findOneBy({
+            id: updateYellowPagesAddressInput.yellowpages,
+          });
+  
+        if (!yellowPages) {
+          throw new NotFoundException(
+            `Yellow pages with id ${updateYellowPagesAddressInput.yellowpages} not found`,
+          );
+        }
+  
+        addressInputData = {
+          ...addressInputData,
+          yellowpages: yellowPages,
+        };
+      }
+      await this.addressRepository.update(id, { ...addressInputData });
+      return this.addressRepository.findOneOrFail({ where: { id: id } });
     }
-    await this.addressRepository.update(id, { ...addressInputData });
-    return this.addressRepository.findOneOrFail({ where: { id: id } });
   }
 
-  async remove(id: number): Promise<YellowPagesAddress> {
+  async remove(id: number, role:string): Promise<YellowPagesAddress> {
     const yellowpagesAddress: YellowPagesAddress =
       await this.addressRepository.findOne({
         where: { id: id },
       });
-
-    if (yellowpagesAddress) {
-      const removedYellowPagesAddress =
-        this.addressRepository.remove(yellowpagesAddress);
-      return {
-        id,
-        ...removedYellowPagesAddress,
-      };
+    
+    if (
+      role == 'writer' &&
+      yellowpagesAddress.yellowpages.state == YellowPagesPublishState.PUBLISHED
+    ) {
+      throw new ForbiddenException(
+        `User does not have permission to perform this action.`,
+      );
+    } else {
+      if (yellowpagesAddress) {
+        const removedYellowPagesAddress =
+          this.addressRepository.remove(yellowpagesAddress);
+        return {
+          id,
+          ...removedYellowPagesAddress,
+        };
+      }
+      throw new NotFoundException(`Yellow Pages Address with id ${id} not found`);
     }
-    throw new NotFoundException(`Yellow Pages Address with id ${id} not found`);
+    
   }
 
   async findDistrictofAddress(addressId: number) {
@@ -824,6 +898,7 @@ export class YellowPagesPhoneNumberService {
 
   async update(
     id: number,
+    role: string,
     updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput,
   ): Promise<YellowPagesPhoneNumber> {
     let phoneNumberInputData: any = {
@@ -833,42 +908,62 @@ export class YellowPagesPhoneNumberService {
     const yellowpagesPhoneNumber: YellowPagesPhoneNumber = await this.findOne(
       id,
     );
-    if (updateYellowPagesPhoneNumberInput.yellowpages) {
-      const yellowPages: YellowPages =
-        await this.yellowPagesRepository.findOneBy({
-          id: updateYellowPagesPhoneNumberInput.yellowpages,
-        });
-      if (!yellowPages) {
-        throw new NotFoundException(
-          `Yellow pages with id ${updateYellowPagesPhoneNumberInput.yellowpages} not found`,
-        );
+
+    if (
+      role == 'writer' &&
+      yellowpagesPhoneNumber.yellowpages.state == YellowPagesPublishState.PUBLISHED
+    ) {
+      throw new ForbiddenException(
+        `User does not have the permission to perform this action.`,
+      );
+    }else {
+      if (updateYellowPagesPhoneNumberInput.yellowpages) {
+        const yellowPages: YellowPages =
+          await this.yellowPagesRepository.findOneBy({
+            id: updateYellowPagesPhoneNumberInput.yellowpages,
+          });
+        if (!yellowPages) {
+          throw new NotFoundException(
+            `Yellow pages with id ${updateYellowPagesPhoneNumberInput.yellowpages} not found`,
+          );
+        }
+        phoneNumberInputData = {
+          ...phoneNumberInputData,
+          yellowpages: yellowPages,
+        };
       }
-      phoneNumberInputData = {
-        ...phoneNumberInputData,
-        yellowpages: yellowPages,
-      };
+      this.phoneNumberRepository.update(id, { ...phoneNumberInputData });
+  
+      return this.phoneNumberRepository.findOneOrFail({ where: { id: id } });
     }
-    this.phoneNumberRepository.update(id, { ...phoneNumberInputData });
+    }
 
-    return this.phoneNumberRepository.findOneOrFail({ where: { id: id } });
-  }
-
-  async remove(id: number) {
+  async remove(id: number, role:string) {
     const yellowPagesPhoneNumber: YellowPagesPhoneNumber = await this.findOne(
       id,
     );
-
-    if (yellowPagesPhoneNumber) {
-      const removedYellowPagesPhoneNumbers = this.phoneNumberRepository.remove(
-        yellowPagesPhoneNumber,
+    if (
+      role == 'writer' &&
+      yellowPagesPhoneNumber.yellowpages.state == YellowPagesPublishState.PUBLISHED
+    ) {
+      throw new ForbiddenException(
+        `User does not have the permission to perform this action..`,
       );
-      return {
-        id,
-        ...removedYellowPagesPhoneNumbers,
-      };
+    } else {
+      
+          if (yellowPagesPhoneNumber) {
+            const removedYellowPagesPhoneNumbers = this.phoneNumberRepository.remove(
+              yellowPagesPhoneNumber,
+            );
+            return {
+              id,
+              ...removedYellowPagesPhoneNumbers,
+            };
+          }
+          throw new NotFoundException(`Yellow Pages Address with id ${id} not found`);
+        }
+
     }
-    throw new NotFoundException(`Yellow Pages Address with id ${id} not found`);
-  }
 }
 
 @Injectable()
@@ -926,6 +1021,7 @@ export class YellowPagesEmailService {
 
   async update(
     id: number,
+    role: string,
     updateYellowPagesEmailInput: UpdateYellowPagesEmailInput,
   ): Promise<YellowPagesEmail> {
     let emailInputData: any = {
@@ -933,34 +1029,52 @@ export class YellowPagesEmailService {
     };
 
     const yellowPagesEmail: YellowPagesEmail = await this.findOne(id);
-    if (updateYellowPagesEmailInput.yellowpages) {
-      const yellowpages: YellowPages =
-        await this.yellowPagesRepository.findOneBy({
-          id: updateYellowPagesEmailInput.yellowpages,
-        });
-      if (!yellowpages) {
-        throw new NotFoundException(`Yellow pages with id ${id} not found`);
+    if (
+      role == 'writer' &&
+      yellowPagesEmail.yellowpages.state == YellowPagesPublishState.PUBLISHED
+    ) {
+      throw new ForbiddenException(
+        `User does not have the permission to perform this action..`,
+      );
+    } else {
+      if (updateYellowPagesEmailInput.yellowpages) {
+        const yellowpages: YellowPages =
+          await this.yellowPagesRepository.findOneBy({
+            id: updateYellowPagesEmailInput.yellowpages,
+          });
+        if (!yellowpages) {
+          throw new NotFoundException(`Yellow pages with id ${id} not found`);
+        }
+        emailInputData = {
+          ...emailInputData,
+          yellowpages: yellowpages,
+        };
       }
-      emailInputData = {
-        ...emailInputData,
-        yellowpages: yellowpages,
-      };
+      this.emailRepository.update(id, { ...emailInputData });
+      return this.emailRepository.findOneOrFail({
+        where: { id: id },
+        relations: ['yellowpages'],
+      });
     }
-    this.emailRepository.update(id, { ...emailInputData });
-    return this.emailRepository.findOneOrFail({
-      where: { id: id },
-      relations: ['yellowpages'],
-    });
   }
 
-  async remove(id: number) {
+  async remove(id: number, role: string) {
     const yellowPagesEmail: YellowPagesEmail = await this.findOne(id);
-    const removedYellowPagesEmail =
-      this.emailRepository.remove(yellowPagesEmail);
+    if (
+      role == 'writer' &&
+      yellowPagesEmail.yellowpages.state == YellowPagesPublishState.PUBLISHED
+    ) {
+      throw new ForbiddenException(
+        `User  does not have the permission to perform this action.`,
+      );
+    } else {
+      const removedYellowPagesEmail =
+        this.emailRepository.remove(yellowPagesEmail);
 
-    return {
-      id,
-      ...removedYellowPagesEmail,
-    };
+      return {
+        id,
+        ...removedYellowPagesEmail,
+      };
+    }
   }
 }
