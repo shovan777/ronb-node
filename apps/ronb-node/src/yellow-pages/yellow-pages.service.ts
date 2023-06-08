@@ -436,8 +436,10 @@ export class YellowPagesService {
       );
     } else {
       if (
-        yellowpages.state == YellowPagesPublishState.DRAFT &&
-        yellowpages.createdBy == user
+        role != 'writer' ||
+        (role == 'writer' &&
+          yellowpages.state == YellowPagesPublishState.DRAFT &&
+          yellowpages.createdBy == user)
       ) {
         const removedYellowPages =
           this.yellowPagesRepository.remove(yellowpages);
@@ -603,7 +605,7 @@ export class YellowPagesAddressService {
       throw new ForbiddenException(
         `User does not have the permission to perform this action.`,
       );
-    }else {
+    } else {
       if (!yellowpagesAddress) {
         throw new NotFoundException(
           `Yellow Pages address with id ${id} not found`,
@@ -614,13 +616,13 @@ export class YellowPagesAddressService {
           await this.yellowPagesRepository.findOneBy({
             id: updateYellowPagesAddressInput.yellowpages,
           });
-  
+
         if (!yellowPages) {
           throw new NotFoundException(
             `Yellow pages with id ${updateYellowPagesAddressInput.yellowpages} not found`,
           );
         }
-  
+
         addressInputData = {
           ...addressInputData,
           yellowpages: yellowPages,
@@ -631,12 +633,12 @@ export class YellowPagesAddressService {
     }
   }
 
-  async remove(id: number, role:string): Promise<YellowPagesAddress> {
+  async remove(id: number, role: string): Promise<YellowPagesAddress> {
     const yellowpagesAddress: YellowPagesAddress =
       await this.addressRepository.findOne({
         where: { id: id },
       });
-    
+
     if (
       role == 'writer' &&
       yellowpagesAddress.yellowpages.state == YellowPagesPublishState.PUBLISHED
@@ -653,9 +655,10 @@ export class YellowPagesAddressService {
           ...removedYellowPagesAddress,
         };
       }
-      throw new NotFoundException(`Yellow Pages Address with id ${id} not found`);
+      throw new NotFoundException(
+        `Yellow Pages Address with id ${id} not found`,
+      );
     }
-    
   }
 
   async findDistrictofAddress(addressId: number) {
@@ -911,12 +914,13 @@ export class YellowPagesPhoneNumberService {
 
     if (
       role == 'writer' &&
-      yellowpagesPhoneNumber.yellowpages.state == YellowPagesPublishState.PUBLISHED
+      yellowpagesPhoneNumber.yellowpages.state ==
+        YellowPagesPublishState.PUBLISHED
     ) {
       throw new ForbiddenException(
         `User does not have the permission to perform this action.`,
       );
-    }else {
+    } else {
       if (updateYellowPagesPhoneNumberInput.yellowpages) {
         const yellowPages: YellowPages =
           await this.yellowPagesRepository.findOneBy({
@@ -933,37 +937,37 @@ export class YellowPagesPhoneNumberService {
         };
       }
       this.phoneNumberRepository.update(id, { ...phoneNumberInputData });
-  
+
       return this.phoneNumberRepository.findOneOrFail({ where: { id: id } });
     }
-    }
+  }
 
-  async remove(id: number, role:string) {
+  async remove(id: number, role: string) {
     const yellowPagesPhoneNumber: YellowPagesPhoneNumber = await this.findOne(
       id,
     );
     if (
       role == 'writer' &&
-      yellowPagesPhoneNumber.yellowpages.state == YellowPagesPublishState.PUBLISHED
+      yellowPagesPhoneNumber.yellowpages.state ==
+        YellowPagesPublishState.PUBLISHED
     ) {
       throw new ForbiddenException(
         `User does not have the permission to perform this action..`,
       );
     } else {
-      
-          if (yellowPagesPhoneNumber) {
-            const removedYellowPagesPhoneNumbers = this.phoneNumberRepository.remove(
-              yellowPagesPhoneNumber,
-            );
-            return {
-              id,
-              ...removedYellowPagesPhoneNumbers,
-            };
-          }
-          throw new NotFoundException(`Yellow Pages Address with id ${id} not found`);
-        }
-
+      if (yellowPagesPhoneNumber) {
+        const removedYellowPagesPhoneNumbers =
+          this.phoneNumberRepository.remove(yellowPagesPhoneNumber);
+        return {
+          id,
+          ...removedYellowPagesPhoneNumbers,
+        };
+      }
+      throw new NotFoundException(
+        `Yellow Pages Address with id ${id} not found`,
+      );
     }
+  }
 }
 
 @Injectable()
