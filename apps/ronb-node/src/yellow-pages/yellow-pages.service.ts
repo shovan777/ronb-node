@@ -450,7 +450,7 @@ export class YellowPagesService {
         };
       }
       throw new ForbiddenException(
-        `Yellow pages with id ${id} cannot be deleted`,
+        `User does not have the permission to delete yellow pages with id ${id}`,
       );
     }
   }
