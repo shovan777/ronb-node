@@ -341,7 +341,6 @@ export class BloodBankService {
     const bloodRequest: BloodRequest = await this.findOne(requestId);
 
     bloodRequest.state = BloodRequestState.CANCELLED;
-    bloodRequest.acceptors = [];
 
     return await this.bloodRequestRepository.save(bloodRequest);
   }
