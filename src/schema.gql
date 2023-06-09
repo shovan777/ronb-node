@@ -565,6 +565,7 @@ type Mutation {
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
   createYellowPagesEmail(createYellowPagesEmailInput: CreateYellowPagesEmailInput!): YellowPagesEmail!
   createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
+  publishYellowPages(id: Int!, publishYellowPagesInput: PublishYellowPagesInput!): YellowPages!
   removeBloodRequest(id: Int!): BloodRequest!
   removeDistrict(id: Int!): District!
   removeNews(id: Int!): News!
@@ -1119,6 +1120,10 @@ type PublicToiletReviewPageInfo {
 type PublicToiletReviewsResponse {
   page: PublicToiletReviewConnection!
   pageData: PageData
+}
+
+input PublishYellowPagesInput {
+  state: State!
 }
 
 type Query {

@@ -8,7 +8,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { connectionFromArraySlice } from 'graphql-relay';
-import { User } from '@app/shared/common/decorators/user.decorator';
+import { User, usersRole } from '@app/shared/common/decorators/user.decorator';
 import ConnectionArgs from '@app/shared/common/pagination/types/connection.args';
 import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
 import {
@@ -22,6 +22,7 @@ import {
 } from './dto/create-yellow-pages.input';
 import { FetchPaginationArgs } from '@app/shared/common/pagination/fetch-pagination-input';
 import {
+  PublishYellowPagesInput,
   UpdateDistrictInput,
   UpdateProvinceInput,
   UpdateYellowPagesAddressInput,
@@ -104,8 +105,7 @@ export class YellowPagesResolver {
   }
 
   @Query(() => YellowPagesAdminResponse, { name: 'yellowPagesAdmin' })
-  // @UseGuards(AdminGuard)
-  @Roles(Role.Writer)
+  @Roles(Role.Writer, Role.Publisher)
   async getAllYellowPagesAdmin(
     @Args() args: FetchPaginationArgs,
     @Args('filterYellowPagesInput', { nullable: true })
@@ -126,37 +126,59 @@ export class YellowPagesResolver {
   }
 
   @Mutation(() => YellowPages)
+  @Roles(Role.Writer)
   async updateYellowPages(
     @Args('id', { type: () => Int }) id: number,
     @Args('updateYellowPagesInput')
     updateYellowPagesInput: UpdateYellowPagesInput,
-    @User()
-    user: number,
+    @User() user: number,
+    @usersRole() role: string,
   ) {
     checkUserAuthenticated(user);
     return await this.yellowPagesService.update(
       id,
       updateYellowPagesInput,
       user,
+      role,
     );
   }
 
   @Mutation(() => YellowPages)
-  async removeYellowPagesImage(
+  @Roles(Role.Publisher)
+  async publishYellowPages(
     @Args('id', { type: () => Int }) id: number,
+    @Args('publishYellowPagesInput')
+    publishYellowPagesInput: PublishYellowPagesInput,
     @User() user: number,
-  ): Promise<YellowPages> {
+  ) {
     checkUserAuthenticated(user);
-    return this.yellowPagesService.removeImage(id, user);
+    return await this.yellowPagesService.publish(
+      id,
+      publishYellowPagesInput,
+      user,
+    );
   }
 
   @Mutation(() => YellowPages)
+  @Roles(Role.Writer)
+  async removeYellowPagesImage(
+    @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
+    @usersRole() role: string,
+  ): Promise<YellowPages> {
+    checkUserAuthenticated(user);
+    return this.yellowPagesService.removeImage(id, user, role);
+  }
+
+  @Mutation(() => YellowPages)
+  @Roles(Role.Writer)
   async removeYellowPages(
     @Args('id', { type: () => Int }) id: number,
     @User() user: number,
+    @usersRole() role: string,
   ): Promise<YellowPages> {
     checkUserAuthenticated(user);
-    return this.yellowPagesService.remove(id, user);
+    return this.yellowPagesService.remove(id, user, role);
   }
 }
 
@@ -200,7 +222,7 @@ export class YellowPagesCategoryResolver {
   }
 
   @Query(() => [YellowPagesCatgory], { name: 'yellowPagesCategoryAdmin' })
-  @Roles(Role.Writer)
+  @Roles(Role.Writer, Role.Publisher)
   async getAllYellowPagesCategoryAdmin(
     @Args() args: FetchPaginationArgs,
   ): Promise<any> {
@@ -287,26 +309,31 @@ export class YellowPagesAddressResolver {
   }
 
   @Mutation(() => YellowPagesAddress)
+  @Roles(Role.Writer)
   async updateYellowPagesAddress(
     @Args('id', { type: () => Int }) id: number,
     @Args('updateYellowPagesAddressInput')
     updateYellowPagesAddress: UpdateYellowPagesAddressInput,
     @User() user: number,
+    @usersRole() role: string,
   ) {
     checkUserAuthenticated(user);
     return await this.yellowPagesAddressService.update(
       id,
+      role,
       updateYellowPagesAddress,
     );
   }
 
   @Mutation(() => YellowPagesAddress)
+  @Roles(Role.Writer)
   async removeYellowPagesAddress(
     @Args('id', { type: () => Int }) id: number,
     @User() user: number,
+    @usersRole() role: string,
   ): Promise<YellowPagesAddress> {
     checkUserAuthenticated(user);
-    return this.yellowPagesAddressService.remove(id);
+    return this.yellowPagesAddressService.remove(id, role);
   }
 }
 
@@ -449,10 +476,12 @@ export class YellowPagesPhoneNumberResolver {
     @Args('updateYellowPagesPhoneNumberInput')
     updateYellowPagesPhoneNumberInput: UpdateYellowPagesPhoneNumberInput,
     @User() user: number,
+    @usersRole() role: string,
   ) {
     checkUserAuthenticated(user);
     return await this.yellowPagesPhoneNumberService.update(
       id,
+      role,
       updateYellowPagesPhoneNumberInput,
     );
   }
@@ -461,9 +490,10 @@ export class YellowPagesPhoneNumberResolver {
   async removeYellowPagesPhoneNumber(
     @Args('id', { type: () => Int }) id: number,
     @User() user: number,
+    @usersRole() role: string,
   ): Promise<YellowPagesPhoneNumber> {
     checkUserAuthenticated(user);
-    return this.yellowPagesPhoneNumberService.remove(id);
+    return this.yellowPagesPhoneNumberService.remove(id, role);
   }
 }
 
@@ -506,10 +536,12 @@ export class YellowPagesEmailResolver {
     @Args('updateYellowPagesEmailInput')
     updateYellowPagesEmailInput: UpdateYellowPagesEmailInput,
     @User() user: number,
+    @usersRole() role: string,
   ) {
     checkUserAuthenticated(user);
     return await this.yellowPagesEmailService.update(
       id,
+      role,
       updateYellowPagesEmailInput,
     );
   }
@@ -518,8 +550,9 @@ export class YellowPagesEmailResolver {
   async removeYellowPagesEmail(
     @Args('id', { type: () => Int }) id: number,
     @User() user: number,
+    @usersRole() role: string,
   ) {
     checkUserAuthenticated(user);
-    return this.yellowPagesEmailService.remove(id);
+    return this.yellowPagesEmailService.remove(id, role);
   }
 }
