@@ -3,14 +3,13 @@ import {
   NEWS_CACHING_SERVICE_NAME,
   UserId,
 } from '@app/shared/common/proto/news.pb';
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import {
   NewsRecommendationClientService,
   NewscacheService,
 } from './newscache.service';
-import { News } from '@app/shared/entities/news.entity';
-import { firstValueFrom, timeout } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Controller()
 export class NewscacheController {
@@ -39,14 +38,18 @@ export class NewscacheController {
       await this.newsRecommendationClientService.getNewsRecommendation(
         userData.id,
       ),
-    ).then((newsData) => {
-      console.log(newsData);
-      this.newscacheService
-        .findNewsNCache(newsData.newsIds, userData.id)
-        .then((newsCache) => {
-          console.log(`newsCache: ${newsCache.map((n) => n.id)}`);
-        });
-    });
+    )
+      .then((newsData) => {
+        console.log(newsData);
+        this.newscacheService
+          .findNewsNCache(newsData.newsIds, userData.id)
+          .then((newsCache) => {
+            console.log(`newsCache: ${newsCache.map((n) => n.id)}`);
+          });
+      })
+      .catch((err) => {
+        console.log(`Error connecting to recommender: ${err}`);
+      });
     // (
     //   await this.newsRecommendationClientService.getNewsRecommendation()
     // ).subscribe({

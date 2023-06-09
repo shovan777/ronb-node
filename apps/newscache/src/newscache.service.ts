@@ -3,28 +3,15 @@ import {
   NEWS_RECOMMENDATION_SERVICE_NAME,
   NewsRecommendationServiceClient,
 } from '@app/shared/common/proto/recommendation.pb';
-import { NewsComment } from '@app/shared/entities/comment.entity';
-import {
-  News,
-  NewsCategory,
-  UserInterests,
-  UserLikesNews,
-  UserNewsEngagement,
-} from '@app/shared/entities/news.entity';
-import { Tag } from '@app/shared/entities/tags.entity';
+import { News } from '@app/shared/entities/news.entity';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
-import { createObjectCsvWriter } from 'csv-writer';
 import { RedisClientType } from 'redis';
 import { Observable } from 'rxjs';
-import { DataSource, In, Repository } from 'typeorm';
-import { RecommendationData } from './interfaces/recommendations.interface';
-import { join } from 'path';
-import { S3 } from 'aws-sdk';
-import { createReadStream } from 'fs';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class NewscacheService {
