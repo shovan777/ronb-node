@@ -12,7 +12,6 @@ import {
   NewsCategoryService,
   NewsEngagementService,
   NewsService,
-  RecommendationDataService,
   UserInterestsService,
   UserLikesNewsService,
 } from './news.service';
@@ -38,6 +37,7 @@ import {
 } from './dto/update-news.input';
 import {
   CACHE_MANAGER,
+  ForbiddenException,
   Inject,
   NotFoundException,
   UseGuards,
@@ -56,7 +56,7 @@ import { Roles } from '@app/shared/common/decorators/roles.decorator';
 import { Role } from '@app/shared/common/enum/role.enum';
 import { RolesGuard } from '@app/shared/common/guards/roles.guard';
 import { MakePublic } from '@app/shared/common/decorators/public.decorator';
-import { Observable } from 'rxjs';
+import { RedisClientType } from 'redis';
 
 // const fileUpload = (fileName, uploadDir) => {
 
@@ -70,6 +70,8 @@ export class NewsResolver {
     private readonly newsService: NewsService,
     private readonly newsTaggitService: NewsTaggitService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject('REDIS_CLIENT') private redisCache: RedisClientType,
+    private readonly newsCacheClientService: NewsCacheClientService,
   ) {}
 
   @Mutation(() => News)
@@ -87,22 +89,79 @@ export class NewsResolver {
   async findAll(
     @User() user: number,
     @Args() args: ConnectionArgs,
+    @Args('getRecommended', { defaultValue: false })
+    getRecommended: boolean,
     @Args('filterNewsInput', { nullable: true })
     filterNewsInput?: FilterNewsInput,
   ): Promise<NewsResponse> {
     const { limit, offset } = args.pagingParams();
-    const [news, count] = await this.newsService.findAll(
-      limit,
-      offset,
-      filterNewsInput,
-      true,
-    );
-
+    let news: News[] = [];
+    let count: number;
     // instead from db get the data from cache
     // const news = await this.cacheManager.get('user');
     // construct a fifo queue
     // get data from queue
     // return this.newsService.findAll();
+    if (!limit) {
+      throw new ForbiddenException(`limit cannot be ${limit}`);
+    }
+    console.log(
+      `user ${user} is requesting news with limit ${limit} rec: ${getRecommended}`,
+    );
+
+    if (getRecommended) {
+      const userCacheName = `newscache_${user}`;
+      // check if user news cache exists
+      const userNewsCacheExists = await this.redisCache.exists(userCacheName);
+      if (!userNewsCacheExists && user) {
+        this.newsCacheClientService
+          .sendBeginCaching(user)
+          .then((res) => console.log(res))
+          .catch((err) => {
+            console.log(`${err}`);
+          });
+      }
+      // if user news cache does not exist, start caching
+
+      // const cachedNews: News[] = await this.cacheManager.get(`newscache_${user}`);
+      // get limit number of news from the queue in cache
+      const numBlocks = Math.floor(limit / 10) - 1;
+      const cachedNews = await this.redisCache.lRange(
+        userCacheName,
+        0,
+        numBlocks,
+      );
+
+      if (cachedNews && cachedNews.length > 0) {
+        // delete the retrieved block from the queue
+        this.redisCache.lTrim(`newscache_${user}`, numBlocks + 1, -1);
+        for (let i = 0; i < cachedNews.length; i++) {
+          const blockofNews = cachedNews[i];
+          // convert the block to news array
+          const newsArr = JSON.parse(blockofNews);
+          // Append the news to news array
+          news = news.concat(newsArr);
+        }
+        count = news.length;
+        console.log(`cached news for user ${user}: ${count}`);
+      } else {
+        console.log(`no cached news for user ${user}`);
+        [news, count] = await this.newsService.findAll(
+          limit,
+          offset,
+          filterNewsInput,
+          true,
+        );
+      }
+    } else {
+      [news, count] = await this.newsService.findAll(
+        limit,
+        offset,
+        filterNewsInput,
+        true,
+      );
+    }
+
     const page = connectionFromArraySlice(news, args, {
       arrayLength: count,
       sliceStart: offset || 0,
@@ -373,18 +432,18 @@ export class UserNewsEngagementResolver {
 @Resolver(() => RecommendationData)
 export class RecommendationDataResolver {
   constructor(
-    private readonly recommendationDataService: RecommendationDataService,
     private readonly newsCacheClientService: NewsCacheClientService,
   ) {}
 
-  @Query(() => RecommendationData, { name: 'recommendationData' })
-  async getData(): Promise<RecommendationData> {
-    return await this.recommendationDataService.getRecommendationData();
-  }
+  // @Query(() => RecommendationData, { name: 'recommendationData' })
+  // async getData(): Promise<RecommendationData> {
+  //   return await this.recommendationDataService.getRecommendationData();
+  // }
 
   @Query(() => Boolean, { name: 'recommendationDataExists' })
   async exists(): Promise<boolean> {
-    const isExist = await this.newsCacheClientService.sendBeginCaching();
+    const userId = 1;
+    const isExist = await this.newsCacheClientService.sendBeginCaching(userId);
     // let res: boolean;
     // console.log(
     //   isExist.subscribe((data) => {

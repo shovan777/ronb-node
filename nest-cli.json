@@ -47,6 +47,16 @@
         ],
         "watchAssets": true
       }
+    },
+    "datacollector": {
+      "type": "application",
+      "root": "apps/datacollector",
+      "entryFile": "main",
+      "sourceRoot": "apps/datacollector/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/datacollector/tsconfig.app.json",
+        "webpackConfigPath": "apps/datacollector/webpack.config.js"
+      }
     }
   }
 }

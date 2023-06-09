@@ -18,6 +18,8 @@ import { YellowPagesModule } from './yellow-pages/yellow-pages.module';
 import { UsersModule } from './users/users.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SharedModule } from '@app/shared';
+import { redisStore } from 'cache-manager-redis-store';
+import { RedisClientOptions } from 'redis';
 import { BloodBankModule } from './blood-bank/blood-bank.module';
 
 @Module({
@@ -103,9 +105,15 @@ import { BloodBankModule } from './blood-bank/blood-bank.module';
         index: false,
       },
     }),
-    CacheModule.register({
+    CacheModule.register<RedisClientOptions>({
       isGlobal: true,
-      // ttl: 5, // seconds
+      ttl: 5, // seconds
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      store: async () =>
+        await redisStore({
+          url: process.env.REDIS_URL,
+        }),
     }),
   ],
   controllers: [AppController],

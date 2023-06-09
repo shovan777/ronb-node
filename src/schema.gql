@@ -1166,6 +1166,7 @@ type Query {
 
     """Paginate first"""
     first: Float
+    getRecommended: Boolean = false
 
     """Paginate last"""
     last: Float
@@ -1289,7 +1290,6 @@ type Query {
     last: Float
   ): PublicToiletResponse!
   publicToiletsAdmin(skip: Int = 0, take: Int = 25): PublicToiletAdminResponse!
-  recommendationData: RecommendationData!
   recommendationDataExists: Boolean!
   tags: [Tag!]!
   userInterests: [UserInterests!]!
@@ -1348,17 +1348,6 @@ type ReactCount {
 
   """Number of wow reacts"""
   wow: Int!
-}
-
-type RecommendationData {
-  """Url of the news data file"""
-  newsData: String!
-
-  """Url of the rating data file"""
-  ratingData: String!
-
-  """Url of the user data file"""
-  userData: String!
 }
 
 type RepliesResponse {

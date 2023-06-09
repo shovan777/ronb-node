@@ -4,8 +4,10 @@ import {
   NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, Not, IsNull } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository, Like, Not, IsNull } from 'typeorm';
+import { createObjectCsvWriter } from 'csv-writer';
+
 import {
   CreateNewsCategoryInput,
   CreateNewsEngagementInput,
@@ -29,6 +31,7 @@ import {
   UserLikesNews,
   UserNewsEngagement,
 } from '@app/shared/entities/news.entity';
+import { NewsComment } from '@app/shared/entities/comment.entity';
 import { uploadFileStream } from '@app/shared/common/utils/upload';
 import { NewsTaggit, Tag } from '@app/shared/entities/tags.entity';
 import { NewsTaggitService, TagsService } from '../tags/tags.service';
@@ -41,6 +44,7 @@ import {
   NewsCachingServiceClient,
   NEWS_CACHING_SERVICE_NAME,
 } from '@app/shared/common/proto/news.pb';
+import { RedisClientType } from 'redis';
 
 @Injectable()
 export class NewsService {
@@ -56,9 +60,17 @@ export class NewsService {
     private tagsService: TagsService,
     private newsTaggitService: NewsTaggitService,
     private fileService: FilesService,
+    @Inject('REDIS_CLIENT') private redisCache: RedisClientType,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
+  private async pushNewsToCache(news: News) {
+    const newsCacheKeys: string[] = await this.redisCache.KEYS('newscache*');
+    // for loop add the newly created news to the front of the cache
+    newsCacheKeys.map((key) => {
+      this.redisCache.lPush(key, JSON.stringify(news));
+    });
+  }
   async create(newsInput: CreateNewsInput, user: number): Promise<News> {
     let newsInputData: any = {
       ...newsInput,
@@ -164,6 +176,18 @@ export class NewsService {
         ...newsInputData,
         tags: await Promise.all(newsTags),
       };
+    }
+    // TODO: Add the constructed news to cache
+    // get all the users that have a cache
+    if (newsData.state === NewsState.PUBLISHED) {
+      // const newsCacheKeys: string[] = await this.redisCache.KEYS('newscache*');
+      // (async () => {
+      //   // for loop add the newly created news to the front of the cache
+      //   newsCacheKeys.map((key) => {
+      //     this.redisCache.lPush(key, JSON.stringify(newsData));
+      //   });
+      // })();
+      this.pushNewsToCache(newsData);
     }
 
     return await newsData;
@@ -328,6 +352,9 @@ export class NewsService {
         updatedBy: user,
         // images: ['guur'],
       };
+      if (updatedNews.state === NewsState.PUBLISHED) {
+        this.pushNewsToCache(updatedNews);
+      }
       return this.newsRepository.save(updatedNews);
     }
     throw new NotFoundException(`News with id ${id} not found`);
@@ -625,31 +652,6 @@ export class NewsEngagementService {
 }
 
 @Injectable()
-export class RecommendationDataService {
-  constructor(
-    @InjectRepository(News)
-    private newsRepository: Repository<News>,
-    @InjectRepository(UserInterests)
-    private userInterestsRepository: Repository<UserInterests>,
-  ) {}
-
-  async getRecommendationData(): Promise<RecommendationData> {
-    // const userInterestsIds = userInterests.map((interest) => interest.category);
-    // const news = await this.newsRepository.find({
-    //   where: { category: In(userInterestsIds) },
-    //   relations: ['category', 'images'],
-    // });
-    const recommendationData: RecommendationData = {
-      userData: 'user data',
-      newsData: 'news data',
-      ratingData: 'rating data',
-    };
-    return recommendationData;
-    // return news;
-  }
-}
-
-@Injectable()
 export class NewsCacheClientService implements OnModuleInit {
   private newsCachingService: NewsCachingServiceClient;
 
@@ -662,7 +664,7 @@ export class NewsCacheClientService implements OnModuleInit {
       this.client.getService<NewsCachingServiceClient>('NewsCachingService');
   }
 
-  async sendBeginCaching(): Promise<BeginCachingResponse> {
-    return firstValueFrom(this.newsCachingService.beginCaching({ id: 1 }));
+  async sendBeginCaching(userId: number): Promise<BeginCachingResponse> {
+    return firstValueFrom(this.newsCachingService.beginCaching({ id: userId }));
   }
 }

@@ -4,7 +4,6 @@ import {
   NewsCategoryService,
   NewsEngagementService,
   NewsService,
-  RecommendationDataService,
   UserInterestsService,
   UserLikesNewsService,
 } from './news.service';
@@ -34,6 +33,10 @@ import {
   NEWS_CACHING_SERVICE_NAME,
   NEWS_PACKAGE_NAME,
 } from '@app/shared/common/proto/news.pb';
+import { createClient } from 'redis';
+import { Profile as userProfile } from '@app/shared/entities/users.entity';
+import { NewsComment } from '@app/shared/entities/comment.entity';
+import { Tag } from '@app/shared/entities/tags.entity';
 
 @Module({
   providers: [
@@ -50,8 +53,19 @@ import {
     UserNewsEngagementResolver,
     NewsEngagementService,
     RecommendationDataResolver,
-    RecommendationDataService,
     NewsCacheClientService,
+    {
+      provide: 'REDIS_CLIENT',
+      useFactory: () => {
+        const client = createClient({
+          url: `${process.env.REDIS_URL}/0`,
+        });
+        client.connect().then(() => {
+          console.log('**********news cache redis connected');
+        });
+        return client;
+      },
+    },
   ],
   imports: [
     forwardRef(() => TagsModule),
@@ -62,6 +76,9 @@ import {
       UserLikesNews,
       UserNewsEngagement,
       UserInterests,
+      userProfile,
+      NewsComment,
+      Tag,
     ]),
     ClientsModule.register([
       {
