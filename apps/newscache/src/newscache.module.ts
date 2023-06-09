@@ -62,7 +62,7 @@ import { Tag } from '@app/shared/entities/tags.entity';
         name: NEWS_RECOMMENDATION_SERVICE_NAME,
         transport: Transport.GRPC,
         options: {
-          url: 'localhost:50052',
+          url: `${process.env.REC_SVC}:50052`,
           package: RECOMMENDATION_PACKAGE_NAME,
           protoPath: join(
             process.cwd(),
