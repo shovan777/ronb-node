@@ -44,6 +44,7 @@ import {
   NewsCachingServiceClient,
   NEWS_CACHING_SERVICE_NAME,
 } from '@app/shared/common/proto/news.pb';
+import { RedisClientType } from 'redis';
 
 @Injectable()
 export class NewsService {
@@ -59,9 +60,17 @@ export class NewsService {
     private tagsService: TagsService,
     private newsTaggitService: NewsTaggitService,
     private fileService: FilesService,
+    @Inject('REDIS_CLIENT') private redisCache: RedisClientType,
   ) {}
   uploadDir = process.env.MEDIA_ROOT;
   // private readonly newsArr: News[] = [];
+  private async pushNewsToCache(news: News) {
+    const newsCacheKeys: string[] = await this.redisCache.KEYS('newscache*');
+    // for loop add the newly created news to the front of the cache
+    newsCacheKeys.map((key) => {
+      this.redisCache.lPush(key, JSON.stringify(news));
+    });
+  }
   async create(newsInput: CreateNewsInput, user: number): Promise<News> {
     let newsInputData: any = {
       ...newsInput,
@@ -167,6 +176,18 @@ export class NewsService {
         ...newsInputData,
         tags: await Promise.all(newsTags),
       };
+    }
+    // TODO: Add the constructed news to cache
+    // get all the users that have a cache
+    if (newsData.state === NewsState.PUBLISHED) {
+      // const newsCacheKeys: string[] = await this.redisCache.KEYS('newscache*');
+      // (async () => {
+      //   // for loop add the newly created news to the front of the cache
+      //   newsCacheKeys.map((key) => {
+      //     this.redisCache.lPush(key, JSON.stringify(newsData));
+      //   });
+      // })();
+      this.pushNewsToCache(newsData);
     }
 
     return await newsData;
@@ -331,6 +352,9 @@ export class NewsService {
         updatedBy: user,
         // images: ['guur'],
       };
+      if (updatedNews.state === NewsState.PUBLISHED) {
+        this.pushNewsToCache(updatedNews);
+      }
       return this.newsRepository.save(updatedNews);
     }
     throw new NotFoundException(`News with id ${id} not found`);
