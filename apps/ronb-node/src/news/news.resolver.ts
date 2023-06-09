@@ -89,6 +89,8 @@ export class NewsResolver {
   async findAll(
     @User() user: number,
     @Args() args: ConnectionArgs,
+    @Args('getRecommended', { defaultValue: false })
+    getRecommended: boolean,
     @Args('filterNewsInput', { nullable: true })
     filterNewsInput?: FilterNewsInput,
   ): Promise<NewsResponse> {
@@ -103,43 +105,55 @@ export class NewsResolver {
     if (!limit) {
       throw new ForbiddenException(`limit cannot be ${limit}`);
     }
-    console.log(`user ${user} is requesting news with limit ${limit}`);
-    const userCacheName = `newscache_${user}`;
-    // check if user news cache exists
-    const userNewsCacheExists = await this.redisCache.exists(userCacheName);
-    if (!userNewsCacheExists && user) {
-      this.newsCacheClientService
-        .sendBeginCaching(user)
-        .then((res) => console.log(res))
-        .catch((err) => {
-          console.log(`${err}`);
-        });
-    }
-    // if user news cache does not exist, start caching
-
-    // const cachedNews: News[] = await this.cacheManager.get(`newscache_${user}`);
-    // get limit number of news from the queue in cache
-    const numBlocks = Math.floor(limit / 10) - 1;
-    const cachedNews = await this.redisCache.lRange(
-      userCacheName,
-      0,
-      numBlocks,
+    console.log(
+      `user ${user} is requesting news with limit ${limit} rec: ${getRecommended}`,
     );
 
-    if (cachedNews && cachedNews.length > 0) {
-      // delete the retrieved block from the queue
-      this.redisCache.lTrim(`newscache_${user}`, numBlocks + 1, -1);
-      for (let i = 0; i < cachedNews.length; i++) {
-        const blockofNews = cachedNews[i];
-        // convert the block to news array
-        const newsArr = JSON.parse(blockofNews);
-        // Append the news to news array
-        news = news.concat(newsArr);
+    if (getRecommended) {
+      const userCacheName = `newscache_${user}`;
+      // check if user news cache exists
+      const userNewsCacheExists = await this.redisCache.exists(userCacheName);
+      if (!userNewsCacheExists && user) {
+        this.newsCacheClientService
+          .sendBeginCaching(user)
+          .then((res) => console.log(res))
+          .catch((err) => {
+            console.log(`${err}`);
+          });
       }
-      count = news.length;
-      console.log(`cached news for user ${user}: ${count}`);
+      // if user news cache does not exist, start caching
+
+      // const cachedNews: News[] = await this.cacheManager.get(`newscache_${user}`);
+      // get limit number of news from the queue in cache
+      const numBlocks = Math.floor(limit / 10) - 1;
+      const cachedNews = await this.redisCache.lRange(
+        userCacheName,
+        0,
+        numBlocks,
+      );
+
+      if (cachedNews && cachedNews.length > 0) {
+        // delete the retrieved block from the queue
+        this.redisCache.lTrim(`newscache_${user}`, numBlocks + 1, -1);
+        for (let i = 0; i < cachedNews.length; i++) {
+          const blockofNews = cachedNews[i];
+          // convert the block to news array
+          const newsArr = JSON.parse(blockofNews);
+          // Append the news to news array
+          news = news.concat(newsArr);
+        }
+        count = news.length;
+        console.log(`cached news for user ${user}: ${count}`);
+      } else {
+        console.log(`no cached news for user ${user}`);
+        [news, count] = await this.newsService.findAll(
+          limit,
+          offset,
+          filterNewsInput,
+          true,
+        );
+      }
     } else {
-      console.log(`no cached news for user ${user}`);
       [news, count] = await this.newsService.findAll(
         limit,
         offset,
@@ -147,6 +161,7 @@ export class NewsResolver {
         true,
       );
     }
+
     const page = connectionFromArraySlice(news, args, {
       arrayLength: count,
       sliceStart: offset || 0,

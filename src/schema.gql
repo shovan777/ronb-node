@@ -1141,6 +1141,7 @@ type Query {
 
     """Paginate first"""
     first: Float
+    getRecommended: Boolean = false
 
     """Paginate last"""
     last: Float
