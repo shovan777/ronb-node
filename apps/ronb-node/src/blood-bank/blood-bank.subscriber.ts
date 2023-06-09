@@ -25,9 +25,8 @@ async function sendNotificationOnCreateOrUpdate(
   console.log(
     `(Notification): Blood Request for blood group ${entity.bloodGroup}`,
   );
-  const bloodGroup = entity.bloodGroup;
 
-  let users = await service.findUserIdByBloodGroup(bloodGroup);
+  let users = await service.findUserIdByBloodGroup(entity);
   const usersToNotify = removeIdFromArray(users, entity.createdBy.toString());
 
   // notificationService.sendNotificationGroup(
