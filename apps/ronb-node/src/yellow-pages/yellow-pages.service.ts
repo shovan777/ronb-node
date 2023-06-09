@@ -481,6 +481,7 @@ export class YellowPagesCategoryService {
     return this.yellowPagesCategoryRepository.findAndCount({
       take: limit,
       skip: offset,
+      relations: ['yellowpages']
     });
   }
 
@@ -495,6 +496,7 @@ export class YellowPagesCategoryService {
     const yellowpagesCategory: YellowPagesCatgory =
       await this.yellowPagesCategoryRepository.findOne({
         where: { id: id },
+        relations: ['yellowpages']
       });
     if (!yellowpagesCategory) {
       throw new NotFoundException(
@@ -509,11 +511,12 @@ export class YellowPagesCategoryService {
     updateYellowPagesCategoryInput: UpdateYellowPagesCategoryInput,
   ) {
     const yellowPagesCategory = await this.findOne(id);
-    if (yellowPagesCategory.yellowpages) {
-      return await this.yellowPagesCategoryRepository.save({
-        ...yellowPagesCategory,
-        ...updateYellowPagesCategoryInput,
-      });
+    await this.yellowPagesCategoryRepository.update(id, {
+      ...updateYellowPagesCategoryInput,
+    });
+    return {
+      ...yellowPagesCategory,
+      ...updateYellowPagesCategoryInput
     }
   }
 

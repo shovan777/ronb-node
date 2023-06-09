@@ -1750,7 +1750,7 @@ type YellowPagesCatgory {
   updatedBy: Int!
 
   """Yellow Pages in this category"""
-  yellowpages: [YellowPages!]!
+  yellowpages: [YellowPages!]
 }
 
 type YellowPagesCatgoryConnection {
