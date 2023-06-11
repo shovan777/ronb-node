@@ -12,3 +12,14 @@ export const User = createParamDecorator(
     return user.id;
   },
 );
+
+export const usersRole = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = GqlExecutionContext.create(ctx).getContext().req;
+    const user: UserInterface = request.user;
+    if (!user) {
+      return null;
+    }
+    return user.role;
+  },
+);

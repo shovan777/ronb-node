@@ -1,9 +1,12 @@
 import { BloodRequest } from '@app/shared/entities/blood-bank.entity';
-import { CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThanOrEqual, Repository } from 'typeorm';
-import { BloodGroup } from '../enum/bloodGroup.enum';
 import { PublishState } from '../enum/publish_state.enum';
 
 export class BloodRequestCreateLimit implements CanActivate {
@@ -12,10 +15,11 @@ export class BloodRequestCreateLimit implements CanActivate {
     private readonly bloodRequestRepository: Repository<BloodRequest>,
   ) {}
 
+  userCreateRequestLimit = 10;
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const ctx = GqlExecutionContext.create(context);
     const { user } = ctx.getContext().req;
-    const userActiveBloodReq = await this.bloodRequestRepository.findOne({
+    const userActiveBloodReq = await this.bloodRequestRepository.find({
       where: {
         createdBy: user.id,
         donationDate: MoreThanOrEqual(new Date()),
@@ -23,8 +27,10 @@ export class BloodRequestCreateLimit implements CanActivate {
       },
     });
 
-    if (!userActiveBloodReq) return true;
-    return false;
+    if (userActiveBloodReq.length < this.userCreateRequestLimit) return true;
+    throw new ForbiddenException(
+      `User cannot have more than ${this.userCreateRequestLimit} active requests.`,
+    );
   }
 }
 
@@ -34,6 +40,7 @@ export class BloodRequestAcceptLimit implements CanActivate {
     private readonly bloodRequestRepository: Repository<BloodRequest>,
   ) {}
 
+  userAcceptLimit = 10;
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const ctx = GqlExecutionContext.create(context);
     const { user } = ctx.getContext().req;
@@ -49,11 +56,15 @@ export class BloodRequestAcceptLimit implements CanActivate {
       acceptorList.push(...each.acceptors);
     });
 
-    if (
-      acceptorList.includes(user.id) ||
-      user.blood_group == BloodGroup.DONT_KNOW
-    ) {
-      return false;
+    const count = acceptorList.reduce(
+      (acc, num) => (num === user.id ? acc + 1 : acc),
+      1,
+    );
+
+    if (count > this.userAcceptLimit) {
+      throw new ForbiddenException(
+        `User cannot accept more than ${this.userAcceptLimit} active requests.`,
+      );
     }
     return true;
   }

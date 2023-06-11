@@ -1,11 +1,17 @@
-import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
+import {
+  Field,
+  Float,
+  Int,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { BigIntResolver } from 'graphql-scalars';
 import { CreatorBaseEntity } from '@app/shared/common/entities/base.entity';
 import {
   BaseProvince,
   BaseDistrict,
 } from '@app/shared/entities/address.entity';
-import { PublishState as BloodRequestState } from '@app/shared/common/enum/publish_state.enum';
+import { PublishState } from '@app/shared/common/enum/publish_state.enum';
 import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
 BloodGroup;
 import {
@@ -18,6 +24,18 @@ import {
 } from 'typeorm';
 import { ArrayUnique } from 'class-validator';
 import { Author } from '@app/shared/entities/users.entity';
+
+export enum PublishStateExtended {
+  COMPLETE = 'complete',
+  CANCELLED = 'cancelled',
+}
+
+export type BloodRequestStateType = PublishState | PublishStateExtended;
+export const BloodRequestState = { ...PublishState, ...PublishStateExtended };
+
+registerEnumType(BloodRequestState, {
+  name: 'BloodRequestState',
+});
 
 @ObjectType()
 @Entity()
@@ -87,7 +105,7 @@ export class BloodRequest extends CreatorBaseEntity {
     enum: BloodRequestState,
     default: BloodRequestState.DRAFT,
   })
-  state: BloodRequestState;
+  state: BloodRequestStateType;
 
   @Field(() => Boolean, { description: 'Is the blood request an emergency?' })
   @Column({ type: 'boolean', default: false })
@@ -105,8 +123,13 @@ export class BloodRequest extends CreatorBaseEntity {
 
   @Field(() => Author, {
     description: 'Profile of the user who created the request',
+    nullable: true,
   })
   profile: Author;
+
+  @Field({ description: 'Donated date', nullable: true })
+  @Column({ nullable: true })
+  donatedDate: Date;
 }
 
 @ObjectType({ description: 'Acceptors of blood request' })

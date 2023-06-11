@@ -22,7 +22,7 @@ export class YellowPagesCatgory extends CreatorBaseEntity {
   @Column({ nullable: true })
   description?: string;
 
-  @Field(() => [YellowPages], { description: 'Yellow Pages in this category' })
+  @Field(() => [YellowPages], { description: 'Yellow Pages in this category' , nullable:true})
   @OneToMany(() => YellowPages, (yellowpages) => yellowpages.category)
   yellowpages: YellowPages[];
 }

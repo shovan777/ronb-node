@@ -9,11 +9,36 @@ export class UsersService {
     private userDataSource: DataSource,
   ) {}
   async findOne(id: number) {
-    const user = await this.userDataSource
+    const userQuery = this.userDataSource
       .createQueryBuilder()
       .from('account_user', 'account_user')
-      .where('account_user.id = :id', { id: id })
-      .getRawOne();
+      .leftJoin(
+        'account_address',
+        'address',
+        'account_user.id = address.user_id',
+      )
+      .addSelect([
+        'account_user.id',
+        'account_user.last_login',
+        'account_user.is_superuser',
+        'account_user.first_name',
+        'account_user.last_name',
+        'account_user.email',
+        'account_user.is_staff',
+        'account_user.is_active',
+        'account_user.date_joined',
+        'account_user.username',
+        'account_user.otp_counter',
+        'account_user.otp',
+        'account_user.is_first_login',
+        'account_user.is_blocked',
+        'account_user.role',
+        'address.province',
+        'address.district',
+      ])
+      .where('account_user.id = :id', { id: id });
+
+    const user = await userQuery.getRawOne();
 
     if (user) {
       user.profile = await this.userDataSource
@@ -43,22 +68,36 @@ export class UsersService {
           .where('account_profile.user_id = :id', { id: user.id })
           .getRawOne();
       }),
-      );
-      
-    queryOut = queryOut.filter(query => query.profile.blood_group_approval === true)
+    );
+
+    queryOut = queryOut.filter(
+      (query) => query.profile.blood_group_approval === true,
+    );
     return { doners: queryOut, count: totalQueryCount };
   }
 
-  async findUserByBloodGroup(bloodGroup: string) {
+  async findUserIdByBloodGroup(entity: any) {
     const users = await this.userDataSource
       .createQueryBuilder()
       .from('account_profile', 'account_profile')
+      .leftJoin(
+        'account_address',
+        'address',
+        'address.user_id = account_profile.user_id',
+      )
+      .select('account_profile.user_id')
       .where('account_profile.blood_group = :bloodGroup', {
-        bloodGroup: bloodGroup,
+        bloodGroup: entity.bloodGroup,
+      })
+      .andWhere('address.district = :userDistrict', {
+        userDistrict: entity.address.district.id,
+      })
+      .andWhere('account_profile.blood_notification_enabled = :notify', {
+        notify: true,
       })
       .getRawMany();
 
-    return users;
+    return users.map((user) => user.user_id); //TODO: Check for alternative solution without using .map()
   }
 }
 

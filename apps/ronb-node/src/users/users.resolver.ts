@@ -16,6 +16,10 @@ export const getAuthor = async (service, id: number): Promise<Author> => {
         first_name: user.first_name,
         last_name: user.last_name,
         username: user.username,
+        address: {
+          province: user.province,
+          district: user.district,
+        },
         profile: {
           id: user.profile?.id,
           age: userAge,
@@ -64,6 +68,10 @@ export const getDoners = async (
           last_name: user.last_name,
           username: user.username,
           email: user.email,
+          address: {
+            province: user.province,
+            district: user.district,
+          },
           profile: {
             id: user.profile?.id,
             age: userAge,

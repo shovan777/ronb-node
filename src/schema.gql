@@ -4,6 +4,9 @@
 
 """Acceptors of blood request"""
 type Acceptors {
+  """User address information"""
+  address: UserAddress
+
   """User email"""
   email: String
   first_name: String
@@ -24,6 +27,9 @@ type Acceptors {
 
 """Comment Author"""
 type Author {
+  """User address information"""
+  address: UserAddress
+
   """User email"""
   email: String
   first_name: String
@@ -110,6 +116,9 @@ type BloodRequest {
   """Further description of the blood request"""
   description: String
 
+  """Donated date"""
+  donatedDate: DateTime
+
   """Donation date"""
   donationDate: DateTime!
   doners: [Int!]
@@ -124,10 +133,10 @@ type BloodRequest {
   phoneNumber: BigInt!
 
   """Profile of the user who created the request"""
-  profile: Author!
+  profile: Author
 
   """Blood request state"""
-  state: State!
+  state: BloodRequestState!
 
   """date of update"""
   updatedAt: DateTime!
@@ -177,6 +186,14 @@ type BloodRequestResponse {
   pageData: PageData
 }
 
+enum BloodRequestState {
+  CANCELLED
+  COMPLETE
+  DRAFT
+  PUBLISHED
+  REVIEWED
+}
+
 type CommentsResponse {
   page: NewsCommentConnection!
   pageData: PageData
@@ -219,7 +236,7 @@ input CreateBloodRequestInput {
   phoneNumber: BigInt
 
   """Yellow Pages State"""
-  state: State
+  state: BloodRequestState
 }
 
 input CreateDistrictInput {
@@ -490,6 +507,7 @@ scalar EmailAddress @specifiedBy(url: "https://www.w3.org/Protocols/rfc822/")
 input FilterBloodRequestInput {
   """Blood group type"""
   bloodGroup: BloodGroup
+  filter: Boolean
 }
 
 input FilterDistrictInput {
@@ -528,7 +546,9 @@ scalar GeoJSONPointScalar
 type Mutation {
   acceptBloodRequest(id: Int!): BloodRequest!
   addDoners(id: Int!, usersID: [Int!]!): BloodRequest!
+  cancelAcceptedBloodRequest(id: Int!): BloodRequest!
   cancelBloodRequest(id: Int!): BloodRequest!
+  completeBloodRequest(id: Int!): BloodRequest!
   creatDistrict(createDistrictInput: CreateDistrictInput!): District!
   createBloodRequest(createBloodBankInput: CreateBloodRequestInput!): BloodRequest!
   createNews(createNewsInput: CreateNewsInput!): News!
@@ -551,6 +571,7 @@ type Mutation {
   createYellowPagesCategory(createYellowPagesCategoryInput: CreateYellowPagesCategoryInput!): YellowPagesCatgory!
   createYellowPagesEmail(createYellowPagesEmailInput: CreateYellowPagesEmailInput!): YellowPagesEmail!
   createYellowPagesPhoneNumber(createYellowPagesPhoneNumberInput: CreateYellowPagesPhoneNumberInput!): YellowPagesPhoneNumber!
+  publishYellowPages(id: Int!, publishYellowPagesInput: PublishYellowPagesInput!): YellowPages!
   removeBloodRequest(id: Int!): BloodRequest!
   removeDistrict(id: Int!): District!
   removeNews(id: Int!): News!
@@ -947,7 +968,7 @@ type Profile {
   bloodGroupApproval: Boolean!
 
   """Date of birth of the user"""
-  dateOfBirth: String!
+  dateOfBirth: String
 
   """Profile id"""
   id: Int!
@@ -1105,6 +1126,10 @@ type PublicToiletReviewPageInfo {
 type PublicToiletReviewsResponse {
   page: PublicToiletReviewConnection!
   pageData: PageData
+}
+
+input PublishYellowPagesInput {
+  state: State!
 }
 
 type Query {
@@ -1379,7 +1404,7 @@ input UpdateBloodRequestInput {
   phoneNumber: BigInt
 
   """Yellow Pages State"""
-  state: State
+  state: BloodRequestState
 }
 
 input UpdateDistrictInput {
@@ -1557,6 +1582,12 @@ input UpdateYellowPagesPhoneNumberInput {
 """Upload files"""
 scalar Upload
 
+"""Address of the user"""
+type UserAddress {
+  district: String!
+  province: String!
+}
+
 type UserInterests {
   """News categories of interest to user"""
   newsCategories: [NewsCategory!]
@@ -1708,7 +1739,7 @@ type YellowPagesCatgory {
   updatedBy: Int!
 
   """Yellow Pages in this category"""
-  yellowpages: [YellowPages!]!
+  yellowpages: [YellowPages!]
 }
 
 type YellowPagesCatgoryConnection {

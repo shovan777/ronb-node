@@ -17,7 +17,10 @@ export class Profile {
   @Field(() => Int, { description: 'Age of the user' })
   age: number;
 
-  @Field(() => String, { description: 'Date of birth of the user' })
+  @Field(() => String, {
+    description: 'Date of birth of the user',
+    nullable: true,
+  })
   dateOfBirth?: string;
 
   @Field(() => String, {
@@ -32,6 +35,15 @@ export class Profile {
 
   @Field(() => Int, { nullable: true })
   totalAccepted?: number;
+}
+
+@ObjectType({ description: 'Address of the user' })
+export class UserAddress {
+  @Field(() => String)
+  province: string;
+
+  @Field(() => String)
+  district: string;
 }
 
 @ObjectType({ description: 'Comment Author' })
@@ -56,6 +68,11 @@ export class Author {
 
   // @Field({ description: 'User lastname' })
   // lastName: string;
+  @Field(() => UserAddress, {
+    description: 'User address information',
+    nullable: true,
+  })
+  address: UserAddress;
 
   @Field(() => Profile, {
     description: 'User profile information',
