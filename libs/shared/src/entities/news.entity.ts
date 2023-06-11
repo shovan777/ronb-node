@@ -16,6 +16,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { newsDateMiddleware } from '../common/middlewares/newsDate.middleware';
 
 @ObjectType()
 @Entity()
@@ -74,15 +75,19 @@ export class News {
   @Column()
   title: string;
 
-  @Field({ description: 'News publishedAt', nullable: true })
+  @Field({
+    description: 'News publishedAt',
+    nullable: true,
+    middleware: [newsDateMiddleware],
+  })
   @Column({ nullable: true })
   publishedAt: Date;
 
-  @Field({ description: 'News createdAt' })
+  @Field({ description: 'News createdAt', middleware: [newsDateMiddleware] })
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field({ description: 'News updatedAt' })
+  @Field({ description: 'News updatedAt', middleware: [newsDateMiddleware] })
   @UpdateDateColumn()
   updatedAt: Date;
 
@@ -191,7 +196,9 @@ export class NewsImage {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field({ description: 'News image updatedAt' })
+  @Field({
+    description: 'News image updatedAt',
+  })
   @UpdateDateColumn()
   updatedAt: Date;
 
