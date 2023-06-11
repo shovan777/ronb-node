@@ -108,19 +108,20 @@ export class NewsResolver {
     console.log(
       `user ${user} is requesting news with limit ${limit} rec: ${getRecommended}`,
     );
+    const userCacheName = `newscache_${user}`;
+    // check if user news cache exists
+    const userNewsCacheExists = await this.redisCache.exists(userCacheName);
+    // begin caching if user doesn't have a cache
+    if (!userNewsCacheExists && user) {
+      this.newsCacheClientService
+        .sendBeginCaching(user)
+        .then((res) => console.log(res))
+        .catch((err) => {
+          console.log(`${err}`);
+        });
+    }
 
     if (getRecommended) {
-      const userCacheName = `newscache_${user}`;
-      // check if user news cache exists
-      const userNewsCacheExists = await this.redisCache.exists(userCacheName);
-      if (!userNewsCacheExists && user) {
-        this.newsCacheClientService
-          .sendBeginCaching(user)
-          .then((res) => console.log(res))
-          .catch((err) => {
-            console.log(`${err}`);
-          });
-      }
       // if user news cache does not exist, start caching
 
       // const cachedNews: News[] = await this.cacheManager.get(`newscache_${user}`);
