@@ -130,7 +130,7 @@ export class YellowPagesService {
       });
     }
 
-    if (filterYellowPagesInput.is_emergency) {
+    if (typeof filterYellowPagesInput.is_emergency !== "undefined") {
       sqlQuery.andWhere('phone_number.is_emergency = :isEmergency', {
         isEmergency: filterYellowPagesInput.is_emergency,
       });
