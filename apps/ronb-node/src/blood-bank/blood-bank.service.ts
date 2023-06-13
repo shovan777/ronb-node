@@ -173,7 +173,8 @@ export class BloodBankService {
   }
 
   private checkDonationDate(donationDate: Date): Boolean {
-    const donationDuration = getDateInterval(donationDate);
+    const newDate = new Date(donationDate.toLocaleDateString())
+    const donationDuration = getDateInterval(newDate);
     console.log(
       '🚀 ~ file: blood-bank.service.ts:177 ~ BloodBankService ~ checkDonationDate ~ donationDuration:',
       donationDuration,
