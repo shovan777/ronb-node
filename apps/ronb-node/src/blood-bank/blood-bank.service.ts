@@ -261,11 +261,17 @@ export class BloodBankService {
         };
         const updatedDonationDate: Date = updateBloodRequestInput.donationDate;
 
+        console.log("🚀 ~ file: blood-bank.service.ts:266 ~ BloodBankService ~ updatedDonationDate:", updatedDonationDate)
+        console.log("🚀 ~ file: blood-bank.service.ts:269 ~ BloodBankService ~ !this.checkDonationDate(updatedDonationDate):", !this.checkDonationDate(updatedDonationDate))
+        console.log("====")
+        console.log("🚀 ~ file: blood-bank.service.ts:266 ~ BloodBankService ~ !updatedDonationDate:", !updatedDonationDate)
+        console.log("🚀 ~ file: blood-bank.service.ts:269 ~ BloodBankService ~ !this.checkDonationDate(updatedDonationDate):", !this.checkDonationDate(bloodRequest.donationDate))
+        
         if (
           (updatedDonationDate &&
             !this.checkDonationDate(updatedDonationDate)) ||
           (!updatedDonationDate &&
-            !this.checkDonationDate(bloodRequest.donatedDate))
+            !this.checkDonationDate(bloodRequest.donationDate))
         ) {
           throw new ForbiddenException(
             `Donation date must be selected from ${new Date()} or later.`,
