@@ -2,14 +2,14 @@ name: CI/CD to AWS
 on:
   # pull_request:
   #   types: [opened]
-  # push:
-  #   branches:
-  #     # - main
-  #     - dev
-  release:
-    types: [published]
-    tags:
-      - 'v*'
+  push:
+    branches:
+      # - main
+      - dev
+  # release:
+  #   types: [published]
+  #   tags:
+  #     - 'v*'
 
   # allows to manually run the workflow in actions tab
   workflow_dispatch:
