@@ -196,6 +196,10 @@ export class BloodBankService {
 
     const isEmergencyTimeInterval = 2; //in days
 
+    console.log(
+      '🚀 ~ file: blood-bank.service.ts:204 ~ BloodBankService ~ loodBankInput.donationDate:',
+      bloodBankInput.donationDate,
+    );
     if (bloodBankInput.donationDate) {
       const donationDate = bloodBankInput.donationDate;
       const donationDuration = getDateInterval(donationDate);
