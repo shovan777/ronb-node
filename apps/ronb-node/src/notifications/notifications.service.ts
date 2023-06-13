@@ -216,15 +216,29 @@ export class NotificationsService {
     data: NotificationInput,
     users: number[],
   ): Promise<Notification> {
+    console.log(
+      '🚀 ~ file: notifications.service.ts:219 ~ NotificationsService ~ users:',
+      users,
+    );
     const messageObject = await this.notificationRepository.save({
       ...data,
       createdAt: new Date(),
     });
+
     let whereOptions: any = {};
-    if (users.length > 0) {
+    // if (users.length > 0) {
       whereOptions.userId = In(users);
-    }
+    // }
+    console.log(
+      '🚀 ~ file: notifications.service.ts:226 ~ NotificationsService ~ whereOptions:',
+      whereOptions,
+    );
     const devices = await this.findBy(whereOptions);
+    console.log(
+      '🚀 ~ file: notifications.service.ts:229 ~ NotificationsService ~ devices:',
+      devices,
+    );
+
     const androidSpecific = {
       notification: {
         eventTimestamp: new Date(),
@@ -237,10 +251,10 @@ export class NotificationsService {
       data: JSON.parse(data.data),
       android: androidSpecific,
     }));
-    const send_response =
-      await this.notificationsSendService.sendFirebaseMessages(
-        firebaseMessages,
-      );
+    // const send_response =
+    //   await this.notificationsSendService.sendFirebaseMessages(
+    //     firebaseMessages,
+    //   );
     return messageObject;
   }
 

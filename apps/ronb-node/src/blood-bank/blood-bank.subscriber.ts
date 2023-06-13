@@ -27,7 +27,12 @@ async function sendNotificationOnCreateOrUpdate(
   );
 
   let users = await service.findUserIdByBloodGroup(entity);
+  console.log('🚀 ~ file: blood-bank.subscriber.ts:30 ~ users:', users);
   const usersToNotify = removeIdFromArray(users, entity.createdBy.toString());
+  console.log(
+    '🚀 ~ file: blood-bank.subscriber.ts:32 ~ usersToNotify:',
+    usersToNotify,
+  );
 
   notificationService.sendNotificationGroup(
     {

@@ -172,6 +172,19 @@ export class BloodBankService {
     });
   }
 
+  private checkDonationDate(donationDate: Date): Boolean {
+    const donationDuration = getDateInterval(donationDate);
+    console.log(
+      '🚀 ~ file: blood-bank.service.ts:177 ~ BloodBankService ~ checkDonationDate ~ donationDuration:',
+      donationDuration,
+    );
+
+    if (donationDuration > 0) {
+      return true;
+    }
+    return false;
+  }
+
   async create(
     bloodBankInput: CreateBloodRequestInput,
     user: number,
@@ -187,11 +200,12 @@ export class BloodBankService {
       const donationDate = bloodBankInput.donationDate;
       const donationDuration = getDateInterval(donationDate);
 
-      if (donationDuration < 0) {
+      if (!this.checkDonationDate(bloodBankInput.donationDate)) {
         throw new ForbiddenException(
           `Donation date must be selected from ${new Date()} or later.`,
         );
-      } else if (
+      }
+      if (
         donationDuration <= isEmergencyTimeInterval &&
         donationDuration >= 0
       ) {
@@ -239,7 +253,18 @@ export class BloodBankService {
           ...updateBloodRequestInput,
           address: bloodRequest.address,
         };
+        const updatedDonationDate: Date = updateBloodRequestInput.donationDate;
 
+        if (
+          (updatedDonationDate &&
+            !this.checkDonationDate(updatedDonationDate)) ||
+          (!updatedDonationDate &&
+            !this.checkDonationDate(bloodRequest.donatedDate))
+        ) {
+          throw new ForbiddenException(
+            `Donation date must be selected from ${new Date()} or later.`,
+          );
+        }
         //TODO: make separate services for address
         if (updateBloodRequestInput.address) {
           const savedAddress = await this.findAndSaveAddress(
