@@ -411,7 +411,6 @@ export class DistrictResolver {
     @Args('filterDistrictInput', { nullable: true })
     filterDistrictInput: FilterDistrictInput,
   ): Promise<District[]> {
-    console.log('api req from font-end');
     return await this.districtService.findAll(filterDistrictInput);
   }
 

@@ -2,26 +2,25 @@ name: CI/CD to AWS
 on:
   # pull_request:
   #   types: [opened]
-  push:
-    branches:
-      # - main
-      - dev
-  # release:
-  #   types: [published]
-  #   tags:
-  #     - 'v*'
+  # push:
+  #   branches:
+  #     # - main
+  #     - dev
+  release:
+    types: [published]
+    tags:
+      - 'v*'
 
   # allows to manually run the workflow in actions tab
   workflow_dispatch:
     inputs:
       version:
-        description: "Version"
+        description: 'Version'
         required: true
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-
 
 jobs:
   build_and_push:
@@ -29,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       img_tag: ${{steps.meta.outputs.tags}}
-      json_tag: ${{steps.meta.outputs.json}}      
+      json_tag: ${{steps.meta.outputs.json}}
     environment: aws
     permissions:
       contents: read
@@ -42,7 +41,7 @@ jobs:
             image: root
           - dockerfile: ./apps/newscache/newscache.Dockerfile
             image: newscache
-        
+
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v3
@@ -97,8 +96,7 @@ jobs:
         with:
           matrix-step-name: build_and_push
     outputs:
-      result: "${{ steps.read.outputs.result }}"
-
+      result: '${{ steps.read.outputs.result }}'
 
   deploy:
     name: Deploy to Amazon EC2 instance
@@ -110,12 +108,12 @@ jobs:
       - name: Deploy to aws EC2 instance via SSH action
         uses: appleboy/ssh-action@v0.1.3
         env:
-            TAG: ${{fromJSON(needs.read.outputs.result).image_json.root.tags[0]}}
-            # .json_tag).tags[0]}}
-            # read output from second matrix of the build_and_push job
-            TAG_NEWSCACHE: ${{fromJSON(needs.read.outputs.result).image_json.newscache.tags[0]}}
-            # TAG: ${{needs.build_and_push.outputs.img_tag}}
-            #${{ github.sha }}_${{ github.event.inputs.version }}
+          TAG: ${{fromJSON(needs.read.outputs.result).image_json.root.tags[0]}}
+          # .json_tag).tags[0]}}
+          # read output from second matrix of the build_and_push job
+          TAG_NEWSCACHE: ${{fromJSON(needs.read.outputs.result).image_json.newscache.tags[0]}}
+          # TAG: ${{needs.build_and_push.outputs.img_tag}}
+          #${{ github.sha }}_${{ github.event.inputs.version }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.USERNAME }}

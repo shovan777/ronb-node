@@ -216,29 +216,14 @@ export class NotificationsService {
     data: NotificationInput,
     users: number[],
   ): Promise<Notification> {
-    console.log(
-      '🚀 ~ file: notifications.service.ts:219 ~ NotificationsService ~ users:',
-      users,
-    );
     const messageObject = await this.notificationRepository.save({
       ...data,
       createdAt: new Date(),
     });
 
     let whereOptions: any = {};
-    // if (users.length > 0) {
-      whereOptions.userId = In(users);
-    // }
-    console.log(
-      '🚀 ~ file: notifications.service.ts:226 ~ NotificationsService ~ whereOptions:',
-      whereOptions,
-    );
+    whereOptions.userId = In(users);
     const devices = await this.findBy(whereOptions);
-    console.log(
-      '🚀 ~ file: notifications.service.ts:229 ~ NotificationsService ~ devices:',
-      devices,
-    );
-
     const androidSpecific = {
       notification: {
         eventTimestamp: new Date(),
