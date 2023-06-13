@@ -251,10 +251,10 @@ export class NotificationsService {
       data: JSON.parse(data.data),
       android: androidSpecific,
     }));
-    // const send_response =
-    //   await this.notificationsSendService.sendFirebaseMessages(
-    //     firebaseMessages,
-    //   );
+    const send_response =
+      await this.notificationsSendService.sendFirebaseMessages(
+        firebaseMessages,
+      );
     return messageObject;
   }
 
