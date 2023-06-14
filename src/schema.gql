@@ -689,6 +689,9 @@ type News {
 
   """News updatedBy"""
   updatedBy: Int!
+
+  """News variety"""
+  variety: NewsVariety!
 }
 
 type NewsCategory {
@@ -870,6 +873,17 @@ type NewsTaggit {
 
   """Tag name"""
   tag: Tag!
+}
+
+enum NewsVariety {
+  ACHIEVEMENT
+  DEFAULT
+  GOLD_PRICE
+  LOSTNFOUND
+  MOVIE_RELEASE
+  SHARE_PRICE
+  SUMMARY_NEWS
+  TOP_TEN
 }
 
 type Notification {

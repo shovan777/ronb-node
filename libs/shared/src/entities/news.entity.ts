@@ -60,6 +60,21 @@ registerEnumType(NewsLanguage, {
   name: 'NewsLanguage',
 });
 
+export enum NewsVariety {
+  DEFAULT = 'default',
+  TOP_TEN = 'topTen',
+  MOVIE_RELEASE = 'movieRelease',
+  SHARE_PRICE = 'sharePrice',
+  GOLD_PRICE = 'goldPrice',
+  ACHIEVEMENT = 'achievement',
+  SUMMARY_NEWS = 'summary_news',
+  LOSTNFOUND = 'lostNFound',
+}
+
+registerEnumType(NewsVariety, {
+  name: 'NewsVariety',
+});
+
 @ObjectType()
 @Entity()
 export class News {
@@ -144,6 +159,10 @@ export class News {
   @Field(() => NewsState, { description: 'News state' })
   @Column({ type: 'enum', enum: NewsState, default: NewsState.DRAFT })
   state: NewsState;
+
+  @Field(() => NewsVariety, { description: 'News variety' })
+  @Column({ type: 'enum', enum: NewsVariety, default: NewsVariety.DEFAULT })
+  variety: NewsVariety;
 
   // @Field(() => [UserLikesNews], { description: 'News likes', nullable: true })
   @OneToMany(() => UserLikesNews, (likes) => likes.news, {
