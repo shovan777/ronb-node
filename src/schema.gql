@@ -325,6 +325,9 @@ input CreateNewsInput {
 
   """News title"""
   title: String!
+
+  """News Variety"""
+  variety: NewsVariety
 }
 
 input CreateNewsReplyInput {
@@ -1493,6 +1496,9 @@ input UpdateNewsInput {
 
   """News title"""
   title: String
+
+  """News Variety"""
+  variety: NewsVariety
 }
 
 input UpdateNewsReplyInput {
