@@ -122,8 +122,8 @@ export class BloodBankService {
       },
       order: {
         state: 'ASC',
-        createdAt: 'DESC',
         is_emergency: 'DESC',
+        createdAt: 'DESC',
       },
     });
   }
