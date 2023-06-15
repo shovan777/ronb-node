@@ -118,8 +118,9 @@ export class BloodBankService {
         createdBy: user,
       },
       order: {
-        is_emergency: 'DESC',
+        state: 'ASC',
         createdAt: 'DESC',
+        is_emergency: 'DESC',
       },
     });
   }
