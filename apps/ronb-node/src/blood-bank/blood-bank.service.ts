@@ -9,7 +9,6 @@ import {
   BaseDistrict,
   BaseProvince,
 } from '@app/shared/entities/address.entity';
-import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
 import { calculateUserAge } from '@app/shared/common/utils/calculateUserAge';
 import { checkIfObjectIsPublished } from '@app/shared/common/utils/checkPublishedState';
 import { Author } from '@app/shared/entities/users.entity';
