@@ -9,7 +9,6 @@ import {
   BaseDistrict,
   BaseProvince,
 } from '@app/shared/entities/address.entity';
-import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
 import { calculateUserAge } from '@app/shared/common/utils/calculateUserAge';
 import { checkIfObjectIsPublished } from '@app/shared/common/utils/checkPublishedState';
 import { Author } from '@app/shared/entities/users.entity';
@@ -186,6 +185,14 @@ export class BloodBankService {
     return false;
   }
 
+  private getCurrentTime() {
+    const currentTime = new Date();
+    const minutes = currentTime.getMinutes() + 30;
+    currentTime.setMinutes(minutes);
+
+    return currentTime;
+  }
+  
   async create(
     bloodBankInput: CreateBloodRequestInput,
     user: number,
@@ -202,9 +209,7 @@ export class BloodBankService {
       const donationDuration = getDateInterval(donationDate);
 
       if (!this.checkDonationDate(bloodBankInput.donationDate)) {
-        const currentTime = new Date();
-        const minutes = currentTime.getMinutes() + 30;
-        currentTime.setMinutes(minutes);
+        const currentTime = this.getCurrentTime()
 
         throw new ForbiddenException(
           `Donation date must be selected from ${currentTime} or later.`,
@@ -266,8 +271,10 @@ export class BloodBankService {
           (!updatedDonationDate &&
             !this.checkDonationDate(bloodRequest.donationDate))
         ) {
+          const currentTime = this.getCurrentTime()
+
           throw new ForbiddenException(
-            `Donation date must be selected from ${new Date()} or later.`,
+            `Donation date must be selected from ${currentTime} or later.`,
           );
         }
         //TODO: make separate services for address
