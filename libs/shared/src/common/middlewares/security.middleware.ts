@@ -81,8 +81,6 @@ export class SecurityMiddleware implements NestMiddleware {
             id: parseInt(user_id),
             isAdmin: is_admin,
             role: role,
-            bloodGroup: profile.blood_group,
-            bloodApproval: profile.blood_group_approval
           };
           cache.set(jwt_auth, JSON.stringify(req.user));
           cache.expire(jwt_auth, ttl);

@@ -186,6 +186,14 @@ export class BloodBankService {
     return false;
   }
 
+  private getCurrentTime() {
+    const currentTime = new Date();
+    const minutes = currentTime.getMinutes() + 30;
+    currentTime.setMinutes(minutes);
+
+    return currentTime;
+  }
+  
   async create(
     bloodBankInput: CreateBloodRequestInput,
     user: number,
@@ -202,9 +210,7 @@ export class BloodBankService {
       const donationDuration = getDateInterval(donationDate);
 
       if (!this.checkDonationDate(bloodBankInput.donationDate)) {
-        const currentTime = new Date();
-        const minutes = currentTime.getMinutes() + 30;
-        currentTime.setMinutes(minutes);
+        const currentTime = this.getCurrentTime()
 
         throw new ForbiddenException(
           `Donation date must be selected from ${currentTime} or later.`,
@@ -266,8 +272,10 @@ export class BloodBankService {
           (!updatedDonationDate &&
             !this.checkDonationDate(bloodRequest.donationDate))
         ) {
+          const currentTime = this.getCurrentTime()
+
           throw new ForbiddenException(
-            `Donation date must be selected from ${new Date()} or later.`,
+            `Donation date must be selected from ${currentTime} or later.`,
           );
         }
         //TODO: make separate services for address
