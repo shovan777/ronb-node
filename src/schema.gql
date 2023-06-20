@@ -1172,7 +1172,20 @@ type Query {
   getBloodRecords: BloodRecordResponse!
   getDonorsOfBloodRequest(id: Int!): [Acceptors!]!
   instrestingTags: [Tag!]!
-  mybloodRequests: [BloodRequest!]!
+  mybloodRequests: [BloodRequest!]! @deprecated(reason: "This endpoint has no support for pagination. Please migrate to new endpoint mybloodRequestV2")
+  mybloodRequestsV2(
+    """Paginate after cursor"""
+    after: String
+
+    """Paginate before cursor"""
+    before: String
+
+    """Paginate first"""
+    first: Float
+
+    """Paginate last"""
+    last: Float
+  ): BloodRequestResponse!
   news(
     """Paginate after cursor"""
     after: String

@@ -80,11 +80,37 @@ export class BloodBankResolver {
     return { page, pageData: { count, limit, offset, curTime: new Date() } };
   }
 
-  @Query(() => [BloodRequest], { name: 'mybloodRequests' })
+  @Query(() => [BloodRequest], {
+    name: 'mybloodRequests',
+    deprecationReason:
+      'This endpoint has no support for pagination. Please migrate to new endpoint mybloodRequestV2',
+  })
   @UseGuards(BloodEligibilityGuard)
   async getMyBloodRequests(@User() user: number): Promise<BloodRequest[]> {
     checkUserAuthenticated(user);
     return this.bloodRequestService.findMyRequest(user);
+  }
+
+  @Query(() => BloodRequestResponse, { name: 'mybloodRequestsV2' })
+  @UseGuards(BloodEligibilityGuard)
+  async getMyBloodRequestsV2(
+    @Args() args: ConnectionArgs,
+    @User() user: number,
+  ): Promise<BloodRequestResponse> {
+    checkUserAuthenticated(user);
+    const { limit, offset } = args.pagingParams();
+    const [myRequest, count] = await this.bloodRequestService.findMyRequestV2(
+      user,
+      limit,
+      offset,
+    );
+
+    const page = connectionFromArraySlice(myRequest, args, {
+      arrayLength: count,
+      sliceStart: offset || 0,
+    });
+
+    return { page, pageData: { count, limit, offset, curTime: new Date() } };
   }
 
   @Query(() => BloodRequest, { name: 'bloodRequestById' })
