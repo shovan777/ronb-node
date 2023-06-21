@@ -81,14 +81,31 @@ type BloodBankDonerListResponse {
 }
 
 enum BloodGroup {
+  """AB-"""
   AB_NEG
+
+  """AB+"""
   AB_POS
+
+  """A-"""
   A_NEG
+
+  """A+"""
   A_POS
+
+  """B-"""
   B_NEG
+
+  """B+"""
   B_POS
+
+  """Don't Know"""
   DONT_KNOW
+
+  """O-"""
   O_NEG
+
+  """O+"""
   O_POS
 }
 

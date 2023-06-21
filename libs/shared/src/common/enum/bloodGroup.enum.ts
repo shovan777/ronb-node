@@ -14,4 +14,33 @@ export enum BloodGroup {
 
 registerEnumType(BloodGroup, {
   name: 'BloodGroup',
+  valuesMap: {
+    A_POS: {
+      description: BloodGroup.A_POS,
+    },
+    A_NEG: {
+      description: BloodGroup.A_NEG,
+    },
+    B_POS: {
+      description: BloodGroup.B_POS,
+    },
+    B_NEG: {
+      description: BloodGroup.B_NEG,
+    },
+    AB_POS: {
+      description: BloodGroup.AB_POS,
+    },
+    AB_NEG: {
+      description: BloodGroup.AB_NEG,
+    },
+    O_POS: {
+      description: BloodGroup.O_POS,
+    },
+    O_NEG: {
+      description: BloodGroup.O_NEG,
+    },
+    DONT_KNOW: {
+      description: BloodGroup.DONT_KNOW,
+    },
+  },
 });

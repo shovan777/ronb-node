@@ -220,10 +220,9 @@ export class NotificationsService {
       ...data,
       createdAt: new Date(),
     });
+
     let whereOptions: any = {};
-    if (users.length > 0) {
-      whereOptions.userId = In(users);
-    }
+    whereOptions.userId = In(users);
     const devices = await this.findBy(whereOptions);
     const androidSpecific = {
       notification: {
