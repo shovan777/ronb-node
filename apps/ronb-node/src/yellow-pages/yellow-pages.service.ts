@@ -130,7 +130,8 @@ export class YellowPagesService {
       });
     }
 
-    if (typeof filterYellowPagesInput.is_emergency !== 'undefined' && filterYellowPagesInput.is_emergency !== null) {
+    const { is_emergency } = filterYellowPagesInput;
+    if (typeof is_emergency == 'boolean') {
       sqlQuery.andWhere('phone_number.is_emergency = :isEmergency', {
         isEmergency: filterYellowPagesInput.is_emergency,
       });
