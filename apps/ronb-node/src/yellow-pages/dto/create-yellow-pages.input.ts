@@ -20,6 +20,12 @@ export class CreateYellowPagesInput {
   @Field({ description: 'Yellow Pages description', nullable: true })
   description?: string;
 
+  @Field({
+    description: 'Emergency yellow page if set to true',
+    defaultValue: false,
+  })
+  is_emergency: boolean;
+
   @Field({ nullable: true })
   singleImage?: Upload;
 
@@ -87,12 +93,6 @@ export class CreateDistrictInput {
 export class CreateYellowPagesPhoneNumberInput {
   @Field(() => BigIntResolver, { description: 'Phone number' })
   phone_number: number;
-
-  @Field({
-    description: 'Emergency number if set to true',
-    defaultValue: false,
-  })
-  is_emergency: boolean;
 
   @Field(() => Int, { description: 'Yellow pages id', nullable: true })
   yellowpages?: number;
