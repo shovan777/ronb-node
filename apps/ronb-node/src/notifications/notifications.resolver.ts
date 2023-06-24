@@ -14,14 +14,22 @@ import ConnectionArgs from '@app/shared/common/pagination/types/connection.args'
 import { connectionFromArraySlice } from 'graphql-relay';
 import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
 import NotificationResponse from './notifications.response';
+import { Roles } from '@app/shared/common/decorators/roles.decorator';
+import { RolesGuard } from '@app/shared/common/guards/roles.guard';
+import { UseGuards } from '@nestjs/common';
+import { Role } from '@app/shared/common/enum/role.enum';
+import { MakePublic } from '@app/shared/common/decorators/public.decorator';
 
 @Resolver(() => NotificationDevice)
+@Roles(Role.Admin, Role.SuperAdmin)
+@UseGuards(RolesGuard)
 export class NotificationsResolver {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   // Mutation
   // to create Notification device
   @Mutation(() => NotificationDevice)
+  @MakePublic()
   async createNotificationDevice(
     @Args('CreateNotificationDeviceInput')
     createNotificationDeviceInput: CreateNotificationDeviceInput,
@@ -37,7 +45,9 @@ export class NotificationsResolver {
   @Mutation(() => Notification)
   async sendNotification(
     @Args('notificationInput') notificationInput: NotificationInput,
+    @User() user: number,
   ) {
+    checkUserAuthenticated(user);
     const dataObject = {
       category: 'urgent',
     };
@@ -49,7 +59,9 @@ export class NotificationsResolver {
   @Mutation(() => Notification)
   async sendNotificationNews(
     @Args('notificationNewsInput') notificationNewsInput: NotificationNewsInput,
+    @User() user: number,
   ) {
+    checkUserAuthenticated(user);
     return await this.notificationsService.sendNotificationNews(
       notificationNewsInput,
     );
@@ -58,6 +70,7 @@ export class NotificationsResolver {
   // Query
   // Query notification
   @Query(() => NotificationResponse, { name: 'notificationUser' })
+  @MakePublic()
   async findNotificationsUser(
     @Args() args: ConnectionArgs,
     @User() user: number,
@@ -87,6 +100,7 @@ export class NotificationsResolver {
 
   // Query notification all
   @Query(() => NotificationResponse, { name: 'notificationAll' })
+  @MakePublic()
   async findNotification(
     @Args() args: ConnectionArgs,
     @User() user: number,
