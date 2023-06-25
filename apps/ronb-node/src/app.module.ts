@@ -44,6 +44,7 @@ import { BloodBankModule } from './blood-bank/blood-bank.module';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
       path: process.env.GQL_PATH || '/graphql',
+      playground: process.env.ENABLE_PLAYGROUND === 'true' ? true : false,
       // uploads: {
       //   maxFileSize: 10000000, // 10 MB
       //   maxFiles: 5,
