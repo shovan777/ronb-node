@@ -33,6 +33,7 @@
     "proto:all": "npm run proto:news && npm run proto:recommender"
   },
   "dependencies": {
+    "@apollo/server": "^4.7.4",
     "@aws-sdk/client-s3": "^3.154.0",
     "@grpc/grpc-js": "^1.8.13",
     "@grpc/proto-loader": "^0.7.6",
@@ -65,11 +66,13 @@
     "geojson": "^0.5.0",
     "geojson-validation": "^1.0.2",
     "graphql": "^16.5.0",
+    "graphql-query-complexity": "^0.12.0",
     "graphql-relay": "^0.10.0",
     "graphql-scalars": "^1.20.1",
     "graphql-tools": "^8.3.0",
     "graphql-type-json": "^0.3.2",
     "graphql-upload": "^13.0.0",
+    "helmet": "^7.0.0",
     "mongoose": "^6.5.1",
     "pg": "^8.9.0",
     "pg-format": "^1.0.4",
