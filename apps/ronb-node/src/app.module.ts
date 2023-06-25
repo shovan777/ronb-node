@@ -21,6 +21,7 @@ import { SharedModule } from '@app/shared';
 import { redisStore } from 'cache-manager-redis-store';
 import { RedisClientOptions } from 'redis';
 import { BloodBankModule } from './blood-bank/blood-bank.module';
+import { ComplexityPlugin } from '@app/shared/common/plugins/complexity.plugin';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { BloodBankModule } from './blood-bank/blood-bank.module';
       sortSchema: true,
       path: process.env.GQL_PATH || '/graphql',
       playground: process.env.ENABLE_PLAYGROUND === 'true' ? true : false,
+      plugins: [],
       // uploads: {
       //   maxFileSize: 10000000, // 10 MB
       //   maxFiles: 5,
@@ -118,7 +120,7 @@ import { BloodBankModule } from './blood-bank/blood-bank.module';
     }),
   ],
   controllers: [AppController],
-  providers: [FilesService, AppService],
+  providers: [FilesService, AppService, ComplexityPlugin],
 })
 export class AppModule {
   // configure(consumer: MiddlewareConsumer) {
