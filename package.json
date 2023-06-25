@@ -70,6 +70,7 @@
     "graphql-tools": "^8.3.0",
     "graphql-type-json": "^0.3.2",
     "graphql-upload": "^13.0.0",
+    "helmet": "^7.0.0",
     "mongoose": "^6.5.1",
     "pg": "^8.9.0",
     "pg-format": "^1.0.4",
