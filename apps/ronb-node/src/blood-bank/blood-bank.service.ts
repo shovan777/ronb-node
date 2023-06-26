@@ -9,7 +9,6 @@ import {
   BaseDistrict,
   BaseProvince,
 } from '@app/shared/entities/address.entity';
-import { BloodGroup } from '@app/shared/common/enum/bloodGroup.enum';
 import { calculateUserAge } from '@app/shared/common/utils/calculateUserAge';
 import { checkIfObjectIsPublished } from '@app/shared/common/utils/checkPublishedState';
 import { Author } from '@app/shared/entities/users.entity';
@@ -26,7 +25,10 @@ import {
 import { DonerPaginateInterface } from '@app/shared/common/interfaces/user.interface';
 import { BloodRecordResponse } from './blood-bank.response';
 import { FilterBloodRequestInput } from './dto/filter-blood-group.input';
-import { getDateInterval } from '@app/shared/common/utils/dateInterval';
+import {
+  getDateInterval,
+  getMinuteInterval,
+} from '@app/shared/common/utils/dateInterval';
 import { removeIdFromArray } from '@app/shared/common/utils/utils';
 
 @Injectable()
@@ -118,6 +120,7 @@ export class BloodBankService {
         createdBy: user,
       },
       order: {
+        state: 'ASC',
         is_emergency: 'DESC',
         createdAt: 'DESC',
       },
@@ -174,15 +177,22 @@ export class BloodBankService {
 
   private checkDonationDate(donationDate: Date): Boolean {
     const inputDate = new Date(donationDate);
-    const utcDate = new Date(inputDate.toLocaleDateString());
-    const donationDuration = getDateInterval(utcDate);
+    const donationDuration = getMinuteInterval(inputDate);
 
-    if (donationDuration > 0) {
+    if (donationDuration > 30) {
       return true;
     }
     return false;
   }
 
+  private getCurrentTime() {
+    const currentTime = new Date();
+    const minutes = currentTime.getMinutes() + 30;
+    currentTime.setMinutes(minutes);
+
+    return currentTime;
+  }
+  
   async create(
     bloodBankInput: CreateBloodRequestInput,
     user: number,
@@ -199,8 +209,10 @@ export class BloodBankService {
       const donationDuration = getDateInterval(donationDate);
 
       if (!this.checkDonationDate(bloodBankInput.donationDate)) {
+        const currentTime = this.getCurrentTime()
+
         throw new ForbiddenException(
-          `Donation date must be selected from ${new Date()} or later.`,
+          `Donation date must be selected from ${currentTime} or later.`,
         );
       }
       if (
@@ -259,8 +271,10 @@ export class BloodBankService {
           (!updatedDonationDate &&
             !this.checkDonationDate(bloodRequest.donationDate))
         ) {
+          const currentTime = this.getCurrentTime()
+
           throw new ForbiddenException(
-            `Donation date must be selected from ${new Date()} or later.`,
+            `Donation date must be selected from ${currentTime} or later.`,
           );
         }
         //TODO: make separate services for address
