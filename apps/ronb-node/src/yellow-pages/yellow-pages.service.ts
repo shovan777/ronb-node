@@ -131,7 +131,7 @@ export class YellowPagesService {
     }
 
     if (filterYellowPagesInput.is_emergency) {
-      sqlQuery.andWhere('phone_number.is_emergency = :isEmergency', {
+      sqlQuery.andWhere('yellowpages.is_emergency = :isEmergency', {
         isEmergency: filterYellowPagesInput.is_emergency,
       });
     }
