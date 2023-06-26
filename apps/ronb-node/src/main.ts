@@ -6,10 +6,31 @@ import { graphqlUploadExpress } from 'graphql-upload';
 import { AppModule } from './app.module';
 import { ErrorLoggerInterceptor } from '@app/shared/common/interceptors/errorlogger.interceptor';
 import { SecurityMiddleware } from '@app/shared/common/middlewares/security.middleware';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+  app.use(
+    helmet({
+      crossOriginEmbedderPolicy: false,
+      contentSecurityPolicy: {
+        directives: {
+          imgSrc: [
+            `'self'`,
+            'data:',
+            'apollo-server-landing-page.cdn.apollographql.com',
+          ],
+          scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+          manifestSrc: [
+            `'self'`,
+            'apollo-server-landing-page.cdn.apollographql.com',
+          ],
+          frameSrc: [`'self'`, 'sandbox.embed.apollographql.com'],
+        },
+      },
+    }),
+  );
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));
   app.use(cookieParser());
   app.use(await new SecurityMiddleware().use);

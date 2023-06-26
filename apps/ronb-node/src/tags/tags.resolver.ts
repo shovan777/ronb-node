@@ -14,8 +14,12 @@ import { connectionFromArraySlice } from 'graphql-relay';
 import { NotFoundException } from '@nestjs/common';
 import { User } from '@app/shared/common/decorators/user.decorator';
 import { checkUserAuthenticated } from '@app/shared/common/utils/checkUserAuthentication';
+import { Roles } from '@app/shared/common/decorators/roles.decorator';
+import { Role } from '@app/shared/common/enum/role.enum';
+import { MakePublic } from '@app/shared/common/decorators/public.decorator';
 
 @Resolver(() => Tag)
+@Roles(Role.Admin, Role.SuperAdmin, Role.Publisher, Role.Writer)
 export class TagsResolver {
   constructor(private readonly tagsService: TagsService) {}
 
@@ -29,12 +33,14 @@ export class TagsResolver {
   }
 
   @Query(() => [Tag], { name: 'tags' })
+  @MakePublic()
   async findAll(): Promise<Tag[]> {
     return this.tagsService.findAll();
   }
 }
 
 @Resolver(() => NewsTaggit)
+@Roles(Role.Admin, Role.SuperAdmin, Role.Publisher, Role.Writer)
 export class NewsTaggitResolver {
   constructor(private readonly newsTaggitService: NewsTaggitService) {}
 
@@ -48,6 +54,7 @@ export class NewsTaggitResolver {
   }
 
   @Query(() => [NewsTaggit], { name: 'newsTaggit' })
+  @MakePublic()
   async findAll(): // @ArgsType('filter', {nullable:true})
   // filter?:
   Promise<NewsTaggit[]> {
@@ -57,7 +64,9 @@ export class NewsTaggitResolver {
   @Mutation(() => NewsTaggit)
   removeNewsTaggit(
     @Args('id', { type: () => Int }) id: number,
+    @User() user: number,
   ): Promise<NotFoundException | any> {
+    checkUserAuthenticated(user);
     return this.newsTaggitService.remove(id);
   }
 }

@@ -130,7 +130,8 @@ export class YellowPagesService {
       });
     }
 
-    if (filterYellowPagesInput.is_emergency) {
+    const { is_emergency } = filterYellowPagesInput;
+    if (typeof is_emergency == 'boolean') {
       sqlQuery.andWhere('yellowpages.is_emergency = :isEmergency', {
         isEmergency: filterYellowPagesInput.is_emergency,
       });
@@ -495,7 +496,7 @@ export class YellowPagesCategoryService {
     return this.yellowPagesCategoryRepository.findAndCount({
       take: limit,
       skip: offset,
-      relations: ['yellowpages']
+      relations: ['yellowpages'],
     });
   }
 
@@ -510,7 +511,7 @@ export class YellowPagesCategoryService {
     const yellowpagesCategory: YellowPagesCatgory =
       await this.yellowPagesCategoryRepository.findOne({
         where: { id: id },
-        relations: ['yellowpages']
+        relations: ['yellowpages'],
       });
     if (!yellowpagesCategory) {
       throw new NotFoundException(
@@ -530,8 +531,8 @@ export class YellowPagesCategoryService {
     });
     return {
       ...yellowPagesCategory,
-      ...updateYellowPagesCategoryInput
-    }
+      ...updateYellowPagesCategoryInput,
+    };
   }
 
   async remove(id: number): Promise<YellowPagesCatgory> {

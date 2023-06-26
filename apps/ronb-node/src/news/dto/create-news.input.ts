@@ -5,6 +5,7 @@ import {
   NewsCategory,
   NewsLanguage,
   NewsState,
+  NewsVariety,
 } from '@app/shared/entities/news.entity';
 
 // import GraphQLUpload from 'graphql-upload';
@@ -42,6 +43,8 @@ export class CreateNewsInput {
   pinned?: boolean;
   @Field(() => NewsState, { description: 'News Status', nullable: true })
   state?: NewsState;
+  @Field(() => NewsVariety, { description: 'News Variety', nullable: true })
+  variety?: NewsVariety;
   @Field(() => NewsLanguage, { description: 'News Language', nullable: false })
   language?: NewsLanguage;
 }
