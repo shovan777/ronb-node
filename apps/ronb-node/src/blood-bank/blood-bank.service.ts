@@ -127,6 +127,26 @@ export class BloodBankService {
     });
   }
 
+  async findMyRequestV2(
+    user: number,
+    limit: number,
+    offset: number,
+  ): Promise<[BloodRequest[], number]> {
+    return await this.bloodRequestRepository.findAndCount({
+      relations: ['address', 'address.district', 'address.province'],
+      where: {
+        createdBy: user,
+      },
+      order: {
+        state: 'ASC',
+        is_emergency: 'DESC',
+        createdAt: 'DESC',
+      },
+      take: limit,
+      skip: offset,
+    });
+  }
+
   async findOne(id: number): Promise<BloodRequest> {
     const bloodRequest: BloodRequest =
       await this.bloodRequestRepository.findOne({
@@ -209,7 +229,7 @@ export class BloodBankService {
       const donationDuration = getDateInterval(donationDate);
 
       if (!this.checkDonationDate(bloodBankInput.donationDate)) {
-        const currentTime = this.getCurrentTime()
+        const currentTime = this.getCurrentTime();
 
         throw new ForbiddenException(
           `Donation date must be selected from ${currentTime} or later.`,
@@ -271,7 +291,7 @@ export class BloodBankService {
           (!updatedDonationDate &&
             !this.checkDonationDate(bloodRequest.donationDate))
         ) {
-          const currentTime = this.getCurrentTime()
+          const currentTime = this.getCurrentTime();
 
           throw new ForbiddenException(
             `Donation date must be selected from ${currentTime} or later.`,
