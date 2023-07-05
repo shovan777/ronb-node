@@ -81,7 +81,7 @@ export class NewsService {
 
     if (newsInput.singleImage) {
       const imageFile: any = await newsInput.singleImage;
-      const file_name = imageFile.filename;
+      const file_name = `${Date.now()}_bg_${imageFile.filename}`;
       // const my_dir = this.configService.get('MEDIA_ROOT');
       // console.log(my_dir);
       const upload_dir = this.uploadDir;
@@ -258,6 +258,7 @@ export class NewsService {
       };
 
       if (updateNewsInput.singleImage) {
+        const prevBgImg = news.singleImage;
         const imageFile: any = await updateNewsInput.singleImage;
         const file_name = imageFile.filename;
         const upload_dir = this.uploadDir;
@@ -270,6 +271,9 @@ export class NewsService {
           ...newsInputData,
           singleImage: file_path,
         };
+        if (prevBgImg) {
+          this.fileService.removeFile(prevBgImg);
+        }
         news.singleImage = newsInputData.singleImage;
       }
 
