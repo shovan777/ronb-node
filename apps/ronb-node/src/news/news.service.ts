@@ -260,7 +260,7 @@ export class NewsService {
       if (updateNewsInput.singleImage) {
         const prevBgImg = news.singleImage;
         const imageFile: any = await updateNewsInput.singleImage;
-        const file_name = imageFile.filename;
+        const file_name = `${Date.now()}_bg_${imageFile.filename}`;
         const upload_dir = this.uploadDir;
         const file_path = await uploadFileStream(
           imageFile.createReadStream,
@@ -367,13 +367,18 @@ export class NewsService {
   async remove(id: number) {
     const news: News = await this.newsRepository.findOne({
       where: { id: id },
-      relations: { images: true, tags: true },
+      relations: { images: true, tags: true, category: true },
     });
     if (news) {
       const deleteImage = news.images.map(async (image) => {
-        return await this.newsImageRepository.delete(image.id);
+        // return await this.newsImageRepository.delete(image.id);
+        return await this.removeImage(image.id);
       });
       await Promise.all(deleteImage);
+
+      if (news.singleImage) {
+        this.fileService.removeFile(news.singleImage);
+      }
 
       const deleteNewsTaggit = news.tags.map(async (tag) => {
         return await this.newsTaggitService.remove(tag.id);
