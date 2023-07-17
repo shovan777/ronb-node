@@ -1001,6 +1001,9 @@ type Profile {
   """Has user approved for blood donation or not"""
   bloodGroupApproval: Boolean!
 
+  """Phone number for blood profile"""
+  bloodProfileNumber: String
+
   """Date of birth of the user"""
   dateOfBirth: String
 

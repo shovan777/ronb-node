@@ -196,10 +196,11 @@ export class BloodBankService {
   }
 
   private checkDonationDate(donationDate: Date): Boolean {
+    const maxRequestTimeRange = 7;
     const inputDate = new Date(donationDate);
     const donationDuration = getMinuteInterval(inputDate);
 
-    if (donationDuration > 30) {
+    if (donationDuration > maxRequestTimeRange) {
       return true;
     }
     return false;
@@ -212,7 +213,7 @@ export class BloodBankService {
 
     return currentTime;
   }
-  
+
   async create(
     bloodBankInput: CreateBloodRequestInput,
     user: number,

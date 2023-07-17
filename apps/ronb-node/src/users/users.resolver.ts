@@ -26,6 +26,7 @@ export const getAuthor = async (service, id: number): Promise<Author> => {
           bloodGroup: user.profile?.blood_group,
           bloodGroupApproval: user.profile?.blood_group_approval,
           dateOfBirth: user.profile?.date_of_birth,
+          bloodProfileNumber: user.profile?.blood_number,
         },
       };
       return author;
@@ -78,6 +79,7 @@ export const getDoners = async (
             bloodGroup: user.profile?.blood_group,
             bloodGroupApproval: user.profile?.blood_group_approval,
             dateOfBirth: user.profile?.date_of_birth,
+            bloodProfileNumber: user.profile?.blood_number,
             totalDonation: totalDonation,
             totalAccepted: totalAccepted,
           },
