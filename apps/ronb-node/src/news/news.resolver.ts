@@ -205,7 +205,7 @@ export class NewsResolver {
   @MakePublic()
   async images(@Parent() news: News) {
     const { id } = news;
-    if (news.images) {
+    if (news.hasOwnProperty('images')) {
       return news.images;
     }
     return await this.newsService.findImagesofNews(id);
@@ -239,6 +239,9 @@ export class NewsResolver {
   @MakePublic()
   async category(@Parent() news: News) {
     const { id } = news;
+    if (news.hasOwnProperty('category')) {
+      return news.category;
+    }
     return await this.newsService.findCategoryofNews(id);
   }
 
@@ -246,6 +249,9 @@ export class NewsResolver {
   @MakePublic()
   async tags(@Parent() news: News) {
     const { id } = news;
+    if (news.hasOwnProperty('tags')) {
+      return news.tags;
+    }
     return await this.newsTaggitService.findAllByNews(id);
   }
 
