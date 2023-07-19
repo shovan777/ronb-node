@@ -102,7 +102,7 @@ export class BloodRequestSubsriber
           entity.createdBy,
         );
         console.log(
-          `(Notification to user ${requestor.id}): User ${doner.profile.bloodProfileNumber} has accepted to donate blood.`,
+          `(Notification to user ${requestor.id}): User with phone number ${doner.profile.bloodProfileNumber} has accepted to donate blood.`,
         );
         this.notificationService.sendNotificationUser(
           {
