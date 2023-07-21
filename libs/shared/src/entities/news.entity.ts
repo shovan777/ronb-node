@@ -123,7 +123,11 @@ export class News {
   @OneToMany(() => NewsImage, (newsImage) => newsImage.news, { nullable: true })
   images?: NewsImage[];
 
-  @Field({ description: 'News main image.', nullable: true })
+  @Field({
+    description: 'News main image.',
+    nullable: true,
+    middleware: [pathFinderMiddleware],
+  })
   @Column({ nullable: true })
   singleImage?: string;
 
