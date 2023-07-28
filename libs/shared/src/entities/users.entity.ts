@@ -24,6 +24,12 @@ export class Profile {
   dateOfBirth?: string;
 
   @Field(() => String, {
+    description: 'Phone number for blood profile',
+    nullable: true,
+  })
+  bloodProfileNumber: string;
+
+  @Field(() => String, {
     description: 'Url of the profile picture',
     nullable: true,
     middleware: [pathFinderMiddleware],

@@ -8,11 +8,11 @@ export function removeIdFromArray<T>(array_: T[], item: T): T[] {
 }
 
 export function getMaxDate(): Date {
-  const timeInterval = 1; //month
+  const timeInterval = 7; //days
   const currentDate = new Date();
   const maxDate = new Date();
 
-  maxDate.setMonth(currentDate.getMonth() + timeInterval);
+  maxDate.setDate(currentDate.getDate() + timeInterval);
 
   return maxDate;
 }
