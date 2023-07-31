@@ -253,7 +253,7 @@ export class NewsService {
       let newsInputData: any = {
         // ...news,
         ...updateNewsInput,
-        singleImage: null,
+        // singleImage: null,
         // images: null,
       };
 
