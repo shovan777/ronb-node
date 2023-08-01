@@ -38,6 +38,10 @@ export class YellowPages extends CreatorBaseEntity {
   @Column({ nullable: true })
   description?: string;
 
+  @Field(() => Boolean, { description: '' })
+  @Column({ type: 'boolean', default: false })
+  is_emergency: boolean;
+  
   @Field({
     description: 'Yellow Pages main image',
     nullable: true,
@@ -201,10 +205,6 @@ export class YellowPagesPhoneNumber {
   @Field(() => BigIntResolver, { description: 'Phone number' })
   @Column({ type: 'bigint' })
   phone_number: number;
-
-  @Field(() => Boolean, { description: '' })
-  @Column({ type: 'boolean', default: false })
-  is_emergency: boolean;
 
   @Field(() => YellowPages, { description: '' })
   @ManyToOne(() => YellowPages, (yellowpages) => yellowpages.phone_number, {

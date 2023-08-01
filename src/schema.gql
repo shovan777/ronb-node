@@ -478,6 +478,9 @@ input CreateYellowPagesInput {
   """email for yellow pages"""
   email: [CreateYellowPagesEmailInput!]
 
+  """Emergency yellow page if set to true"""
+  is_emergency: Boolean = false
+
   """Yellow Pages name"""
   name: String!
 
@@ -490,9 +493,6 @@ input CreateYellowPagesInput {
 }
 
 input CreateYellowPagesPhoneNumberInput {
-  """Emergency number if set to true"""
-  is_emergency: Boolean = false
-
   """Phone number"""
   phone_number: BigInt!
 
@@ -1610,6 +1610,9 @@ input UpdateYellowPagesInput {
   """email for yellow pages"""
   email: [CreateYellowPagesEmailInput!]
 
+  """Emergency yellow page if set to true"""
+  is_emergency: Boolean = false
+
   """Yellow Pages name"""
   name: String
 
@@ -1622,9 +1625,6 @@ input UpdateYellowPagesInput {
 }
 
 input UpdateYellowPagesPhoneNumberInput {
-  """Emergency number if set to true"""
-  is_emergency: Boolean = false
-
   """Phone number"""
   phone_number: BigInt
 
@@ -1719,6 +1719,9 @@ type YellowPages {
 
   """id field for int"""
   id: Int!
+
+  """"""
+  is_emergency: Boolean!
 
   """Yellow Pages name"""
   name: String!
@@ -1843,9 +1846,6 @@ type YellowPagesPageInfo {
 type YellowPagesPhoneNumber {
   """id field for int"""
   id: Int!
-
-  """"""
-  is_emergency: Boolean!
 
   """Phone number"""
   phone_number: BigInt!

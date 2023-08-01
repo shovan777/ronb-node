@@ -132,7 +132,7 @@ export class YellowPagesService {
 
     const { is_emergency } = filterYellowPagesInput;
     if (typeof is_emergency == 'boolean') {
-      sqlQuery.andWhere('phone_number.is_emergency = :isEmergency', {
+      sqlQuery.andWhere('yellowpages.is_emergency = :isEmergency', {
         isEmergency: filterYellowPagesInput.is_emergency,
       });
     }
@@ -180,7 +180,7 @@ export class YellowPagesService {
     const original_filename = imageFile.filename.split('.')[0];
     const file_name = `${
       yellowpagesInput.id
-    }-${original_filename}-${new Date()}.${img_ext}`;
+    }-${original_filename}-${Date.now()}.${img_ext}`;
 
     const upload_dir = this.uploadDir;
     const file_path = await uploadFileStream(
@@ -243,14 +243,22 @@ export class YellowPagesService {
       await this.yellowPagesRepository.save(yellowpagesData);
     }
 
-    await Promise.all(
-      yellowpagesInput.phone_number.map(async (phone_number) => {
-        await this.yellowPagesPhoneNumberRepository.save({
-          ...phone_number,
-          yellowpages: yellowpagesData,
-        });
-      }),
-    );
+    const { is_emergency, phone_number } = yellowpagesInput;
+
+    if (is_emergency && phone_number.length > 1) {
+      throw new ForbiddenException(
+        `Emergency yellow pages cannot have more that one phone number`,
+      );
+    } else {
+      await Promise.all(
+        phone_number.map(async (phone_number) => {
+          await this.yellowPagesPhoneNumberRepository.save({
+            ...phone_number,
+            yellowpages: yellowpagesData,
+          });
+        }),
+      );
+    }
 
     if (yellowpagesInput.address) {
       await Promise.all(
@@ -332,6 +340,12 @@ export class YellowPagesService {
         ...updateYellowPagesInput,
       };
 
+      const { is_emergency } = updateYellowPagesInput;
+      if (is_emergency && yellowpages.phone_number.length > 1) {
+        throw new ForbiddenException(
+          `Emergency yellow pages cannot have more that one phone number`,
+        );
+      }
       const category_id = updateYellowPagesInput.category;
 
       if (category_id) {
